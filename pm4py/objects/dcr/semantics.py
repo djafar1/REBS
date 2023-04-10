@@ -19,13 +19,15 @@ def execute(e, dcr, cmd_print=False):
 
 def time_step(time, dcr): # pendingDeadline can be 0 when excluded
     deadline = find_next_deadline(dcr)
-    if deadline == None or deadline - time >= 1:
+    executedTime = deepcopy(dcr['marking']['executedTime'])
+    if deadline == None or deadline - time > 0:
         for e in dcr['marking']['pendingDeadline']:
             dcr['marking']['pendingDeadline'][e] =  max(dcr['marking']['pendingDeadline'][e] - time, 0)
         for e in dcr['conditionsForDelays']:
             for (e_prime, k) in dcr['conditionsForDelays'][e]:
-                if e_prime in dcr['marking']['executed']:
-                    dcr['marking']['executedTime'][e_prime] = min(dcr['marking']['executedTime'][e_prime] + time, max_executed_time(e_prime, dcr))
+                if e_prime in dcr['marking']['executed'] and dcr['marking']['executedTime'][e_prime] + time > executedTime[e_prime]:
+                    executedTime[e_prime] = min(dcr['marking']['executedTime'][e_prime] + time, max_executed_time(e_prime, dcr))
+        dcr['marking']['executedTime'] = executedTime
     else:
         print('The time step is not allowed, you are gonna miss a deadline')
     
@@ -53,14 +55,6 @@ def max_executed_time(event, dcr):
                 if max_delay == None or k > max_delay:
                     max_delay = k
     return max_delay
-    
-#def time_step(time, dcr): # pendingDeadline can be 0 when excluded
-#    deadline = find_next_deadline(dcr)
-#    if time - dcr['marking']['pendingDeadline'][deadline] < 0:
-#        for e in dcr['marking']['pendingDeadline']:
-#            dcr['marking']['pendingDeadline'][e] -= time
-#    else:
-#        print(f'[!] Event {e} does not exist!') if cmd_print else None
         
 def is_accepting(dcr):
     pend_incl = dcr['marking']['pending'].intersection(dcr['marking']['included'])
