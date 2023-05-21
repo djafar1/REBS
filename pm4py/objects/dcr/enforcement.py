@@ -1,5 +1,5 @@
-import os
-os.chdir('C:/Users/timei/Documents/Datalogi/Semester6/Bachelor/pm4py-dcr')
+import sys
+sys.path.insert(1, '/Users/timei/Documents/Datalogi/Semester6/Bachelor/pm4py-dcr')
 
 from copy import deepcopy
 from collections import defaultdict
@@ -12,8 +12,19 @@ class IGraph:
         self.from_dcr_to_graph()
         
         self.reachableGraph = {}
-        self.create_reachable_graph()
-    
+        self.create_reachable_graph(self.graph, self.reachableGraph)
+        
+        self.oppGraph = {}
+        self.create_opp_graph()
+        
+        self.executeGraph = {}
+        self.create_reachable_graph(self.oppGraph, self.executeGraph)
+        self.topological_sort()
+        
+        # This list contain all the nodes related to a reponse deadline
+        self.responseList = []
+        self.create_list_deadlines()
+        
     # This function add an edge between u and v in the graph g
     def add_edge(self, u, v, g):
         if u not in g:
@@ -21,6 +32,21 @@ class IGraph:
             
         if v not in g[u]:
             g[u].append(v)
+    
+    # This function gives the list of events with potential deadline
+    def create_list_deadlines(self):
+        self.responseList.clear()
+        for e in self.dcr['responseToDeadlines']:
+            for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
+                self.responseList.append(e_prime)
+            self.responseList.append(e)
+    
+    # This function creates the opposite relations in the self.dcr
+    def create_opp_graph(self):
+        self.oppGraph.clear()
+        for e in self.graph:
+            for e_prime in self.graph[e]:
+                self.add_edge(e_prime, e, self.oppGraph)
     
     # This function transform self.dcr to a directed graph containing
     # only conditions and milestones as relations
@@ -40,32 +66,16 @@ class IGraph:
     
     # This method is used in create_reachable_graph such that we can
     # find every reachable event (node) from the corresponding event
-    def reachable_nodes(self, v, visited, recStack):
-        # Marks the event as visited
-        visited[v] = True
-        
+    def reachable_nodes(self, v, recStack, graph, reachableGraph):
         # Appends the given event to the recusion stack
         recStack.append(v)
         
         # if v is in the graph then we know it has adjacent nodes
-        if v in self.graph:
-            for adjacent in self.graph[v]:
-                
-                # If the current adjacent node is not visited then
-                # we add the adjacent node to every node in recStack
-                # and recursivly call the function on the adjacent node
-                if visited[adjacent] == False:
-                    for e in recStack:
-                        self.add_edge(e, adjacent, self.reachableGraph)
-                    self.reachable_nodes(adjacent, visited, recStack)
-                
-                # If we have already visited the adjacent node then we add
-                # every reachable node from the adjacent node plus it self
-                elif visited[adjacent] == True:
-                    if adjacent in self.reachableGraph:
-                        for e in self.reachableGraph[adjacent]:
-                            self.add_edge(v, e, self.reachableGraph)
-                    self.add_edge(v, adjacent, self.reachableGraph)
+        if v in graph:
+            for adjacent in graph[v]:
+                for e in recStack:
+                    self.add_edge(e, adjacent, reachableGraph)
+                self.reachable_nodes(adjacent, recStack, graph, reachableGraph)
         
         # When we are done looking at the nodes adjacent nodes, 
         # then we need to remove it for the recursive stack
@@ -74,25 +84,51 @@ class IGraph:
     # Creates a reachable graph called self.reachableGraph, which is a 
     # dictionary containing every event and for each event is a list of
     # reachable events from the self.graph
-    def create_reachable_graph(self):
+    def create_reachable_graph(self, graph, reachableGraph):
         if not self.is_cyclic():
-            self.reachableGraph.clear()
-            visited = {}
+            reachableGraph.clear()
             
             # Gives the current nodes on the path
             recStack = []
             
-            # Instantiate every visited events as false
-            for e in self.dcr['events']:
-                visited[e] = False
-            
             # Loops through every node in visited (which correnspond to every event in the dcr)
-            for node in visited:
-                if visited[node] == False:
-                    self.reachable_nodes(node, visited, recStack)
+            for node in self.dcr['events']:
+                self.reachable_nodes(node, recStack, graph, reachableGraph)
   
         else:
             print("Can not create reachable graph because the inhibitor graph contain cycles")
+    
+    # A recursive function used by topologicalSort
+    def topological_sort_util(self, v, visited, stack):
+ 
+        # Mark the current node as visited.
+        visited[v] = True
+ 
+        # Recur for all the vertices adjacent to this vertex
+        if v in self.executeGraph:
+            for i in self.executeGraph[v]:
+                if visited[i] == False:
+                    self.topological_sort_util(i, visited, stack)
+        stack.append(v)
+ 
+    # The function to do Topological Sort. It uses recursive
+    # topologicalSortUtil()
+    def topological_sort(self):
+        for e in self.executeGraph:
+            # Mark all the vertices as not visited
+            visited = {}
+            stack = []
+            for e_prime in self.executeGraph[e]:
+                visited[e_prime] = False
+ 
+            # Call the recursive helper function to store Topological
+            # Sort starting from all vertices one by one
+            for i in visited:
+                if visited[i] == False:
+                    self.topological_sort_util(i, visited, stack)
+
+            self.executeGraph[e] = stack
+    
     
     # This method is a helper function for is_cyclic used to find cycles
     def is_cyclic_util(self, v, visited, recStack):
@@ -131,33 +167,30 @@ class IGraph:
                     return True
         return False
     
-    # This function checks if repsonses and includes to relations
-    # is reachable in self.reachableGraph, and return false if it holds
     def check_for_responses(self):
         for e in self.dcr['responseToDeadlines']:
             for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
                 if e_prime not in self.reachableGraph[e]:
-                    return True
+                    return False
         for e in self.dcr['responseTo']:
             for e_prime in self.dcr['responseTo'][e]:
                 if e_prime not in self.reachableGraph[e]:
-                    return True
+                    return False
         for e in self.dcr['includesTo']:
             for e_prime in self.dcr['includesTo'][e]:
                 if e_prime not in self.reachableGraph[e]:
-                    return True
-        return False
+                    return False
+        return True
     
-    # This function checks if a given node (event) has a deadline
-    # and a delay, and return true if so, otherwise false is returned
     def check_for_delays(self):
-        for e in self.dcr['conditionsForDelays']:
-            for e_prime in self.dcr['responseToDeadlines']:
-                for (adjacent, k) in self.dcr['responseToDeadlines'][e_prime]:
-                    if adjacent == e:
-                        return True
-        return False           
+        for r in self.responseList:
+            if r in self.executeGraph:
+                for e in self.dcr['conditionsForDelays']:
+                    if e in self.executeGraph[r] or e == r:
+                        return False 
+        return True
 
+        
 class Enforcement_mechanisme:
     def __init__(self, dcr):
         self.dcr = dcr
@@ -166,22 +199,47 @@ class Enforcement_mechanisme:
     # This function checks if the dcr graph is enforceable
     # based on definition 60 in Proactive enforcement
     def is_enforceable(self):
-        return not (self.iGraph.is_cyclic() or self.iGraph.check_for_responses() or self.iGraph.check_for_delays())
+        return not self.iGraph.is_cyclic() and self.iGraph.check_for_responses() and self.iGraph.check_for_delays()
     
-    # Ths function either deny or grant 
+    # The function either deny or grant 
     def peform_controllable_event(self, event):
         if dcr_semantics.is_enabled(event, self.dcr):
             dcr_semantics.execute(event, self.dcr)
             return "Grant"
         return "Deny"
     
-    # This function return a list of urgent events which must be executed
-    def check_urgent_deadlines(self):
+    def get_urgent_deadlines(self):
         urgentDeadlines = []
         for e in self.dcr['marking']['pendingDeadline']:
             if self.dcr['marking']['pendingDeadline'][e] == 0:
                 urgentDeadlines.append(e)
         return urgentDeadlines
+    
+    # This function return a list of events which must be executed
+    def check_urgent_deadlines(self):
+        urgentDeadlines = self.get_urgent_deadlines()
+        executeList = []
+        if len(urgentDeadlines) > 0:
+            for e in urgentDeadlines:
+                if e not in executeList:
+                    #print("e: " + e)
+                    print(e + " " + str(dcr_semantics.is_enabled(e, self.dcr)))
+                    if dcr_semantics.is_enabled(e, self.dcr):
+                        dcr_semantics.execute(e, self.dcr)
+                        executeList.append(e)
+                        print("the urgent event " + e + " is now executed")
+                    else:
+                        for e_prime in self.iGraph.executeGraph[e]:
+                            print("e_prime: " + e_prime)
+                            #print("Im here with e: " + e)
+                            if e_prime in self.dcr['marking']['pending'] or e_prime not in self.dcr['marking']['executed']:
+                                dcr_semantics.execute(e_prime, self.dcr)
+                                executeList.append(e_prime)
+                                print(e_prime, "is now executed")
+                        dcr_semantics.execute(e, self.dcr)
+                        executeList.append(e)
+                        print("the urgent event " + e + " is now executed")
+        return executeList
                     
             
             

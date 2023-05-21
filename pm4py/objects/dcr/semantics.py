@@ -30,6 +30,8 @@ def time_step(time, dcr, dict_exe):
 def find_next_deadline(dcr):
     nextDeadline = None
     for e in dcr['marking']['pendingDeadline']:
+        if (nextDeadline == None and e not in dcr ['marking']['included']):
+            continue
         if (nextDeadline == None and e in dcr['marking']['included']) or (dcr['marking']['pendingDeadline'][e] < nextDeadline and e in dcr['marking']['included']):
             nextDeadline = dcr['marking']['pendingDeadline'][e]
     return nextDeadline
@@ -39,22 +41,23 @@ def find_next_delay(dcr):
     for e in dcr['conditionsForDelays']:
         for (e_prime, k) in dcr['conditionsForDelays'][e]:
             if e_prime in dcr['marking']['executed'] and e_prime in dcr['marking']['included']:
-                if nextDelay == None or k - dcr['marking']['executedTime'][e_prime] < nextDelay:
-                    nextDelay = k - dcr['marking']['executedTime'][e_prime]
+                delay = k - dcr['marking']['executedTime'][e_prime]
+                if delay > 0 and (nextDelay == None or delay < nextDelay):
+                    nextDelay = delay
     return nextDelay
 
 def create_max_executed_time_dict(dcr):
     d = {}
     for e in dcr['events']:
         d[e] = max_executed_time(e, dcr)
-    d
+    return d
 
 def max_executed_time(event, dcr):
-    maxDelay = None
+    maxDelay = 0
     for e in dcr['conditionsForDelays']:
         for (e_prime, k) in dcr['conditionsForDelays'][e]:
             if e_prime == event:
-                if maxDelay == None or k > maxDelay:
+                if k > maxDelay:
                     maxDelay = k
     return maxDelay
         
@@ -102,6 +105,8 @@ def weak_execute(e, dcr):
     dcr['marking']['executed'].add(e)
     dcr['marking']['executedTime'][e] = 0
     
+    if e in dcr['marking']['pendingDeadline']:
+        dcr['marking']['pendingDeadline'].pop(e) 
     if e in dcr['excludesTo']:
         for e_prime in dcr['excludesTo'][e]:
             dcr['marking']['included'].discard(e_prime)
