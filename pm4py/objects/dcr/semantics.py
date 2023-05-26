@@ -24,8 +24,10 @@ def time_step(time, dcr, dict_exe):
             dcr['marking']['pendingDeadline'][e] =  max(dcr['marking']['pendingDeadline'][e] - time, 0)
         for e in dcr['marking']['executed']:
             dcr['marking']['executedTime'][e] = min(dcr['marking']['executedTime'][e] + time, dict_exe[e])
+        return (True, time)
     else:
         print('The time step is not allowed, you are gonna miss a deadline')
+        return (False, time)
     
 def find_next_deadline(dcr):
     nextDeadline = None
