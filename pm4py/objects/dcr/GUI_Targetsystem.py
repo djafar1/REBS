@@ -11,10 +11,10 @@ from pm4py.objects.dcr import enforcement as dcr_enforcement
 from pm4py.objects.dcr import semantics as dcr_semantics
 
 dcr = {
-    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
     'labels': set(),
     'labelMapping': set(),
-    'conditionsFor': {'delete': {'release', 'activity5'}, 'unarchive':{'release'}, 'activity5':{'archive'}, 'archive':{'release'}, 'a':{'activity5'}, 'b':{'delete'}, 'a':{'b'}, 'b':{'a'}},  # this should be a dict with events as keys and sets as values
+    'conditionsFor': {'delete': {'release'}, 'unarchive':{'release'}, 'archive':{'release'}},  # this should be a dict with events as keys and sets as values
     'milestonesFor': {'delete': {'archive'}},
     'responseTo': {},
     'noResponseTo': {},
@@ -30,7 +30,147 @@ dcr = {
                 }
 }
 
-enforcement = dcr_enforcement.Enforcement_mechanisme(dcr)
+dcr_cyclic_inhib = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'release': {'delete'}, 'unarchive':{'release'}, 'archive':{'release'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+}
+
+dcr_response_cycle_inhib = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'delete': {'release'}, 'unarchive':{'release'}, 'archive':{'release'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {'archive':{'archive'}},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+}
+
+dcr_response_inhib = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'delete': {'release', 'activity5'}, 'unarchive':{'release'}, 'activity5':{'archive'}, 'archive':{'release'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {'activity5': {'release'}},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+}
+
+dcr_includes_inhib = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'delete': {'release', 'activity5'}, 'unarchive':{'release'}, 'activity5':{'archive'}, 'archive':{'release'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}, 'delete':{'archive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+}
+
+dcr_delay_inhib = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'a', 'b'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'delete': {'release', 'a'}, 'unarchive':{'release'}, 'archive':{'release'}, 'a':{'archive'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}, 'a':{('b', 200)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'a', 'b'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+} 
+
+dcr_1 = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'delete': {'release', 'activity5'}, 'unarchive':{'release'}, 'activity5':{'archive'}, 'archive':{'release'}, 'a':{'activity5'}, 'b':{'delete'}, 'a':{'b'}, 'b':{'a'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+}
+
+dcr_2 = {
+    'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
+    'labels': set(),
+    'labelMapping': set(),
+    'conditionsFor': {'delete': {'release', 'activity5', 'b'}, 'unarchive':{'release'}, 'activity5':{'archive'}, 'archive':{'release'}, 'a':{'activity5'}, 'b':{'a'}},  # this should be a dict with events as keys and sets as values
+    'milestonesFor': {'delete': {'archive'}},
+    'responseTo': {},
+    'noResponseTo': {},
+    'includesTo': {'release':{'archive', 'delete', 'unarchive'}},
+    'excludesTo': {'readmit':{'unarchive', 'archive', 'delete'}},
+    'conditionsForDelays': {'unarchive':{('archive', 2920)}},  # this should be a dict with events as keys and tuples as values
+    'responseToDeadlines': {'release':{('archive', 14), ('delete', 14)}},
+    'marking': {'executed': set(),
+                'included': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
+                'pending': set(),
+                'executedTime': {}, # Gives the time since a event was executed
+                'pendingDeadline': {} # The deadline until an event must be executed 
+                }
+}
+
+enforcement = dcr_enforcement.Enforcement_mechanisme(dcr_2)
 dict_exe = dcr_semantics.create_max_executed_time_dict(enforcement.dcr)
 
 window = tk.Tk()
@@ -64,12 +204,12 @@ def insert_line(text):
         else:
             text = "Deny peforming " + text
     mylist.insert(tk.END, text)
-    mylist.yview(tk.END)
     urgentDeadlines = enforcement.check_urgent_deadlines()
     if len(urgentDeadlines) > 0:
         print(urgentDeadlines)
         for e in urgentDeadlines:
             mylist.insert(tk.END, e + " is executed because of urgent event")
+    mylist.yview(tk.END)
     deadline_label.config(text= "Next deadline: " + str(dcr_semantics.find_next_deadline(enforcement.dcr)))
     delay_label.config(text="Next delay: " + str(dcr_semantics.find_next_delay(enforcement.dcr)))
 

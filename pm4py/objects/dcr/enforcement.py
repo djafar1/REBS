@@ -12,13 +12,18 @@ class IGraph:
         self.oppGraph = self.create_opp_graph(self.graph)
 
         self.graph = self.from_graph_to_igraph()
-        self.events_in_igraph = self.find_events_in_graph(self.graph)
-        self.oppGraph = self.create_opp_graph(self.graph)
-        
+        print("Igraph: " + str(self.graph))
+        self.eventsInIgraph = self.find_events_in_graph(self.graph)
+        print("eventsInIgraph: " + str(self.eventsInIgraph))
+
         self.reachableGraph = self.create_reachable_graph(self.graph)
-        
+        print("reachableGraph: " + str(self.reachableGraph))
+
+        self.oppGraph = self.create_opp_graph(self.graph)
         self.executeGraph = self.create_reachable_graph(self.oppGraph)
         self.topological_sort()
+        print("executeGraph: " + str(self.executeGraph))
+        print("oppGrapg: " + str(self.oppGraph))
         
     # This function add an edge between u and v in the graph g
     def add_edge(self, u, v, g):
@@ -70,8 +75,8 @@ class IGraph:
 
     def from_graph_to_igraph(self):
         if not self.is_cyclic():
-            busy_events = self.find_busy_events()
-            new_graph = {}
+            busyEvents = self.find_busy_events()
+            newGraph = {}
 
             #visited = {}
             #recStack = {}
@@ -80,34 +85,34 @@ class IGraph:
             #    visited[e] = False
             #    recStack[e] = False
 
-            for e in busy_events:
-                self.from_graph_to_igraph_util(e, new_graph)
+            for e in busyEvents:
+                self.from_graph_to_igraph_util(e, newGraph)
 
-            return new_graph
+            return newGraph
         return self.graph
     
     def find_events_in_graph(self, graph):
         events = []
         for e in graph:
             for e_prime in graph[e]:
-                if e_prime not in graph[e]:
+                if e_prime not in events:
                     events.append(e_prime)
-            if e not in graph[e]:
+            if e not in events:
                 events.append(e)
         return events
 
     def find_busy_events(self):
-        busy_events = []
+        busyEvents = []
         for e in self.dcr['responseTo']:
             for e_prime in self.dcr['responseTo'][e]:
-                if e_prime not in busy_events:
-                    busy_events.append(e_prime)
+                if e_prime not in busyEvents:
+                    busyEvents.append(e_prime)
 
         for e in self.dcr['responseToDeadlines']:
             for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
-                if e_prime not in busy_events:
-                    busy_events.append(e_prime)
-        return busy_events
+                if e_prime not in busyEvents:
+                    busyEvents.append(e_prime)
+        return busyEvents
 
 
     # This method is used in create_reachable_graph such that we can
@@ -132,15 +137,14 @@ class IGraph:
     # reachable events from the self.graph
     def create_reachable_graph(self, graph):
         reachableGraph = {}
-        events_in_graph = self.find_events_in_graph(graph)
+        eventsInGraph = self.find_events_in_graph(graph)
         if not self.is_cyclic():
-            busyEvents = self.find_busy_events()
 
             # Gives the current nodes on the path
             recStack = []
             
             # Loops through every node in visited (which correnspond to every event in the dcr)
-            for node in events_in_graph:
+            for node in eventsInGraph:
                 self.reachable_nodes(node, recStack, graph, reachableGraph)
   
         else:
@@ -155,8 +159,8 @@ class IGraph:
         visited[v] = True
  
         # Recur for all the vertices adjacent to this vertex
-        if v in self.executeGraph and not self.is_cyclic:
-            for i in self.executeGraph[v]:
+        if v in self.oppGraph:
+            for i in self.oppGraph[v]:
                 if visited[i] == False:
                     self.topological_sort_util(i, visited, stack)
         stack.append(v)
@@ -164,20 +168,21 @@ class IGraph:
     # The function to do Topological Sort. It uses recursive
     # topologicalSortUtil()
     def topological_sort(self):
-        for e in self.executeGraph:
-            # Mark all the vertices as not visited
-            visited = {}
-            stack = []
-            for e_prime in self.executeGraph[e]:
-                visited[e_prime] = False
+        if self.is_cyclic() == False:
+            for e in self.executeGraph:
+                # Mark all the vertices as not visited
+                visited = {}
+                stack = []
+                for e_prime in self.executeGraph[e]:
+                    visited[e_prime] = False
  
-            # Call the recursive helper function to store Topological
-            # Sort starting from all vertices one by one
-            for i in visited:
-                if visited[i] == False:
-                    self.topological_sort_util(i, visited, stack)
+                # Call the recursive helper function to store Topological
+                # Sort starting from all vertices one by one
+                for i in visited:
+                    if visited[i] == False:
+                        self.topological_sort_util(i, visited, stack)
 
-            self.executeGraph[e] = stack
+                self.executeGraph[e] = stack
     
     
     # This method is a helper function for is_cyclic used to find cycles
@@ -223,24 +228,24 @@ class IGraph:
     def check_for_responses(self):
         for e in self.dcr['responseToDeadlines']:
             for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
-                if e in self.events_in_igraph and e_prime in self.events_in_igraph:
+                if e in self.eventsInIgraph and e_prime in self.eventsInIgraph:
                     if (e in self.reachableGraph and e_prime not in self.reachableGraph[e]) or e not in self.reachableGraph:
                         return False
         for e in self.dcr['responseTo']:
             for e_prime in self.dcr['responseTo'][e]:
-                if e in self.events_in_igraph and e_prime in self.events_in_igraph:
+                if e in self.eventsInIgraph and e_prime in self.eventsInIgraph:
                     if (e in self.reachableGraph and e_prime not in self.reachableGraph[e]) or e not in self.reachableGraph:
                         return False
         for e in self.dcr['includesTo']:
             for e_prime in self.dcr['includesTo'][e]:
-                if e in self.events_in_igraph and e_prime in self.events_in_igraph:
+                if e in self.eventsInIgraph and e_prime in self.eventsInIgraph:
                     if (e in self.reachableGraph and e_prime not in self.reachableGraph[e]) or e not in self.reachableGraph:
                         return False
         return True
     
     def check_for_delays(self):
         for e in self.dcr['conditionsForDelays']:
-            if e in self.events_in_igraph:
+            if e in self.eventsInIgraph:
                 return False
         return True
 
@@ -287,7 +292,7 @@ class Enforcement_mechanisme:
                             for e_prime in self.iGraph.executeGraph[e]:
                                 print("e_prime: " + e_prime)
                                 #print("Im here with e: " + e)
-                                if e_prime in self.dcr['marking']['pending'] or e_prime not in self.dcr['marking']['executed']:
+                                if e_prime in self.dcr['marking']['pending'] or (e_prime not in self.dcr['marking']['executed'] and e_prime in self.dcr['marking']['included']):
                                     dcr_semantics.execute(e_prime, self.dcr)
                                     executeList.append(e_prime)
                                     print(e_prime, "is now executed")
