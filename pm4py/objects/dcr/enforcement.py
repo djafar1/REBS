@@ -67,20 +67,13 @@ class IGraph:
                 self.add_edge(e, v, graph)
                 self.from_graph_to_igraph_util(e, graph)
 
-    # This function use self.graph to create an inhibitor graph
-    # if the inihibitor graph does not contain cycles the inhibitor graph is returned
-    # otherwise the condition and milestone graph is returned to show it violates enforecable
+    # This function uses self.graph to create an inhibitor graph
+    # if the inhibitor graph does not contain cycles the inhibitor graph is returned
+    # otherwise the condition and milestone graph are returned to show it violates enforceable
     def from_graph_to_igraph(self):
         if not self.is_cyclic():
             busyEvents = self.find_busy_events()
             newGraph = {}
-
-            #visited = {}
-            #recStack = {}
-            #
-            #for e in self.dcr['events']:
-            #    visited[e] = False
-            #    recStack[e] = False
 
             for e in busyEvents:
                 self.from_graph_to_igraph_util(e, newGraph)
@@ -170,8 +163,7 @@ class IGraph:
                     self.topological_sort_util(i, visited, stack)
         stack.append(v)
  
-    # The function to do Topological Sort. It uses recursive
-    # topologicalSortUtil()
+    # The function does Topological Sort on self.executeGraph
     def topological_sort(self):
         if self.is_cyclic() == False:
             for e in self.executeGraph:
@@ -286,7 +278,7 @@ class Enforcement_mechanisme:
                 urgentDeadlines.append(e)
         return urgentDeadlines
     
-    # This function return a list of events which must be executed
+    # This function returns a list of events that must be executed
     def check_urgent_deadlines(self):
         if self.is_enforceable():
             urgentDeadlines = self.get_urgent_deadlines()

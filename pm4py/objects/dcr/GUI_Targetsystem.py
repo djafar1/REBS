@@ -218,7 +218,6 @@ def insert_line(text):
     mylist.insert(tk.END, text)
     urgentDeadlines = enforcement.check_urgent_deadlines()
     if len(urgentDeadlines) > 0:
-        print(urgentDeadlines)
         for e in urgentDeadlines:
             mylist.insert(tk.END, e + " is executed because of urgent event")
     mylist.yview(tk.END)
