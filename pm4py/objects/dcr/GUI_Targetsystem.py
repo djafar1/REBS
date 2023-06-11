@@ -10,6 +10,7 @@ sys.path.insert(1, '/Users/timei/Documents/Datalogi/Semester6/Bachelor/pm4py-dcr
 from pm4py.objects.dcr import enforcement as dcr_enforcement
 from pm4py.objects.dcr import semantics as dcr_semantics
 
+# DCR Hospital example
 dcr = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
     'labels': set(),
@@ -30,6 +31,7 @@ dcr = {
                 }
 }
 
+# DCR example with an inhibitor graph with cycles
 dcr_cyclic_inhib = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
     'labels': set(),
@@ -50,6 +52,7 @@ dcr_cyclic_inhib = {
                 }
 }
 
+# DCR example where a response relation points to itself
 dcr_response_cycle_inhib = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive'},
     'labels': set(),
@@ -70,6 +73,7 @@ dcr_response_cycle_inhib = {
                 }
 }
 
+# DCR example where the response arrow points to a previous executed event
 dcr_response_inhib = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5'},
     'labels': set(),
@@ -90,6 +94,7 @@ dcr_response_inhib = {
                 }
 }
 
+# DCR example where the includeTo relation points to a previous executed event
 dcr_includes_inhib = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5'},
     'labels': set(),
@@ -110,6 +115,7 @@ dcr_includes_inhib = {
                 }
 }
 
+# DCR example where there is a delay in the inhibitor graph
 dcr_delay_inhib = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'a', 'b'},
     'labels': set(),
@@ -130,6 +136,8 @@ dcr_delay_inhib = {
                 }
 } 
 
+# DCR example where there is a cycle in the condition and milestone graph
+# but not in the inihibitor graph
 dcr_1 = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
     'labels': set(),
@@ -150,6 +158,8 @@ dcr_1 = {
                 }
 }
 
+# DCR example where there is more depended events on delete
+# to show the proactive enforcement works as exepcted
 dcr_2 = {
     'events': {'release', 'archive', 'delete', 'readmit', 'unarchive', 'activity5', 'a', 'b'},
     'labels': set(),
@@ -170,7 +180,8 @@ dcr_2 = {
                 }
 }
 
-enforcement = dcr_enforcement.Enforcement_mechanisme(dcr_2)
+# Change the input in the enforcement mechanism with one of the above dcr graphs
+enforcement = dcr_enforcement.Enforcement_mechanisme(dcr)
 dict_exe = dcr_semantics.create_max_executed_time_dict(enforcement.dcr)
 
 window = tk.Tk()
@@ -191,6 +202,7 @@ mylist = tk.Listbox(window, yscrollcommand= scrollbar.set)
 mylist.grid(row=0, column=0, sticky="news")
 scrollbar.config(command = mylist.yview)
 
+# This function is called every time a line is inserted into the listbox
 def insert_line(text):
     if type(text) is tuple:
         if text[0]:
@@ -198,11 +210,11 @@ def insert_line(text):
         else:
             text = str(text[1]) + " tick(s) time step has not been taken, you are gonna miss a deadline"
     if text in enforcement.dcr['events']:
-        is_access = enforcement.peform_controllable_event(text)
+        is_access = enforcement.perform_controllable_event(text)
         if is_access == "Grant":
-            text = "Grant access to peform " + text
+            text = "Grant access to perform " + text
         else:
-            text = "Deny peforming " + text
+            text = "Deny performing " + text
     mylist.insert(tk.END, text)
     urgentDeadlines = enforcement.check_urgent_deadlines()
     if len(urgentDeadlines) > 0:
@@ -260,6 +272,8 @@ button_time.grid(row=6, column=0)
 newframe.grid(row=0, column=2)
 buttonframe.grid(row=1, column=0)
 
+# This part checks if the policy is enforceable, and if it is not
+# then it tells which of the three points are violated
 if enforcement.is_enforceable():
     insert_line("The policy is enforceable")
 else:

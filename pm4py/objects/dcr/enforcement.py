@@ -12,20 +12,21 @@ class IGraph:
         self.oppGraph = self.create_opp_graph(self.graph)
 
         self.graph = self.from_graph_to_igraph()
-        print("Igraph: " + str(self.graph))
+        #print("Igraph: " + str(self.graph))
         self.eventsInIgraph = self.find_events_in_graph(self.graph)
-        print("eventsInIgraph: " + str(self.eventsInIgraph))
+        #print("eventsInIgraph: " + str(self.eventsInIgraph))
 
         self.reachableGraph = self.create_reachable_graph(self.graph)
-        print("reachableGraph: " + str(self.reachableGraph))
+        #print("reachableGraph: " + str(self.reachableGraph))
 
         self.oppGraph = self.create_opp_graph(self.graph)
         self.executeGraph = self.create_reachable_graph(self.oppGraph)
         self.topological_sort()
-        print("executeGraph: " + str(self.executeGraph))
-        print("oppGrapg: " + str(self.oppGraph))
+        #print("executeGraph: " + str(self.executeGraph))
+        #print("oppGrapg: " + str(self.oppGraph))
         
     # This function add an edge between u and v in the graph g
+    # if the edge does not exist in the graph
     def add_edge(self, u, v, g):
         if u not in g:
             g[u] = []
@@ -33,15 +34,7 @@ class IGraph:
         if v not in g[u]:
             g[u].append(v)
     
-    # This function gives the list of events with potential deadline
-    #def create_list_deadlines(self):
-    #    self.responseList.clear()
-    #    for e in self.dcr['responseToDeadlines']:
-    #        for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
-    #            self.responseList.append(e_prime)
-    #        self.responseList.append(e)
-    
-    # This function creates the opposite relations in the self.dcr
+    # This function returns a graph with the opposite relations
     def create_opp_graph(self, graph):
         oppGraph = {}
         for e in graph:
@@ -50,7 +43,7 @@ class IGraph:
         return oppGraph
     
     # This function transform self.dcr to a directed graph containing
-    # only conditions and milestones relations
+    # only conditions and milestones relations and return the graph
     def from_dcr_to_graph(self):
         graph = {}
         for e in self.dcr['conditionsFor']:
@@ -67,12 +60,16 @@ class IGraph:
         
         return graph
 
+    # This function is a helper function for from_graph_to_igraph
     def from_graph_to_igraph_util(self, v, graph):
         if v in self.oppGraph:
             for e in self.oppGraph[v]:
                 self.add_edge(e, v, graph)
                 self.from_graph_to_igraph_util(e, graph)
 
+    # This function use self.graph to create an inhibitor graph
+    # if the inihibitor graph does not contain cycles the inhibitor graph is returned
+    # otherwise the condition and milestone graph is returned to show it violates enforecable
     def from_graph_to_igraph(self):
         if not self.is_cyclic():
             busyEvents = self.find_busy_events()
@@ -91,6 +88,7 @@ class IGraph:
             return newGraph
         return self.graph
     
+    # This function returns a list with all the events in the graph
     def find_events_in_graph(self, graph):
         events = []
         for e in graph:
@@ -101,6 +99,8 @@ class IGraph:
                 events.append(e)
         return events
 
+    # This function returns a list with all the busy events, which
+    # is all the events that can be pending
     def find_busy_events(self):
         busyEvents = []
         for e in self.dcr['responseTo']:
@@ -112,6 +112,11 @@ class IGraph:
             for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
                 if e_prime not in busyEvents:
                     busyEvents.append(e_prime)
+
+        for e in self.dcr['marking']['pending']:
+            if e not in busyEvents:
+                busyEvents.append(e)
+
         return busyEvents
 
 
@@ -132,9 +137,9 @@ class IGraph:
         # then we need to remove it for the recursive stack
         recStack.remove(v)
         
-    # Creates a reachable graph called self.reachableGraph, which is a 
+    # Creates a reachable graph based on the graph, which is a 
     # dictionary containing every event and for each event is a list of
-    # reachable events from the self.graph
+    # reachable events from the graph
     def create_reachable_graph(self, graph):
         reachableGraph = {}
         eventsInGraph = self.find_events_in_graph(graph)
@@ -194,7 +199,7 @@ class IGraph:
         recStack[v] = True
         
         # Recur for all neighbours
-        # if any neighbour is visited and in
+        # if any adjacent is visited and in
         # recStack then graph is cyclic
         if v in self.oppGraph:
             for adjacent in self.oppGraph[v]:
@@ -225,6 +230,9 @@ class IGraph:
                     return True
         return False
     
+    # This funktion checks if there is a path from e to f, if there is a include or 
+    # response relation in the inhibitor graph. True if this is the case for every relation
+    # otherwise false is returned
     def check_for_responses(self):
         for e in self.dcr['responseToDeadlines']:
             for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
@@ -243,6 +251,8 @@ class IGraph:
                         return False
         return True
     
+    # This function checks if there is any delay in the inhibitor graph.
+    # If there is a delay false is returned otherwise true is returned
     def check_for_delays(self):
         for e in self.dcr['conditionsForDelays']:
             if e in self.eventsInIgraph:
@@ -260,13 +270,15 @@ class Enforcement_mechanisme:
     def is_enforceable(self):
         return not self.iGraph.is_cyclic() and self.iGraph.check_for_responses() and self.iGraph.check_for_delays()
     
-    # The function either deny or grant 
-    def peform_controllable_event(self, event):
+    # The function either deny or grant an event
+    def perform_controllable_event(self, event):
         if dcr_semantics.is_enabled(event, self.dcr):
             dcr_semantics.execute(event, self.dcr)
             return "Grant"
         return "Deny"
     
+    # This function return a list with all the urgent events
+    # which must be executed now
     def get_urgent_deadlines(self):
         urgentDeadlines = []
         for e in self.dcr['marking']['pendingDeadline']:
@@ -282,23 +294,16 @@ class Enforcement_mechanisme:
             if len(urgentDeadlines) > 0:
                 for e in urgentDeadlines:
                     if e not in executeList:
-                        #print("e: " + e)
-                        print(e + " " + str(dcr_semantics.is_enabled(e, self.dcr)))
                         if dcr_semantics.is_enabled(e, self.dcr):
                             dcr_semantics.execute(e, self.dcr)
                             executeList.append(e)
-                            print("the urgent event " + e + " is now executed")
                         else:
                             for e_prime in self.iGraph.executeGraph[e]:
-                                print("e_prime: " + e_prime)
-                                #print("Im here with e: " + e)
                                 if e_prime in self.dcr['marking']['pending'] or (e_prime not in self.dcr['marking']['executed'] and e_prime in self.dcr['marking']['included']):
                                     dcr_semantics.execute(e_prime, self.dcr)
                                     executeList.append(e_prime)
-                                    print(e_prime, "is now executed")
                             dcr_semantics.execute(e, self.dcr)
                             executeList.append(e)
-                            print("the urgent event " + e + " is now executed")
             return executeList
         return []
                     
