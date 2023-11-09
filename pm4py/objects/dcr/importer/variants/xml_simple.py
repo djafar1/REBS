@@ -2,7 +2,7 @@ from lxml import etree
 from datetime import datetime, timedelta
 
 
-def import_dcr_xml(xml_file, replace_whitespace=''):
+def apply(xml_file, replace_whitespace='', **kwargs):
     tree = etree.parse(xml_file)
     root = tree.getroot()
 

@@ -20,6 +20,7 @@ from pm4py.objects.petri_net.sem_interface import Semantics
 
 
 class TransportInvariantSemantics(Semantics):
+
     def is_enabled(self, t, pn, m, **kwargs):
         """
         Verifies whether a given transition is enabled in a given Petri net and marking
@@ -101,31 +102,31 @@ def is_enabled(t, pn, m):
         return False
     else:
         for a in t.in_arcs:
-            #check token age if it is within the interval
-            # m[a.source] is the pre-set of Token classes with a place and an age
-            if properties.AGE_GUARD in a.properties:
-                min = 0
-                max = float("inf")
-                if properties.AGE_MIN in a.properties:
-                    min = properties.AGE_MIN
-                if properties.AGE_MAX in a.properties:
-                    max = properties.AGE_MAX
-                source_place = a.source
-                number_tokens_in_source = m[a.source]
-                #TODO age of tokens in source
-            if properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
+            if m[a.source] < a.weight:
+                #TODO + age of a.source tokens
+                # Query becomes:
+                # Are there enough tokens in m[a.source] satisfying the age guard?
+                return False
+            elif properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
                                                         a.properties[properties.ARCTYPE] == "tapnInhibitor" or
                                                         a.properties[properties.ARCTYPE] == "inhibitor"):
                 if m[a.source] > 0:
                     return False
-                # elif a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC:
-                #     return False # Cannot be both inhibitor and transport
-            # elif properties.ARCTYPE in a.properties and a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC:
-            #     #TODO fix this (now we don't have transport arcs)
-            #     m[a.source]
-            #     pass
-            elif m[a.source] < a.weight:
-                return False
+            elif properties.ARCTYPE in a.properties and a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC:
+                # check token age if it is within the interval
+                # m[a.source] is the pre-set of Token classes with a place and an age
+                if (properties.AGE_GUARD in a.properties or
+                        properties.AGE_MIN in a.properties or
+                        properties.AGE_MAX in a.properties):
+                    min = 0
+                    max = float("inf")
+                    if properties.AGE_MIN in a.properties:
+                        min = a.properties[properties.AGE_MIN]
+                    if properties.AGE_MAX in a.properties:
+                        max = a.properties[properties.AGE_MAX]
+                    #TODO: if min > age(m[a.source]) > max
+                    # return False
+                    print(min,max,m[a.source])
     # if nothing is violated than it is enabled
     return True
 
