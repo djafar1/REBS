@@ -1,11 +1,7 @@
-import pandas
-
-import pm4py
-import numpy as np
+import math
 from pm4py.objects.dcr.semantics import DCRSemantics
 from copy import deepcopy
 from typing import Tuple
-from pm4py.objects.log.obj import EventLog
 
 class complianceResult:
     '''
@@ -14,10 +10,10 @@ class complianceResult:
     contains function to compute the value for the confusion matrix
     '''
     def __init__(self):
-        self.truePositive = 0
-        self.falsePositive = 0
-        self.trueNegative = 0
-        self.falseNegative = 0
+        self.tp = 0
+        self.fp = 0
+        self.tn = 0
+        self.fn = 0
 
     def addTraceResult(self,expectedResult,actualResult):
         '''
@@ -34,32 +30,59 @@ class complianceResult:
         '''
         if actualResult == True:
             if expectedResult == True:
-                self.truePositive += 1
+                self.tp += 1
             else:
-                self.falsePositive += 1
+                self.fp += 1
         else:
             if expectedResult == True:
-                self.falseNegative += 1
+                self.fn += 1
             else:
-                self.trueNegative += 1
+                self.tn += 1
 
-    def computeAccuracy(self) -> float:
+    def compute_accuracy(self) -> float:
         #returns how accurate the model is according to expected behavior:
         #acc. = (TP+TN)/(TP+TN+FP+FN)
-        return (self.truePositive+self.trueNegative)/(self.trueNegative+self.truePositive+self.falseNegative+self.falsePositive)
+        return (self.tp + self.tn)/(self.tn + self.tp + self.fn + self.fp)
 
-    def computePrecision(self) -> float:
+    def compute_positive_precision(self) -> float:
         # prec. = (TP)/(TP+FP)
         #returns value of how precise the model reflect the expected behavior
-        return (self.truePositive)/(self.truePositive+self.falsePositive)
+        return (self.tp)/(self.tp + self.fp)
 
-    def computeRecall(self) -> float:
+    def compute_negative_precision(self) -> float:
+        # prec. = (TN)/(TN+FN)
+        # returns value of how precise the model reflect the expected behavior
+        return (self.tn)/(self.tn + self.fn)
+
+
+    def compute_positive_recall(self) -> float:
         #recall = (TP)/(TP+FN)
         #return value of how well the model has captured expected behavior
-        return (self.truePositive)/(self.falseNegative+self.truePositive)
+        return (self.tp)/(self.fn + self.tp)
 
-    def get_f_score(self) -> Tuple[int, int, int, int]:
-        return self.truePositive,self.falsePositive,self.trueNegative,self.falseNegative
+    def compute_negative_recall(self) -> float:
+        #recall = (TP)/(TP+FN)
+        #return value of how well the model has captured expected behavior
+        return (self.tn)/(self.fp + self.tn)
+
+
+    def get_positive_f_score(self) -> float:
+        f_score = (((2) * self.compute_positive_precision() * self.compute_positive_recall()) /
+                   (self.compute_positive_precision() + self.compute_positive_recall()))
+        return f_score
+
+    def get_negative_f_score(self) -> float:
+        f_score = (((2) * self.compute_negative_precision() * self.compute_negative_recall()) /
+         (self.compute_negative_precision() + self.compute_negative_recall()))
+        return f_score
+    def mcc(self) -> float:
+        numerator = (self.tn * self.tp) - (self.fn * self.fp)
+        Denominator = (self.tp + self.fp) * (self.tp + self.fn) * (
+                self.tn + self.fp) * (self.tn + self.fn)
+        return numerator / math.sqrt(Denominator)
+
+    def get_classification_values(self) -> Tuple[int, int, int, int]:
+        return self.tp,self.fp,self.tn,self.fn
 
 
 class ComplianceChecker:
@@ -77,17 +100,15 @@ class ComplianceChecker:
 
     if trace can be executed return dcr graph and marking, check if the graph is accepting
     """
+    def __init__(self):
+        self.compliance_res = complianceResult()
+
     def apply(self, graph, gt_log):
-        compliance_res = self.compliant_traces(graph, gt_log)
-        precision = compliance_res.computePrecision()
-        accuracy = compliance_res.computeAccuracy()
-        recall = compliance_res.computeRecall()
-        return (precision, accuracy, recall, compliance_res.truePositive, compliance_res.falsePositive,
-                compliance_res.trueNegative, compliance_res.falseNegative)
+        return self.compliant_traces(graph, gt_log)
 
     def compliant_traces(self, graph, gt_log):
+
         #Eventlog and pandas dataframe requires two different approaches
-        compliance_res = complianceResult()
         sem = DCRSemantics()
         initial_marking = deepcopy(graph.marking)
         for trace in gt_log:
@@ -99,10 +120,12 @@ class ComplianceChecker:
                     graph = sem.execute(graph, e['concept:name'])
             graph.marking.reset(deepcopy(initial_marking))
             if not sem.is_accepting(graph):
-                compliance_res.addTraceResult(trace.attributes['pdc:isPos'], False)
+                self.compliance_res.addTraceResult(trace.attributes['pdc:isPos'], False)
             else:
-                compliance_res.addTraceResult(trace.attributes['pdc:isPos'], actual_value)
-        return compliance_res
+                self.compliance_res.addTraceResult(trace.attributes['pdc:isPos'], actual_value)
+        return self.compliance_res
+
+
 
 
                 
