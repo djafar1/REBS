@@ -221,5 +221,12 @@ if "DcrAlignmentTest" in enabled_tests:
     from tests.dcr_test import TestAlignment
 
     suite.addTests(loader.loadTestsFromTestCase(TestAlignment))
+    suite.addTest(unittest.makeSuite(OcelDiscoveryTest))
 
-unittest.main()
+def main():
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+
+
+if __name__ == "__main__":
+    main()
