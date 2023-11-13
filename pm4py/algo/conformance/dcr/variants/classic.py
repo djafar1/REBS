@@ -113,7 +113,6 @@ class RuleBasedConformance:
         initial_marking = deepcopy(self.__g.marking)
         # iterate through all traces in log
         for trace in self.__log:
-            self.__g.marking.reset(deepcopy(initial_marking))
             # create base dict to accumalate trace conformance data
             ret = {Outputs.NO_CONSTR_TOTAL.value: total_num_constraints, Outputs.DEVIATIONS.value: []}
 
