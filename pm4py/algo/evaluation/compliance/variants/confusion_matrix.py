@@ -125,6 +125,11 @@ class ComplianceChecker:
                 self.compliance_res.addTraceResult(trace.attributes['pdc:isPos'], actual_value)
         return self.compliance_res
 
+    def compliance_trace(self, graph, gt_trace):
+        for e in gt_trace:
+            pass
+
+
 
 
 

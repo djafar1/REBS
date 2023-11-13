@@ -18,7 +18,6 @@ def remove_files(path, folder):
     rmtree(extract_path)
 
 def benchmark_discover_run_time_2019(test_path: str,training_logs, repeat: int):
-    from tests.DCR_test.benchmark.discover_benchmark import discover_dcr
     log_path = os.path.join(test_path,training_logs)
 
     final_times = []
@@ -112,7 +111,7 @@ def initiate_run_time_test(test_path:str, repeat: int):
 
 if __name__ == "__main__":
     #the folder to test
-    pdc_test = "pdc_2022"
+    pdc_test = "pdc_2019"
 
     #repeat the discover algo # of times
     repeat = 10
