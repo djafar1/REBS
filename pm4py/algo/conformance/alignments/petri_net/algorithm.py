@@ -27,11 +27,11 @@ from pm4py.util import exec_utils
 from enum import Enum
 import sys
 from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY, PARAMETER_CONSTANT_CASEID_KEY, CASE_CONCEPT_NAME
-import pkgutil
-from typing import Optional, Dict, Any, Union, Tuple
+import importlib.util
+from typing import Optional, Dict, Any, Union
 from pm4py.objects.log.obj import EventLog, EventStream, Trace
 from pm4py.objects.petri_net.obj import PetriNet, Marking
-from pm4py.util import typing
+from pm4py.util import typing, constants
 import pandas as pd
 
 
@@ -64,20 +64,6 @@ class Parameters(Enum):
     EXPONENT="theta"
 
 
-
-DEFAULT_VARIANT = Variants.VERSION_DIJKSTRA_LESS_MEMORY
-if solver.DEFAULT_LP_SOLVER_VARIANT is not None:
-    DEFAULT_VARIANT = Variants.VERSION_STATE_EQUATION_A_STAR
-
-VERSION_STATE_EQUATION_A_STAR = Variants.VERSION_STATE_EQUATION_A_STAR
-VERSION_DIJKSTRA_NO_HEURISTICS = Variants.VERSION_DIJKSTRA_NO_HEURISTICS
-VERSION_DIJKSTRA_LESS_MEMORY = Variants.VERSION_DIJKSTRA_LESS_MEMORY
-VERSION_DISCOUNTED_A_STAR = Variants.VERSION_DISCOUNTED_A_STAR
-
-VERSIONS = {Variants.VERSION_DIJKSTRA_NO_HEURISTICS, Variants.VERSION_DIJKSTRA_NO_HEURISTICS,
-            Variants.VERSION_DIJKSTRA_LESS_MEMORY,VERSION_DISCOUNTED_A_STAR}
-
-
 def __variant_mapper(variant):
     if type(variant) is str:
         if variant == "Variants.VERSION_STATE_EQUATION_A_STAR":
@@ -90,6 +76,18 @@ def __variant_mapper(variant):
             variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
 
     return variant
+
+
+DEFAULT_VARIANT = Variants.VERSION_DIJKSTRA_LESS_MEMORY
+if solver.DEFAULT_LP_SOLVER_VARIANT is not None:
+    DEFAULT_VARIANT = __variant_mapper(constants.DEFAULT_ALIGNMENTS_VARIANT)
+
+VERSION_STATE_EQUATION_A_STAR = Variants.VERSION_STATE_EQUATION_A_STAR
+VERSION_DIJKSTRA_NO_HEURISTICS = Variants.VERSION_DIJKSTRA_NO_HEURISTICS
+VERSION_DIJKSTRA_LESS_MEMORY = Variants.VERSION_DIJKSTRA_LESS_MEMORY
+
+VERSIONS = {Variants.VERSION_DIJKSTRA_NO_HEURISTICS, Variants.VERSION_DIJKSTRA_NO_HEURISTICS,
+            Variants.VERSION_DIJKSTRA_LESS_MEMORY}
 
 
 def apply(obj: Union[EventLog, EventStream, pd.DataFrame, Trace], petri_net: PetriNet, initial_marking: Marking, final_marking: Marking, parameters: Optional[Dict[Any, Any]] = None, variant=DEFAULT_VARIANT) -> Union[typing.AlignmentResult, typing.ListAlignments]:
@@ -347,9 +345,9 @@ def __get_variants_structure(log, parameters):
 
 
 def __get_progress_bar(num_variants, parameters):
-    show_progress_bar = exec_utils.get_param_value(Parameters.SHOW_PROGRESS_BAR, parameters, True)
+    show_progress_bar = exec_utils.get_param_value(Parameters.SHOW_PROGRESS_BAR, parameters, constants.SHOW_PROGRESS_BAR)
     progress = None
-    if pkgutil.find_loader("tqdm") and show_progress_bar and num_variants > 1:
+    if importlib.util.find_spec("tqdm") and show_progress_bar and num_variants > 1:
         from tqdm.auto import tqdm
         progress = tqdm(total=num_variants, desc="aligning log, completed variants :: ")
     return progress
