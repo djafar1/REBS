@@ -24,6 +24,7 @@ import pandas as pd
 
 from pm4py.objects.log.obj import EventLog, EventStream, Trace, Event
 from pm4py.objects.process_tree.obj import ProcessTree
+from pm4py.objects.powl.obj import POWL
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.util import constants, xes_constants, pandas_utils
 import warnings
@@ -184,6 +185,33 @@ def parse_process_tree(tree_string: str) -> ProcessTree:
     return parse(tree_string)
 
 
+def parse_powl_model_string(powl_string: str) -> POWL:
+    """
+    Parse a POWL model from a string representation of the process model
+    (with the same format as the __repr__ and __str__ methods of the POWL model)
+
+    :param powl_string: POWL model expressed as a string (__repr__ of the POWL model)
+    :rtype: ``POWL``
+
+    .. code-block:: python3
+
+        import pm4py
+
+        powl_model = pm4py.parse_powl_model_string('PO=(nodes={ NODE1, NODE2, NODE3 }, order={ NODE1-->NODE2 }')
+        print(powl_model)
+
+    Parameters
+    ----------
+    powl_string
+
+    Returns
+    -------
+
+    """
+    from pm4py.objects.powl import parser
+    return parser.parse_powl_model_string(powl_string)
+
+
 def serialize(*args) -> Tuple[str, bytes]:
     """
     Serialize a PM4Py object into a bytes string
@@ -265,13 +293,14 @@ def deserialize(ser_obj: Tuple[str, bytes]) -> Any:
         return dfg_importer.deserialize(ser_obj[1])
 
 
-def get_properties(log, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", resource_key: str = "org:resource", group_key: Optional[str] = None, **kwargs):
+def get_properties(log, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", resource_key: str = "org:resource", group_key: Optional[str] = None, start_timestamp_key: Optional[str] = None, **kwargs):
     """
     Gets the properties from a log object
 
     :param log: Log object
     :param activity_key: attribute to be used for the activity
     :param timestamp_key: attribute to be used for the timestamp
+    :param start_timestamp_key: (optional) attribute to be used for the start timestamp
     :param case_id_key: attribute to be used as case identifier
     :param resource_key: (if provided) attribute to be used as resource
     :param group_key: (if provided) attribute to be used as group identifier
@@ -292,6 +321,9 @@ def get_properties(log, activity_key: str = "concept:name", timestamp_key: str =
 
     if timestamp_key is not None:
         parameters[constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] = timestamp_key
+
+    if start_timestamp_key is not None:
+        parameters[constants.PARAMETER_CONSTANT_START_TIMESTAMP_KEY] = start_timestamp_key
 
     if case_id_key is not None:
         parameters[constants.PARAMETER_CONSTANT_CASEID_KEY] = case_id_key

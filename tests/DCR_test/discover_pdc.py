@@ -18,7 +18,6 @@ def remove_files(path, folder):
     rmtree(extract_path)
 
 def benchmark_discover_run_time_2019(test_path: str,training_logs, repeat: int):
-    from tests.DCR_test.benchmark.discover_benchmark import discover_dcr
     log_path = os.path.join(test_path,training_logs)
 
     final_times = []
@@ -62,24 +61,24 @@ def benchmark_discover_run_time_2019(test_path: str,training_logs, repeat: int):
     return graphs
 
 
-def test_ground_truth_compliance(graphs, test_path ,gt_log_path):
+def test_ground_truth_compliance(graphs, test_path, test_log_path, gt_log_path):
     from pm4py.algo.evaluation.compliance.variants.confusion_matrix import ComplianceChecker
     ct = ComplianceChecker()
     ct_values = None
 
-    log_path = os.path.join(test_path,gt_log_path)
-    for graph, file in zip(graphs, os.listdir(log_path)):
-        gt_log = pm4py.read_xes(os.path.join(log_path,file))
-        # pm4py needs a timestamp, so a assign random values
-        add = pd.date_range('2018-04-09', periods=len(gt_log), freq='20min')
-        gt_log['time:timestamp'] = add
+    log_test_path = os.path.join(test_path,test_log_path)
+    log_gt_path = os.path.join(test_path, gt_log_path)
+    for graph, test_file, gt_file in zip(graphs, os.listdir(log_test_path), os.listdir(log_gt_path)):
+        test_log = pm4py.read_xes(os.path.join(log_test_path,test_file),return_legacy_log_object=True)
+        gt_log = pm4py.read_xes(os.path.join(log_gt_path, gt_file), return_legacy_log_object=True)
 
-        gt_log = pm4py.convert_to_event_log(gt_log)
-        ct_values = ct.compliant_traces(graph,gt_log)
+        # call the compliance checker for traces
+        ct_values = ct.compliant_traces(graph, test_log, gt_log)
         com = ComplianceChecker()
-        res = com.compliant_traces(graph,gt_log)
+        # for individual traces
+        res = com.compliant_traces(graph,test_log,gt_log)
         f = res.get_classification_values()
-        print(file+" has "+" tp: "+str(f[0])+" fp: "+str(f[1])+" tn: "+str(f[2])+" fn: "+str(f[3]))
+        print(test_file+" has "+" tp: "+str(f[0])+" fp: "+str(f[1])+" tn: "+str(f[2])+" fn: "+str(f[3]))
 
 
     print("collective binary classification results:")
@@ -94,6 +93,7 @@ def test_ground_truth_compliance(graphs, test_path ,gt_log_path):
 
 def initiate_run_time_test(test_path:str, repeat: int):
     training_logs = "Training Logs"
+    test_logs = "Test Logs"
     ground_truth_log = "Ground Truth Logs"
 
     get_files(test_path, training_logs)
@@ -102,17 +102,20 @@ def initiate_run_time_test(test_path:str, repeat: int):
 
     remove_files(test_path, training_logs)
 
+    get_files(test_path, test_logs)
     get_files(test_path, ground_truth_log)
 
-    test_ground_truth_compliance(graphs,test_path,ground_truth_log)
+    test_ground_truth_compliance(graphs,test_path,test_logs, ground_truth_log)
 
+    remove_files(test_path, test_logs)
     remove_files(test_path, ground_truth_log)
 
 
 
 if __name__ == "__main__":
     #the folder to test
-    pdc_test = "pdc_2022"
+    pdc_test = "pdc_2019"
+
 
     #repeat the discover algo # of times
     repeat = 10

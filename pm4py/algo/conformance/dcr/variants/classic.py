@@ -113,8 +113,6 @@ class RuleBasedConformance:
         initial_marking = deepcopy(self.__g.marking)
         # iterate through all traces in log
         for trace in self.__log:
-            # reset dcr graph
-            self.__g.marking.reset(deepcopy(initial_marking))
             # create base dict to accumalate trace conformance data
             ret = {Outputs.NO_CONSTR_TOTAL.value: total_num_constraints, Outputs.DEVIATIONS.value: []}
 
@@ -153,6 +151,9 @@ class RuleBasedConformance:
             ret[Outputs.FITNESS.value] = 1 - ret[Outputs.NO_DEV_TOTAL.value] / ret[Outputs.NO_CONSTR_TOTAL.value]
             ret[Outputs.IS_FIT.value] = ret[Outputs.NO_DEV_TOTAL.value] == 0
             conf_case.append(ret)
+
+            # reset graph
+            self.__g.marking.reset(deepcopy(initial_marking))
 
         return conf_case
 

@@ -1,15 +1,48 @@
 # Changelog of pm4py
 
+## pm4py 2.7.8.4 (2023.11.XX)
 
-## pm4py 2.7.8.3 (2023.11.XX)
+### Added
+
+### Changed
+* a18ed64b90881e15d3ce561dcd7ecc0a56fe5039
+  * refactor default XES importer variant specification
+* b0d6fbd1c5c23506fb3648511326e83a3c3f89fe
+  * refactor default alignments variant specification
+* 0b7489571184096bacd195dd824af7c88a57c551
+  * refactoring examples (default image format specification)
+* de7ab79e285ed5aeb4f4b447fd7f8f1eabb9669c
+  d6ef339b32c2e8439815ea589dab1bc0a9e5c851
+  * refactoring unit tests entrypoint
+
+### Deprecated
+
+### Fixed
+* e74700dd9d8b965f7cfdb355d03cd582f8da4b2b
+  * fixed POWL objects conversion
+
+### Removed
+
+### Other
+
+---
+
+
+## pm4py 2.7.8.3 (2023.11.09)
 
 ### Added
 * d06e2d36558e600208e182f096f07ea86923c1c4
   * RUSTXES importer variant
 * 7026be7476ed34c138b1046781847cdd9e104715
   * POWL discovery and visualization in the simplified interface
+* 40cd57230a5b0a9fd7821c71cbc2a17b0608e962
+  * POWL parser from model string
 
 ### Changed
+* 3f45baf9c0730d90ab35bce4d715b67306b24168
+  * artificial start/end activity symbols specification in the simplified interface
+* 215d6a67065074fb516b397a6b9e018cb41cf114
+  * ocel_to_nx is now OCEL 2.0 compliant
 
 ### Deprecated
 

@@ -172,7 +172,8 @@ class Discover:
 
         for i in self.logAbstraction['predecessor']:
             for j in self.logAbstraction['predecessor'][i]:
-                self.logAbstraction['successor'][j].add(i)
+                if j in self.logAbstraction['predecessor'][i]:
+                    self.logAbstraction['successor'][j].add(i)
         return 0
 
     def parseTrace(self, trace: List[str]) -> int:
@@ -201,7 +202,7 @@ class Discover:
         lastEvent = ''
         for event in trace:
             # All events seen before this one must be predecessors
-            self.logAbstraction['predecessor'][event] = self.logAbstraction['predecessor'].get(event).union(
+            self.logAbstraction['predecessor'][event] = self.logAbstraction['predecessor'][event].union(
                 localAtLeastOnce)
             # If event seen before in trace, remove from atMostOnce
             if event in localAtLeastOnce:
@@ -227,6 +228,10 @@ class Discover:
             # Clear (event) from all localSeenOnlyBefore, since (event) has now occurred after
             for key in localSeenOnlyBefore:
                 localSeenOnlyBefore[key].discard(event)
+
+            if lastEvent == event:
+                self.logAbstraction['responseTo']
+
             lastEvent = event
         for event in localSeenOnlyBefore:
             # Compute set of events in trace that happened after (event)
@@ -236,6 +241,8 @@ class Discover:
             # Set of events that always happens after (event)
             self.logAbstraction['responseTo'][event] = self.logAbstraction['responseTo'][event].intersection(
                 seenOnlyAfter)
+
+
         return 0
 
     def optimizeRelation(self, relation: Dict[str, Set[str]]) -> Dict[str, Set[str]]:
@@ -256,12 +263,11 @@ class Discover:
             An optimized version of the input relations, with redundant connections removed.
         """
         # Sortedlist to avoid possibly non-deterministic behavior due to unordered nature of dict
-        sortedList = np.array(list(relation.items()))
-        sortedList = sorted(sortedList, key=lambda num: len(num[1]), reverse=True)
-        for i in sortedList:
-            for j in i[1]:
-                i[1] = i[1].difference(relation[j])
-        return dict(sortedList)
+        relation = dict(sorted(relation.items(), key=lambda conditions: len(conditions[1]),reverse=True))
+        for eventA in relation:
+            for eventB in relation[eventA]:
+                relation[eventA] = relation[eventA].difference(relation[eventB])
+        return relation
 
     def mineFromAbstraction(self, findAdditionalConditions: bool = True) -> int:
         """
@@ -350,6 +356,7 @@ class Discover:
             Every event, x, that occurs before some event, y, is a possible candidate for a condition x -->* y
             This is due to the fact, that in the traces where x does not occur before y, x might be excluded
             """
+
             possibleConditions = deepcopy(self.logAbstraction['predecessor'])
             # Replay entire log, filtering out any invalid conditions
             for trace in self.logAbstraction['traces']:
@@ -358,13 +365,15 @@ class Discover:
                 for event in trace:
                     # Compute conditions that still allow event to be executed
                     excluded = self.logAbstraction['events'].difference(included)
-                    validConditions = localSeenBefore.union(excluded)
+                    validConditions = excluded.union(localSeenBefore)
                     # Only keep valid conditions
                     possibleConditions[event] = possibleConditions[event].intersection(validConditions)
                     # Execute excludes starting from (event)
                     included = included.difference(self.graph['excludesTo'][event])
                     # Execute includes starting from (event)
                     included = included.union(self.graph['includesTo'][event])
+                    localSeenBefore.add(event)
+
             # Now the only possible Condtitions that remain are valid for all traces
             # These are therefore added to the graph
             for key in self.graph['conditionsFor']:
@@ -373,3 +382,31 @@ class Discover:
             # Removing redundant conditions
             self.graph['conditionsFor'] = self.optimizeRelation(self.graph['conditionsFor'])
         return 0
+
+
+    def clean_conditions(self):
+        usedConditions = {k: v for k, v in self.graph['conditionsFor']}
+        for trace in self.logAbstraction['traces']:
+            included = self.logAbstraction['events'].copy()
+            executed = set()
+            for event in trace:
+                for i in self.graph['conditionsFor']:
+                    conditions = self.graph['conditionsFor'][i].copy()
+                    conditions = conditions.difference(executed)
+                    conditions = conditions.intersection(included)
+                    usedConditions = usedConditions[i].union(conditions)
+                included = included.difference(self.graph['excludesTo'][event])
+                # Execute includes starting from (event)
+                included = included.union(self.graph['includesTo'][event])
+
+
+
+
+    def clean_empty_sets(self):
+        for k, v in deepcopy(self.graph).items():
+            if k in ['conditionsFor', 'responseTo', 'excludesTo', 'includesTo']:
+                v_new = {}
+                for k2, v2 in v.items():
+                    if v2:
+                        v_new[k2] = set([v3 for v3 in v2 if v3 is not set()])
+                self.graph[k] = v_new

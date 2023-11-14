@@ -106,24 +106,29 @@ class ComplianceChecker:
     def apply(self, graph, gt_log):
         return self.compliant_traces(graph, gt_log)
 
-    def compliant_traces(self, graph, gt_log):
-
+    def compliant_traces(self, graph, test_log, ground_truth_log):
         #Eventlog and pandas dataframe requires two different approaches
         sem = DCRSemantics()
         initial_marking = deepcopy(graph.marking)
-        for trace in gt_log:
+        for trace, gt_trace in zip(test_log,ground_truth_log):
             actual_value = True
-            for e in trace:
+            for e, gt_e in zip(trace,gt_trace):
                 if not sem.is_enabled(e['concept:name'], graph):
                     actual_value = False
+                    break
                 else:
                     graph = sem.execute(graph, e['concept:name'])
-            graph.marking.reset(deepcopy(initial_marking))
             if not sem.is_accepting(graph):
-                self.compliance_res.addTraceResult(trace.attributes['pdc:isPos'], False)
+                self.compliance_res.addTraceResult(gt_trace.attributes['pdc:isPos'], False)
             else:
-                self.compliance_res.addTraceResult(trace.attributes['pdc:isPos'], actual_value)
+                self.compliance_res.addTraceResult(gt_trace.attributes['pdc:isPos'], actual_value)
+            graph.marking.reset(deepcopy(initial_marking))
         return self.compliance_res
+
+    def compliance_trace(self, graph, gt_trace):
+        for e in gt_trace:
+            pass
+
 
 
 
