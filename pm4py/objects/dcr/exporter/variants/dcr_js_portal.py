@@ -86,7 +86,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
                 xml_condition.set("targetId", event_prime)
                 xml_condition_custom = etree.SubElement(xml_condition, "custom")
                 xml_waypoints = etree.SubElement(xml_condition_custom, "waypoints")
-                create_arrows(xml_waypoints, xcoord,ycoord, event_prime, event)
+                create_arrows(xml_waypoints, xcoord,ycoord, event, event_prime)
                 xml_custom_id = etree.SubElement(xml_condition_custom, "id")
                 xml_custom_id.set("id", "Relation_" + event + "_" + event_prime + "_condition")
             if event in dcr["responseTo"] and event_prime in dcr["responseTo"][event]:
