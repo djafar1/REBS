@@ -342,7 +342,7 @@ class TestConformanceDCR(unittest.TestCase):
         dcr, _ = pm4py.discover_dcr(log)
         # when running getConstraints
         no = dcr.get_constraints()
-        # then object, should contain 31 constraints
+        # then object, should contain 30 constraints
         self.assertTrue(no == 31)
 
         del log
@@ -529,6 +529,7 @@ class TestConformanceDCR(unittest.TestCase):
         dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
         # when running getConstraints
         no = dcr.get_constraints()
+        print(no)
         # then object, should contain the roleAssignment
         # 31 original constraints, but also, 19 additional role assignments
         self.assertTrue(no == 50)
@@ -563,7 +564,6 @@ class TestConformanceDCR(unittest.TestCase):
 
         dcr, _ = pm4py.discover_dcr(log, process_type={'roles'})
         conf_res = pm4py.conformance_dcr(log, dcr)
-
         for i in conf_res:
             self.assertEqual(int(i['dev_fitness']), 1)
             self.assertTrue(i['is_fit'])
@@ -761,7 +761,6 @@ class TestAlignment(unittest.TestCase):
         aligned_traces = alignment_obj.apply_trace()
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
-
         del trace
         del graph_handler
         del trace_handler
@@ -795,7 +794,6 @@ class TestAlignment(unittest.TestCase):
         trace_handler = self.create_trace_handler(trace)
         alignment_obj = Alignment(graph_handler, trace_handler)
         aligned_traces = alignment_obj.apply_trace()
-
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
 
