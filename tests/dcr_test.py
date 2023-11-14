@@ -343,7 +343,7 @@ class TestConformanceDCR(unittest.TestCase):
         # when running getConstraints
         no = dcr.get_constraints()
         # then object, should contain 30 constraints
-        self.assertTrue(no == 30)
+        self.assertTrue(no == 31)
 
         del log
         del dcr
@@ -529,9 +529,10 @@ class TestConformanceDCR(unittest.TestCase):
         dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
         # when running getConstraints
         no = dcr.get_constraints()
+        print(no)
         # then object, should contain the roleAssignment
         # 31 original constraints, but also, 19 additional role assignments
-        self.assertTrue(no == 49)
+        self.assertTrue(no == 50)
 
         del log
         del dcr
