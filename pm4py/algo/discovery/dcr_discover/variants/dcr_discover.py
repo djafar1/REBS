@@ -381,26 +381,8 @@ class Discover:
 
             # Removing redundant conditions
             self.graph['conditionsFor'] = self.optimizeRelation(self.graph['conditionsFor'])
+            self.clean_empty_sets()
         return 0
-
-
-    def clean_conditions(self):
-        usedConditions = {k: v for k, v in self.graph['conditionsFor']}
-        for trace in self.logAbstraction['traces']:
-            included = self.logAbstraction['events'].copy()
-            executed = set()
-            for event in trace:
-                for i in self.graph['conditionsFor']:
-                    conditions = self.graph['conditionsFor'][i].copy()
-                    conditions = conditions.difference(executed)
-                    conditions = conditions.intersection(included)
-                    usedConditions = usedConditions[i].union(conditions)
-                included = included.difference(self.graph['excludesTo'][event])
-                # Execute includes starting from (event)
-                included = included.union(self.graph['includesTo'][event])
-
-
-
 
     def clean_empty_sets(self):
         for k, v in deepcopy(self.graph).items():
