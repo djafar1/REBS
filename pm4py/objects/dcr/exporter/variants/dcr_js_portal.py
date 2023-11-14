@@ -80,7 +80,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
         xml_labelMapping.set("labelId", label_id)
 
         for event_prime in dcr['events']:
-            if event in dcr["conditionsFor"] and event_prime in dcr["conditionsFor"][event]:
+            if event_prime in dcr["conditionsFor"] and event in dcr["conditionsFor"][event_prime]:
                 xml_condition = etree.SubElement(conditions, "condition")
                 xml_condition.set("sourceId", event)
                 xml_condition.set("targetId", event_prime)
