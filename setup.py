@@ -16,21 +16,16 @@ def read_file(filename):
 
 
 setup(
-    name=meta['__name__'],
-    version=meta['__version__'],
-    description=meta['__doc__'].strip(),
+    name='pm4pyDCR',
+    version='1.0',
+    description="This is extension to the open source library pm4py, this extension provide a basis functionality to perform process mining techniques, currently supported technique are process discovery using the DisCoveR miner, and conformance checking using alignments and rule based approaches",
     long_description=read_file('README.md'),
-    author=meta['__author__'],
-    author_email=meta['__author_email__'],
+    author='Jonas Kjeldsen, Simon Hermansen and Ragnar Jónsson',
+    author_email='jonas.lykke.kjeldsen@gmail.com, simonhermansen5dk@gmail.com, ragnarlaki@gmail.com',
     py_modules=['pm4py'],
     include_package_data=True,
     packages=[x for x in find_packages() if x.startswith("pm4py")],
-    url='https://pm4py.fit.fraunhofer.de',
     license='GPL 3.0',
     install_requires=read_file("requirements.txt").split("\n"),
-    project_urls={
-        'Documentation': 'https://pm4py.fit.fraunhofer.de',
-        'Source': 'https://github.com/pm4py/pm4py-source',
-        'Tracker': 'https://github.com/pm4py/pm4py-source/issues',
-    }
+    project_urls='https://github.com/paul-cvp/pm4py-dcr/tree/develop'
 )
