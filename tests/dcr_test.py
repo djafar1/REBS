@@ -339,7 +339,6 @@ class TestConformanceDCR(unittest.TestCase):
     def test_rule_checking_no_constraints(self):
         # given a dcr graph
         log = pm4py.read_xes("input_data/running-example.xes")
-        print(log.to_string())
         dcr, _ = pm4py.discover_dcr(log)
         # when running getConstraints
         no = dcr.get_constraints()
@@ -761,7 +760,6 @@ class TestAlignment(unittest.TestCase):
         aligned_traces = alignment_obj.apply_trace()
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
-
         del trace
         del graph_handler
         del trace_handler
@@ -795,7 +793,6 @@ class TestAlignment(unittest.TestCase):
         trace_handler = self.create_trace_handler(trace)
         alignment_obj = Alignment(graph_handler, trace_handler)
         aligned_traces = alignment_obj.apply_trace()
-
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
 

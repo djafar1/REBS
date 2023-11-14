@@ -1,5 +1,4 @@
 import pandas as pd
-from copy import deepcopy
 from enum import Enum
 from pm4py.util import exec_utils, constants, xes_constants
 from typing import Optional, Dict, Any, Union, List, Tuple
@@ -110,7 +109,10 @@ class RuleBasedConformance:
         activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, self.__parameters,
                                                   xes_constants.DEFAULT_NAME_KEY)
 
-        initial_marking = deepcopy(self.__g.marking)
+        initial_marking = {'executed': set(), 'included': set(), 'pending': set()}
+        initial_marking['included'] = set(self.__g.marking.included)
+        initial_marking['executed'] = set(self.__g.marking.executed)
+        initial_marking['pending'] = set(self.__g.marking.pending)
         # iterate through all traces in log
         for trace in self.__log:
             # create base dict to accumalate trace conformance data
@@ -153,7 +155,7 @@ class RuleBasedConformance:
             conf_case.append(ret)
 
             # reset graph
-            self.__g.marking.reset(deepcopy(initial_marking))
+            self.__g.marking.reset(initial_marking.copy())
 
         return conf_case
 
