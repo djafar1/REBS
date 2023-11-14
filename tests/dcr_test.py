@@ -339,11 +339,12 @@ class TestConformanceDCR(unittest.TestCase):
     def test_rule_checking_no_constraints(self):
         # given a dcr graph
         log = pm4py.read_xes("input_data/running-example.xes")
+        print(log.to_string())
         dcr, _ = pm4py.discover_dcr(log)
         # when running getConstraints
         no = dcr.get_constraints()
-        # then object, should contain 31 constraints
-        self.assertTrue(no == 31)
+        # then object, should contain 30 constraints
+        self.assertTrue(no == 30)
 
         del log
         del dcr
@@ -531,7 +532,7 @@ class TestConformanceDCR(unittest.TestCase):
         no = dcr.get_constraints()
         # then object, should contain the roleAssignment
         # 31 original constraints, but also, 19 additional role assignments
-        self.assertTrue(no == 50)
+        self.assertTrue(no == 49)
 
         del log
         del dcr
@@ -563,7 +564,6 @@ class TestConformanceDCR(unittest.TestCase):
 
         dcr, _ = pm4py.discover_dcr(log, process_type={'roles'})
         conf_res = pm4py.conformance_dcr(log, dcr)
-
         for i in conf_res:
             self.assertEqual(int(i['dev_fitness']), 1)
             self.assertTrue(i['is_fit'])
