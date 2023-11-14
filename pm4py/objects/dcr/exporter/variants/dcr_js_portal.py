@@ -19,6 +19,11 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
     '''
 
     dcr = clean_output(dcr)
+    event_labels = list(dcr['labelMapping'].keys())
+    event_ids = []
+    for event in list(dcr['labelMapping'].values()):
+        for event_id in event:
+            event_ids.append(event_id)
 
     root = etree.Element("dcrgraph")
     if dcr_title:
@@ -71,7 +76,8 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
         xml_label.set("id", event)
         xml_labelMapping = etree.SubElement(labelMappings, "labelMapping")
         xml_labelMapping.set("eventId", event)
-        xml_labelMapping.set("labelId", event)
+        label_id = event_labels[event_ids.index(event)]
+        xml_labelMapping.set("labelId", label_id)
 
         for event_prime in dcr['events']:
             if event in dcr["conditionsFor"] and event_prime in dcr["conditionsFor"][event]:
@@ -80,7 +86,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
                 xml_condition.set("targetId", event_prime)
                 xml_condition_custom = etree.SubElement(xml_condition, "custom")
                 xml_waypoints = etree.SubElement(xml_condition_custom, "waypoints")
-                create_arrows(xml_waypoints, xcoord,ycoord, event, event_prime)
+                create_arrows(xml_waypoints, xcoord,ycoord, event_prime, event)
                 xml_custom_id = etree.SubElement(xml_condition_custom, "id")
                 xml_custom_id.set("id", "Relation_" + event + "_" + event_prime + "_condition")
             if event in dcr["responseTo"] and event_prime in dcr["responseTo"][event]:
