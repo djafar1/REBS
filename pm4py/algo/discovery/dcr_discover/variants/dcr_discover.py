@@ -351,7 +351,6 @@ class Discover:
             Every event, x, that occurs before some event, y, is a possible candidate for a condition x -->* y
             This is due to the fact, that in the traces where x does not occur before y, x might be excluded
             """
-
             possibleConditions = deepcopy(self.logAbstraction['predecessor'])
             # Replay entire log, filtering out any invalid conditions
             for trace in self.logAbstraction['traces']:
@@ -368,6 +367,7 @@ class Discover:
                     # Execute includes starting from (event)
                     included = included.union(self.graph['includesTo'][event])
                     localSeenBefore.add(event)
+
             # Now the only possible Condtitions that remain are valid for all traces
             # These are therefore added to the graph
             for key in self.graph['conditionsFor']:

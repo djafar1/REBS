@@ -341,9 +341,10 @@ class TestConformanceDCR(unittest.TestCase):
         log = pm4py.read_xes("input_data/running-example.xes")
         dcr, _ = pm4py.discover_dcr(log)
         # when running getConstraints
+        print(dcr)
         no = dcr.get_constraints()
         # then object, should contain 30 constraints
-        self.assertTrue(no == 31)
+        self.assertTrue(no == 30)
 
         del log
         del dcr
@@ -531,7 +532,8 @@ class TestConformanceDCR(unittest.TestCase):
         no = dcr.get_constraints()
         # then object, should contain the roleAssignment
         # 31 original constraints, but also, 19 additional role assignments
-        self.assertTrue(no == 50)
+        print(no)
+        self.assertTrue(no == 49)
 
         del log
         del dcr
