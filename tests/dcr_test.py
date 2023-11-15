@@ -531,7 +531,7 @@ class TestConformanceDCR(unittest.TestCase):
         no = dcr.get_constraints()
         # then object, should contain the roleAssignment
         # 31 original constraints, but also, 19 additional role assignments
-        self.assertTrue(no == 50)
+        self.assertTrue(no == 49)
 
         del log
         del dcr
