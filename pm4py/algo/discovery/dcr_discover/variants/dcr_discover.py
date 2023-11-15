@@ -307,17 +307,19 @@ class Discover:
         self.graph['responseTo'] = deepcopy(self.logAbstraction['responseTo'])
         # Remove redundant responses
         self.graph['responseTo'] = self.optimizeRelation(self.graph['responseTo'])
-
+        selfExcludes = set()
         # Mine self-exclusions
         for event in self.logAbstraction['responseTo']:
             if event in self.logAbstraction['atMostOnce']:
                 self.graph['excludesTo'][event].add(event)
+                selfExcludes.add(event)
 
         # For each chainprecedence(i,j) we add: include(i,j) exclude(j,j)
         for j in self.logAbstraction['chainPrecedenceFor']:
             for i in self.logAbstraction['chainPrecedenceFor'][j]:
                 self.graph['excludesTo'][j].add(j)
                 self.graph['includesTo'][i].add(j)
+                selfExcludes.add(j)
 
         # Additional excludes based on predecessors / successors
         for event in self.logAbstraction['events']:
@@ -365,6 +367,7 @@ class Discover:
                     included = included.difference(self.graph['excludesTo'][event])
                     # Execute includes starting from (event)
                     included = included.union(self.graph['includesTo'][event])
+                    localSeenBefore.add(event)
             # Now the only possible Condtitions that remain are valid for all traces
             # These are therefore added to the graph
             for key in self.graph['conditionsFor']:
@@ -372,7 +375,14 @@ class Discover:
 
             # Removing redundant conditions
             self.graph['conditionsFor'] = self.optimizeRelation(self.graph['conditionsFor'])
-            #self.clean_empty_sets()
+            self.clean_empty_sets()
         return 0
 
-
+    def clean_empty_sets(self):
+        for k, v in deepcopy(self.graph).items():
+            if k in ['conditionsFor', 'responseTo', 'excludesTo', 'includesTo']:
+                v_new = {}
+                for k2, v2 in v.items():
+                    if v2:
+                        v_new[k2] = set([v3 for v3 in v2 if v3 is not set()])
+                self.graph[k] = v_new
