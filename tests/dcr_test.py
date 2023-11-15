@@ -343,7 +343,7 @@ class TestConformanceDCR(unittest.TestCase):
         # when running getConstraints
         no = dcr.get_constraints()
         # then object, should contain 30 constraints
-        self.assertTrue(no == 31)
+        self.assertTrue(no == 30)
 
         del log
         del dcr
