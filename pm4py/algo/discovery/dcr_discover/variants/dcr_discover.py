@@ -255,7 +255,7 @@ class Discover:
         Dict[str, Set[str]]
             An optimized version of the input relations, with redundant connections removed.
         """
-        # Sortedlist to avoid possibly non-deterministic behavior due to unordered nature of dict
+        # Sorted dict to avoid possibly non-deterministic behavior due to unordered nature of dict
         relation = dict(sorted(relation.items(), key=lambda conditions: len(conditions[1]),reverse=True))
         for eventA in relation:
             for eventB in relation[eventA]:
