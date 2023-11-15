@@ -307,19 +307,19 @@ class Discover:
         self.graph['responseTo'] = deepcopy(self.logAbstraction['responseTo'])
         # Remove redundant responses
         self.graph['responseTo'] = self.optimizeRelation(self.graph['responseTo'])
-        selfExcludes = set()
+
         # Mine self-exclusions
         for event in self.logAbstraction['responseTo']:
             if event in self.logAbstraction['atMostOnce']:
                 self.graph['excludesTo'][event].add(event)
-                selfExcludes.add(event)
+
 
         # For each chainprecedence(i,j) we add: include(i,j) exclude(j,j)
         for j in self.logAbstraction['chainPrecedenceFor']:
             for i in self.logAbstraction['chainPrecedenceFor'][j]:
                 self.graph['excludesTo'][j].add(j)
                 self.graph['includesTo'][i].add(j)
-                selfExcludes.add(j)
+
 
         # Additional excludes based on predecessors / successors
         for event in self.logAbstraction['events']:
