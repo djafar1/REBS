@@ -80,7 +80,7 @@ def test_ground_truth_compliance(graphs, test_path, test_log_path, gt_log_path):
         f = res.get_classification_values()
         print(test_file+" has "+" tp: "+str(f[0])+" fp: "+str(f[1])+" tn: "+str(f[2])+" fn: "+str(f[3]))
 
-
+    print(ct_values.get_classification_values())
     print("collective binary classification results:")
     print("positive precision: " + str(round(ct_values.compute_positive_precision(), 2)))
     print("negative precision: " + str(round(ct_values.compute_negative_precision(), 2)))
@@ -99,7 +99,6 @@ def initiate_run_time_test(test_path:str, repeat: int):
     get_files(test_path, training_logs)
 
     graphs = benchmark_discover_run_time_2019(test_path,training_logs,repeat)
-
     remove_files(test_path, training_logs)
 
     get_files(test_path, test_logs)
@@ -118,7 +117,7 @@ if __name__ == "__main__":
 
 
     #repeat the discover algo # of times
-    repeat = 10
+    repeat = 1
 
     #instantiate test
     initiate_run_time_test(pdc_test, repeat)
