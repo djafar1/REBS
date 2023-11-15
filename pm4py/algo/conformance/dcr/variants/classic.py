@@ -113,16 +113,21 @@ class RuleBasedConformance:
         initial_marking['included'] = set(self.__g.marking.included)
         initial_marking['executed'] = set(self.__g.marking.executed)
         initial_marking['pending'] = set(self.__g.marking.pending)
+
         # iterate through all traces in log
         for trace in self.__log:
             # create base dict to accumalate trace conformance data
             ret = {Outputs.NO_CONSTR_TOTAL.value: total_num_constraints, Outputs.DEVIATIONS.value: []}
-
+            # execution_his for checking dynamic excludes
+            self.__parameters['executionHistory'] = []
+            # response_originator for checking reason for not accepting state
             response_origin = []
             # iterate through all events in a trace
             for event in trace:
                 # get the event to be executed
                 e = self.__g.get_event(event[activity_key])
+                self.__parameters['executionHistory'].append(e)
+
                 # check for deviations
                 if e in self.__g.responses:
                     for response in self.__g.responses[e]:

@@ -486,6 +486,26 @@ class TestConformanceDCR(unittest.TestCase):
         del conf_res
         del collect
 
+    def test_exclude_violation2(self):
+        # given A log with check ticket at end after it has been excluded
+        log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
+        dcr, _ = pm4py.discover_dcr(log)
+        log = log[log['case:concept:name'] == "1"]
+        row = log[log['concept:name'] == "check ticket"]
+        log = pd.concat([log,row]).reset_index(drop=True)
+
+        #when conformance is checked
+        from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
+        conf_res = conf_alg(log, dcr)
+
+        # fitness is not 1, and has 1 exclude violation
+        collect = []
+        for i in conf_res[0]['deviations']:
+            if i[0] == 'excludeViolation':
+                collect.append(i[0])
+        self.assertIn('excludeViolation', collect)
+        self.assertEqual(1, len(collect))
+
     def test_include_violation(self):
         # given a log
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))

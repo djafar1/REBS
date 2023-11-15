@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
 
     #repeat the discover algo # of times
-    repeat = 1
+    repeat = 10
 
     #instantiate test
     initiate_run_time_test(pdc_test, repeat)
