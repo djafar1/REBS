@@ -30,27 +30,18 @@ DEFAULT_VARIANT = Variants.CLASSIC
 VERSIONS = {Variants.CLASSIC}
 
 
-def apply(dcr: DcrGraph, initial_marking: Marking, parameters: Optional[Dict[Any, Any]] = None, variant=DEFAULT_VARIANT) -> EventLog:
+def apply(dcr: DcrGraph, parameters: Optional[Dict[Any, Any]] = None, variant=DEFAULT_VARIANT) -> EventLog:
     """
     Do the playout of a Petrinet generating a log
 
     Parameters
     -----------
-    net
-        Petri net to play-out
-    initial_marking
-        Initial marking of the Petri net
-    final_marking
-        (if provided) Final marking of the Petri net
+    dcr
+        DCR graph to play-out
     parameters
         Parameters of the algorithm
     variant
         Variant of the algorithm to use:
-            - Variants.BASIC_PLAYOUT: selects random traces from the model, without looking at the
-            frequency of the transitions
-            - Variants.STOCHASTIC_PLAYOUT: selects random traces from the model, looking at the
-            stochastic frequency of the transitions. Requires the provision of the stochastic map
-            or the log.
-            - Variants.EXTENSIVE: gets all the traces from the model. can be expensive
+            - Variants.BASIC_PLAYOUT: generates random traces from the model
     """
-    return exec_utils.get_variant(variant).apply(dcr, initial_marking, parameters=parameters)
+    return exec_utils.get_variant(variant).apply(dcr, parameters=parameters)

@@ -9,6 +9,8 @@ from pm4py.algo.conformance.alignments.dcr.variants.optimal import Alignment
 from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.dcr.importer import importer as dcr_importer
 from pm4py.objects.dcr.exporter import exporter as dcr_exporter
+from pm4py.algo.simulation.playout.dcr.variants.classic import Parameters
+from datetime import datetime
 
 class TestDiscoveryDCR(unittest.TestCase):
     def check_if_dcr_is_equal(self, dcr1, dcr2):
@@ -1081,42 +1083,37 @@ class TestImportExportDCR(unittest.TestCase):
 
 
 class TestPlayOut(unittest.TestCase):
-    # def test_playout_manual(self):
-    #     from pm4py.objects.dcr.obj import DcrGraph
-    #     from pm4py.algo.simulation.playout.dcr.variants import classic as dcr_playout
-    #     graph = DcrGraph()
-    #     graph.events.add("A")
-    #     graph.events.add("B")
-    #     graph.events.add("C")
-    #     graph.labels.add("activity1")
-    #     graph.labels.add("activity2")
-    #     graph.labels.add("activity3")
-    #     graph.label_mapping["activity1"] = {"A"}
-    #     graph.label_mapping["activity2"] = {"B"}
-    #     graph.label_mapping["activity3"] = {"C"}
-    #     graph.conditions["A"] = set("B")
-    #     graph.conditions["B"] = set("C")
-    #     graph.responses["A"] = set("C")
-    #     graph.excludes["C"] = set("B")
-    #     graph.marking.included.add("A")
-    #     graph.marking.included.add("C")
-    #     graph.marking.included.add("B")
-    #     dcr_playout.choose_next_activity(graph, "A")
-
+        
     def test_playout(self):
-        from pm4py.objects.dcr.obj import DcrGraph
-        from pm4py.algo.simulation.playout.dcr.variants import classic as dcr_playout
-        log = pm4py.read_xes(os.path.join("tests", "input_data", "running-example.xes"))
+        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
         dcr, _ = pm4py.discover_dcr(log)
-        # pm4py.write_dcr_xml(dcr, "C:/Users/herma/Downloads/test.xml", dcr_exporter.DCR_JS_PORTAL, "test.xml")
-        generated_log = dcr_playout.apply(dcr)
-        conf_res = pm4py.conformance_dcr(generated_log, dcr, return_diagnostics_dataframe=True)
-        print(conf_res)
+        number_of_traces = 10
+        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: number_of_traces})
+        self.assertEqual(len(generated_log), number_of_traces)
+        case_id_default = 1
+        last_case_id = case_id_default + number_of_traces - 1
+        timestamp_default = 10000000
+        self.assertEqual(generated_log[0].attributes['concept:name'], str(case_id_default))
+        self.assertEqual(datetime.timestamp(generated_log[0][0]['time:timestamp']), timestamp_default)
+        self.assertEqual(generated_log[-1].attributes['concept:name'], str(last_case_id))
+    
+    def test_playout_conformance_fitness(self):
+        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
+        dcr, _ = pm4py.discover_dcr(log)
+        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: 10})
+        conf_res = pm4py.conformance_dcr(generated_log, dcr)
+        for i in conf_res:
+            self.assertEqual(int(i['dev_fitness']), 1)
+            self.assertTrue(i['is_fit'])
 
-    # def test_condition(self):
-    #     dcr = pm4py.read_dcr_xml("C:/Users/herma/Downloads/condition.xml", variant=dcr_importer.DCR_JS_PORTAL)
-    #     pm4py.write_dcr_xml(dcr, "C:/Users/herma/Downloads/condition2.xml", dcr_exporter.DCR_JS_PORTAL, "test.xml")
+    def test_playout_alignment_fitness(self):
+        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
+        dcr, _ = pm4py.discover_dcr(log)
+        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: 10})
+        align_res = pm4py.optimal_alignment_dcr(generated_log, dcr)
+        for i in align_res:
+            self.assertEqual(i['fitness'], 1.0)
+
 
 if __name__ == '__main__':
-    # unittest.main()
-    unittest.main(TestPlayOut())
+    unittest.main()

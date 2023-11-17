@@ -15,15 +15,12 @@
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
 import datetime
-import heapq
-import math
 import sys
 import time
 import random
-from collections import Counter
 from copy import deepcopy
 from enum import Enum
-from typing import Optional, Dict, Any, Union, Tuple
+from typing import Optional, Dict, Any, Union
 
 from pm4py.objects.log.obj import EventLog
 from pm4py.objects.log.obj import Trace, Event
@@ -41,7 +38,7 @@ class Parameters(Enum):
     INITIAL_CASE_ID = "initial_case_id"
 
 
-def choose_next_activity(dcr, parameters=None):
+def choose_next_activity(dcr):
     enabled = DCRSemantics().enabled(dcr)
     if tuple(enabled) == ():
         return dcr, None
@@ -50,7 +47,7 @@ def choose_next_activity(dcr, parameters=None):
     return dcr, next_activity
 
 
-def generate_random_trace(dcr, min_trace_length, max_trace_length, start_time, max_execution_time, parameters=None):
+def generate_random_trace(dcr, min_trace_length, max_trace_length, start_time, max_execution_time):
     final_trace = []
     while True:
         if DCRSemantics.is_accepting(dcr):
@@ -61,39 +58,29 @@ def generate_random_trace(dcr, min_trace_length, max_trace_length, start_time, m
         curr_time = time.time()
         if curr_time - start_time > max_execution_time:
             break
-        dcr, next_activity = choose_next_activity(dcr, parameters)
+        dcr, next_activity = choose_next_activity(dcr)
         if next_activity is None:
             break
         final_trace.append(next_activity)
     return final_trace
 
 
-def apply(dcr, parameters: Optional[Dict[Union[str, Parameters], Any]] = None) -> Union[
-        EventLog, Dict[Tuple[str, str], int]]:
+def apply(dcr, parameters: Optional[Dict[Union[str, Parameters], Any]] = None) -> EventLog:
     """
-    Applies the playout algorithm on a DFG, extracting the most likely traces according to the DFG
+    Applies the playout algorithm on a DCR graph generating a log
 
     Parameters
     ---------------
-    dfg
-        *Complete* DFG
-    start_activities
-        Start activities
-    end_activities
-        End activities
+    dcr
+        DCR graph
     parameters
         Parameters of the algorithm, including:
         - Parameters.ACTIVITY_KEY => the activity key of the simulated log
         - Parameters.TIMESTAMP_KEY => the timestamp key of the simulated log
+        - Parameters.NO_TRACES => number of traces to generate (default: 1000)
         - Parameters.MAX_TRACE_LENGTH => maximum trace length (default: 1000)
-        - Parameters.MIN_WEIGHTED_PROBABILITY => the minimum overall weighted probability that makes the method stop
-                                                (default: 1)
-        - Parameters.MAX_NO_OCC_PER_ACTIVITY => the maximum number of occurrences per activity in the traces of the log
-                                                (default: 2)
-        - Parameters.ADD_TRACE_IF_TAKES_NEW_ELS_TO_DFG => adds a simulated trace to the simulated log only if it adds
-                                                    elements to the simulated DFG, e.g., it adds behavior;
-                                                    skip insertion otherwise (default: False)
-        - Parameters.RETURN_VARIANTS => returns the traces as variants with a likely number of occurrences
+        - Parameters.INITIAL_CASE_ID => Numeric case id for the first trace (default: 1)
+        - Parameters.INITIAL_TIMESTAMP => The frist event is set with INITIAL_TIEMSTAMP increased from 1970
 
     Returns
     ---------------
@@ -109,21 +96,22 @@ def apply(dcr, parameters: Optional[Dict[Union[str, Parameters], Any]] = None) -
     activity_key = exec_utils.get_param_value(
         Parameters.ACTIVITY_KEY, parameters, xes_constants.DEFAULT_NAME_KEY)
     max_trace_length = exec_utils.get_param_value(
-        Parameters.MAX_TRACE_LENGTH, parameters, 50)
+        Parameters.MAX_TRACE_LENGTH, parameters, 1000)
     max_execution_time = exec_utils.get_param_value(
         Parameters.MAX_EXECUTION_TIME, parameters, sys.maxsize)
-    no_traces = exec_utils.get_param_value(Parameters.NO_TRACES, parameters, 10)
-    
-    original_dcr = deepcopy(dcr)
+    no_traces = exec_utils.get_param_value(Parameters.NO_TRACES, parameters, 1000)
+
+    initial_marking = deepcopy(dcr.marking)  # Remember im to be able to reset the graph
     final_traces = []
 
     start_time = time.time()
     while len(final_traces) < no_traces:
         min_trace_length = random.randrange(max_trace_length)
-        trace = generate_random_trace(dcr, min_trace_length, max_trace_length, start_time, max_execution_time, parameters)
+        trace = generate_random_trace(dcr, min_trace_length, max_trace_length, start_time, max_execution_time)
         final_traces.append(trace)
-        dcr = deepcopy(original_dcr)
-    
+        # dcr = deepcopy(original_dcr)
+        dcr.marking.reset(initial_marking)  # Reset the DCR graph for following trace generation
+
     event_log = EventLog()
     # assigns to each event an increased timestamp from 1970
     curr_timestamp = 10000000
