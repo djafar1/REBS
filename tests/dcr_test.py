@@ -1080,5 +1080,43 @@ class TestImportExportDCR(unittest.TestCase):
             self.second_test_file = ''
 
 
+class TestPlayOut(unittest.TestCase):
+    # def test_playout_manual(self):
+    #     from pm4py.objects.dcr.obj import DcrGraph
+    #     from pm4py.algo.simulation.playout.dcr.variants import classic as dcr_playout
+    #     graph = DcrGraph()
+    #     graph.events.add("A")
+    #     graph.events.add("B")
+    #     graph.events.add("C")
+    #     graph.labels.add("activity1")
+    #     graph.labels.add("activity2")
+    #     graph.labels.add("activity3")
+    #     graph.label_mapping["activity1"] = {"A"}
+    #     graph.label_mapping["activity2"] = {"B"}
+    #     graph.label_mapping["activity3"] = {"C"}
+    #     graph.conditions["A"] = set("B")
+    #     graph.conditions["B"] = set("C")
+    #     graph.responses["A"] = set("C")
+    #     graph.excludes["C"] = set("B")
+    #     graph.marking.included.add("A")
+    #     graph.marking.included.add("C")
+    #     graph.marking.included.add("B")
+    #     dcr_playout.choose_next_activity(graph, "A")
+
+    def test_playout(self):
+        from pm4py.objects.dcr.obj import DcrGraph
+        from pm4py.algo.simulation.playout.dcr.variants import classic as dcr_playout
+        log = pm4py.read_xes(os.path.join("tests", "input_data", "running-example.xes"))
+        dcr, _ = pm4py.discover_dcr(log)
+        # pm4py.write_dcr_xml(dcr, "C:/Users/herma/Downloads/test.xml", dcr_exporter.DCR_JS_PORTAL, "test.xml")
+        generated_log = dcr_playout.apply(dcr)
+        conf_res = pm4py.conformance_dcr(generated_log, dcr, return_diagnostics_dataframe=True)
+        print(conf_res)
+
+    # def test_condition(self):
+    #     dcr = pm4py.read_dcr_xml("C:/Users/herma/Downloads/condition.xml", variant=dcr_importer.DCR_JS_PORTAL)
+    #     pm4py.write_dcr_xml(dcr, "C:/Users/herma/Downloads/condition2.xml", dcr_exporter.DCR_JS_PORTAL, "test.xml")
+
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    unittest.main(TestPlayOut())
