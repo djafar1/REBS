@@ -1,5 +1,6 @@
 # A DCR Exentionsion for pm4py
-Welcome to the pm4py extension for pm4py, that has been developed for pm4py.
+Welcome to the pm4py extension for pm4py, that has been developed for pm4py. [(PM4Py-core)
+Usage](https://github.com/pm4py/pm4py-core/tree/release)
 
 This exentionsion currently supports the discovery of DCR Graphs, conformance checking, and import export of dcr graph using xml for possible cross platform usage and visualization of dcr graph.
 
