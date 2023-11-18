@@ -24,6 +24,7 @@ from typing import Union, Tuple
 from pm4py.objects.log.obj import EventLog
 from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.objects.process_tree.obj import ProcessTree
+from pm4py.objects.dcr.obj import DcrGraph
 
 
 def play_out(*args: Union[Tuple[PetriNet, Marking, Marking], dict, Counter, ProcessTree], **kwargs) -> EventLog:
@@ -32,7 +33,7 @@ def play_out(*args: Union[Tuple[PetriNet, Marking, Marking], dict, Counter, Proc
     i.e., gets a set of traces from the model.
     The function either takes a petri net, initial and final marking, or, a process tree as an input.
 
-    :param args: model (Petri net with initial and final marking, or process tree)
+    :param args: model (Petri net with initial and final marking, process tree, or DCR graph)
     :param kwargs: optional parameters of the method, including:
         - parameters: dictionary containing the parameters of the playout, including:
             - smap: (if provided) stochastic map to be used to stochastically choose the transition
@@ -82,6 +83,9 @@ def play_out(*args: Union[Tuple[PetriNet, Marking, Marking], dict, Counter, Proc
         from pm4py.objects.process_tree.obj import ProcessTree
         if type(args[0]) is ProcessTree:
             from pm4py.algo.simulation.playout.process_tree import algorithm
+            return algorithm.apply(args[0], **kwargs)
+        elif type(args[0]) is DcrGraph:
+            from pm4py.algo.simulation.playout.dcr import algorithm
             return algorithm.apply(args[0], **kwargs)
     raise Exception("unsupported model for playout")
 
