@@ -1,7 +1,5 @@
 # A DCR Exentionsion for pm4py
-Welcome to the pm4py extension for pm4py, that has been developed for pm4py. [(PM4Py-core)
-Usage](https://github.com/pm4py/pm4py-core/tree/release)
-
+Welcome to the pm4py extension for [pm4py](https://github.com/pm4py/pm4py-core/tree/release).
 This exentionsion currently supports the discovery and conformance checking of DCR Graph, in addtition to import/export using xml for possible cross platform usage and visualization.
 The github repo, is a forked repository of the pm4py-core and therefore holds the same functionality as the original library. This github repo has been created with the intension of developing an extension to library, such that it could be incorporated into the main pm4py-core.
 
@@ -36,15 +34,16 @@ pm4py.write_dcr_xml(graph,path=output_path,
 For more indepth tutorial look at tutorial in  
 
 ## Requirements
-Contains the same requirements for installation as provided in [(PM4Py-core)
-Usage](https://github.com/pm4py/pm4py-core/tree/release)
+Contains the same requirements for installation as provided in [PM4Py-core
+](https://github.com/pm4py/pm4py-core/tree/release)
 
 ## Installation
 create a a virtual environment in python and
 ```
 pip install -r requirements.text
 
+
 ```
 
 ## License
-licensed under [(GPLv3) usage](https://github.com/paul-cvp/pm4py-dcr/blob/develop/LICENSE)
+licensed under [GPLv3](https://github.com/paul-cvp/pm4py-dcr/blob/develop/LICENSE)
