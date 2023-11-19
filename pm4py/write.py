@@ -381,7 +381,7 @@ def write_ocel2_xml(ocel: OCEL, file_path: str, encoding: str = constants.DEFAUL
     from pm4py.objects.ocel.exporter.xmlocel import exporter as xml_exporter
     return xml_exporter.apply(ocel, file_path, variant=xml_exporter.Variants.OCEL20, parameters={"encoding": encoding})
 
-def write_dcr_xml(dcr_graph, path, variant, dcr_title):
+def write_dcr_xml(dcr_graph, path, **parameters):
     """
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
 
@@ -401,4 +401,4 @@ def write_dcr_xml(dcr_graph, path, variant, dcr_title):
         file_path = file_path + ".xml"
 
     from pm4py.objects.dcr.exporter import exporter as dcr_exporter
-    return dcr_exporter.apply(dcr_graph=dcr_graph, path=file_path, variant=variant, dcr_title=dcr_title)
+    return dcr_exporter.apply(dcr_graph=dcr_graph, path=file_path, **parameters)
