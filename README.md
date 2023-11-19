@@ -1,7 +1,7 @@
 # A DCR Exentionsion for pm4py
 Welcome to the pm4py extension for [pm4py](https://github.com/pm4py/pm4py-core/tree/release).
 This exentionsion currently supports the discovery and conformance checking of DCR Graph, in addtition to import/export using xml for possible cross platform usage and visualization.
-The github repo, is a forked repository of the pm4py-core and therefore holds the same functionality as the original library. This github repo has been created with the intension of developing an extension to library, such that it could be incorporated into the main pm4py-core.
+The github repo, is a forked repository of the pm4py-core and therefore holds the same functionality as the original library. This github repo has been created with the intention of developing an extension to library, such that it could be incorporated into the main pm4py-core.
 
 
 ## Documentation
