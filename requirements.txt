@@ -15,4 +15,4 @@ tqdm
 python-dateutil
 setuptools
 psutil
-isodate~
+isodate
