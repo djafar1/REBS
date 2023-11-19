@@ -42,7 +42,7 @@ The pm4py-core has already implemented the possibility to use a setup file to in
 1. Create a virtual environment to ensure that the installed package does not clash with the preexsiting pm4py library.
 2. Open the python project you want to install this pm4py library with the implemented DCR Exentension.
 3. In the command prompt inside the virtual environment write: git clone -b develop https://github.com/paul-cvp/pm4py-dcr.git
-4.Move to the directory containing the setup.py file and write: python setup.py install
+4. Move to the directory containing the setup.py file and write: python setup.py install
 5. Delete the github repo, you should now be able to use the installed library.
 
 ## License
