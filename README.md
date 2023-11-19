@@ -31,7 +31,7 @@ output_path = os.path.join("..","tests","test_output_data","dcr.xml")
 pm4py.write_dcr_xml(graph,path=output_path,
                         variant=Variants.XML_DCR_PORTAL, dcr_title="dcr graph of running-example")
 ```
-For more indepth tutorial look at tutorial in  
+For more indepth tutorial look at [tutorial](https://github.com/paul-cvp/pm4py-dcr/blob/develop/notebooks/0_discover_dcr.ipynb)
 
 ## Requirements
 Contains the same requirements for installation as provided in [PM4Py-core
