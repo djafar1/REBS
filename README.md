@@ -24,13 +24,17 @@ import pm4py
 
 
 # to discover dcr graph
-log = pm4py.read_xes("running-example.xes")
-
+log_path = os.path.join("..","tests","input_data","running-example.xes")
+log = pm4py.read_xes(log_path)
 graph, _ = pm4py.discover_dcr(log)
 
-pm4py.write_dcr_xml
+# export dcr graph
+output_path = os.path.join("..","tests","test_output_data","dcr.xml")
+pm4py.write_dcr_xml(graph,path=output_path,
+                        variant=Variants.XML_DCR_PORTAL, dcr_title="dcr graph of running-example")
 ```
 For more indepth tutorial look at tutorial in  
+
 ## Requirements
 Contains the same requirements for installation as provided in [(PM4Py-core)
 Usage](https://github.com/pm4py/pm4py-core/tree/release)
