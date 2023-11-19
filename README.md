@@ -47,4 +47,4 @@ pip install -r requirements.text
 ```
 
 ## License
-licensed under GPLv3 https://github.com/paul-cvp/pm4py-dcr/blob/develop/LICENSE
+licensed under [(GPLv3) usage](https://github.com/paul-cvp/pm4py-dcr/blob/develop/LICENSE)
