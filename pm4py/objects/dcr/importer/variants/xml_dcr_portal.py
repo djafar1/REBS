@@ -85,7 +85,7 @@ def parse_element(curr_el, parent, dcr):
                 if delay.isdecimal():
                     delay_days = int(delay)
                 else:
-                    delay_days = isodate.parse_duration(delay).days
+                    delay_days = isodate.parse_duration(delay)#.days
                 dcr['conditionsForDelays'][event_prime].add((event, delay_days))
 
         case 'response':
@@ -108,7 +108,7 @@ def parse_element(curr_el, parent, dcr):
                 if deadline.isdecimal():
                     deadline_days = int(deadline)
                 else:
-                    deadline_days = isodate.parse_duration(deadline).days
+                    deadline_days = isodate.parse_duration(deadline)#.days
                 dcr['responseToDeadlines'][event].add((event_prime, deadline_days))
         case 'role':
             if curr_el.text:
