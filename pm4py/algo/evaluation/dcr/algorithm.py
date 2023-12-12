@@ -121,6 +121,10 @@ def dcr_separability(G):
     return len_cc / size_g
 
 
+def dcr_co_separability(G):
+    return 1 - dcr_separability(G)
+
+
 def dcr_constraint_variablity_metric(G):
     nxG = dcr_to_networkx(G)
     comps = nx.weakly_connected_components(nxG)
@@ -130,7 +134,8 @@ def dcr_constraint_variablity_metric(G):
         cv_sum = 0.0
         if comp_c_c > 0:
             for rel in Relations:
-                cv_sum += pct[rel.value] * np.emath.logn(rels_in_comp, pct[rel.value])
+                if pct[rel.value] != 0 and np.log(rels_in_comp) != 0:
+                    cv_sum += pct[rel.value] * np.emath.logn(rels_in_comp, pct[rel.value])
             neg_sum = - cv_sum
             if neg_sum > cv:
                 cv = neg_sum
@@ -195,6 +200,7 @@ def score_one_model(dcr_model, ground_truth_log):
         gt_is_pos = gt_cases[trace.attributes['concept:name']]
         dcr = deepcopy(dcr_model)
         semantics = dcr_semantics.DcrSemantics(dcr, cmd_print=False)
+        semantics.flatten_dcr_nestings()
         can_execute = True
         events_so_far = []
         for event in trace:
@@ -221,7 +227,7 @@ def score_one_model(dcr_model, ground_truth_log):
                 fn += 1
             else:
                 tn += 1
-    print(f'tp: {tp}| fp: {fp} | tn: {tn} | fn: {fn}')
+    print(f'tp: {tp} | fp: {fp} | tn: {tn} | fn: {fn}')
     return tp, fp, tn, fn
 
 
@@ -273,96 +279,108 @@ def compare_two_models(dcr_model_1, dcr_model_2, ground_truth_log):
             print(gt_df[gt_df['case:concept:name'] == cid]['concept:name'].tolist())
 
 
-def score_everything(
-        base_dir='/home/vco/Datasets',
-        folders=None,
-        special_folders=None,
-        configs=None):
-    if folders is None:
-        folders = ['PDC19', 'PDC20', 'PDC21', 'PDC22']
-    if special_folders is None:
-        special_folders = ['PDC21', 'PDC22']
+def score_everything(logs_name_path_dict, configs=None, create_train_test_split=False):
     if configs is None:
-        configs = [{
-                'timed': False,
-                'pending': False,
-                'variant': Variants.DCR_BASIC,
-                'alg_name': 'DisCoveR'
-            },{
-                'inBetweenRels': True,
-                'timed': False,
-                'pending': False,
-                'variant': Variants.DCR_SUBPROCESS_ME,
-                'alg_name': 'DisCoveR_Tics'
-            },{
-                'inBetweenRels': False,
-                'timed': False,
-                'pending': False,
-                'variant': Variants.DCR_SUBPROCESS_ME,
-                'alg_name': 'DisCoveR_Tics_no_re'
-            }]
+        print('[X] MUST PASS A CONFiG!!!!!!')
+        return
     sub_folders = ['Ground Truth Logs', 'Test Logs', 'Training Logs']
     # now just take all .xes files and make sure they match across folders
     temp_results = []
-    for folder in folders:
-        print(f'[i] Started for {folder}')
-        for log_name in os.listdir(os.path.join(base_dir, folder, sub_folders[0])):
-            print(f'[i] Log {log_name}')
-            gt = pm4py.read_xes(os.path.join(base_dir, folder, sub_folders[0], log_name), return_legacy_log_object=True,
-                                show_progress_bar=False)
-            # test = pm4py.read_xes(os.path.join(base_dir,folder,sub_folders[1],log_name),return_legacy_log_object=True)
+    for l_name, log_path in logs_name_path_dict.items():
+        print(f'[i] Started for {l_name}')
+        if l_name.startswith('PDC'):
+            for log_name in os.listdir(os.path.join(log_path, sub_folders[2])):
+                print(f'[i] Log {log_name}')
+                # gt = pm4py.read_xes(os.path.join(log_path, sub_folders[0], log_name), return_legacy_log_object=True, show_progress_bar=False)
+                # test = pm4py.read_xes(os.path.join(base_dir,folder,sub_folders[1],log_name),return_legacy_log_object=True)
 
-            if folder in special_folders:
-                specific_log = f'{Path(log_name).stem}{0}.xes'
-                train = pm4py.read_xes(os.path.join(base_dir, folder, sub_folders[2], specific_log),
-                                       return_legacy_log_object=True, show_progress_bar=False)
-            else:
-                train = pm4py.read_xes(os.path.join(base_dir, folder, sub_folders[2], log_name),
-                                       return_legacy_log_object=True, show_progress_bar=False)
+                # if l_name in ['PDC21', 'PDC22']:
+                #     specific_log = f'{Path(log_name).stem}{0}.xes'
+                #     print(os.path.join(log_path, sub_folders[2], specific_log))
+                #     train = pm4py.read_xes(os.path.join(log_path, sub_folders[2], specific_log),
+                #                            return_legacy_log_object=True, show_progress_bar=False)
+                # else:
+                #     print(os.path.join(log_path, sub_folders[2], log_name))
+                train = pm4py.read_xes(os.path.join(log_path, sub_folders[2], log_name), return_legacy_log_object=True, show_progress_bar=False)
+                i = 0
+                for config in configs:
+                    if 'alg_name' not in config:
+                        config['alg_name'] = f'config {i}'
+                        i += 1
+                    temp_results.append(score_based_on_config(train, None, config, log_name, alg_name=config['alg_name']))
+                    print(f'[i] Done for {log_path}')
+        elif create_train_test_split:
+            print('[TODO] create_train_test_split')
+        else:
+            single_log = pm4py.read_xes(log_path, return_legacy_log_object=True, show_progress_bar=False)
             i = 0
             for config in configs:
                 if 'alg_name' not in config:
                     config['alg_name'] = f'config {i}'
                     i += 1
-                temp_results.append(score_based_on_config(train,gt,config,folder,log_name,alg_name=config['alg_name']))
-                print(f'[i] Done for {folder}')
+                temp_results.append(score_based_on_config(single_log, None, config, l_name, alg_name=config['alg_name']))
+
     results = pd.DataFrame(
-        columns=['PDC Year', 'Log name', 'Algorithm', 'TP', 'FP', 'TN', 'FN', 'F1-PDC', 'F1',
-                 'BAC', 'Training Fitness', '#Relations', '#Subprocesses', '#InSpActivities',
+        columns=['Log name', 'Algorithm',
+                 'TP', 'FP', 'TN', 'FN', 'F1-PDC', 'F1',
+                 'BAC', 'MCC', 'Training Fitness',
+                 'Size', 'Density', 'Separability', 'Co-Separability', 'Constraint Variability',
+                 '#Relations', '#Nestings', '#InNActivities',
                  '#Activities', 'Runtime'],
         data=temp_results)
-    results.to_csv(path_or_buf='/models_old/results.csv', index=False)
+    results.to_csv(path_or_buf='/home/vco/Projects/pm4py-dcr/models/results.csv', index=False)
     return results
 
 
-def score_based_on_config(train,gt,config,folder,log_name,alg_name='DisCoveR'):
+def score_based_on_config(train, ground_truth, config, log_name, alg_name='DisCoveR'):
     start_time = time.time()
     dcr = train_dcr_model(train, config)
     elapsed = time.time() - start_time
 
+    size = dcr_size(dcr)
+    density = dcr_density(dcr)
+    separability = dcr_separability(dcr)
+    co_separability = 1 - separability
+    constraint_variability = dcr_constraint_variablity_metric(dcr)
+
     sim = dcr_simplicity.get_simplicity(dcr)
-    fit = fitness(train, dcr)
-    tp, fp, tn, fn = score_one_model(dcr, gt)
-    pdc_f_score = pdcFscore(tp, fp, tn, fn)
-    f_score = fscore(tp, fp, tn, fn)
-    b_acc = balancedAccuracy(tp, fp, tn, fn)
-    m_c_c = mcc(tp, fp, tn, fn)
-    sp_events = 0
-    for k, v in dcr['subprocesses'].items():
-        sp_events += len(v)
+    if ground_truth:
+        fit = fitness(train, dcr)
+        tp, fp, tn, fn = score_one_model(dcr, ground_truth)
+        pdc_f_score = pdcFscore(tp, fp, tn, fn)
+        f_score = fscore(tp, fp, tn, fn)
+        b_acc = balancedAccuracy(tp, fp, tn, fn)
+        m_c_c = mcc(tp, fp, tn, fn)
+    else:
+        fit = ''
+        tp = ''
+        fp = ''
+        tn = ''
+        fn = ''
+        pdc_f_score = ''
+        f_score = ''
+        b_acc = ''
+        m_c_c = ''
+    nested_events = 0
+    for k, v in dcr['nestings'].items():
+        nested_events += len(v)
     return {
-        'PDC Year': folder,
         'Log name': log_name,
         'Algorithm': alg_name,
         'TP': tp, 'FP': fp, 'TN': tn, 'FN': fn,
         'F1-PDC': pdc_f_score,
         'F1': f_score,
         'BAC': b_acc,
-        # 'MCC': m_c_c,
-        'Training Fitness': fit[0] / fit[1],  # fitness is on training
+        'MCC': m_c_c,
+        'Training Fitness': fit[0] / fit[1] if fit else '',  # fitness is on training
+        'Size': size,
+        'Density': density,
+        'Separability': separability,
+        'Co-Separability': 1 - co_separability,
+        'Constraint Variability': constraint_variability,
         '#Relations': sim[0],
-        '#Subprocesses': len(dcr['subprocesses']),
-        '#InSpActivities': sp_events,
+        '#Nestings': len(dcr['nestings']),
+        '#InNActivities': nested_events,
         '#Activities': len(dcr['events']),
         'Runtime': elapsed
     }

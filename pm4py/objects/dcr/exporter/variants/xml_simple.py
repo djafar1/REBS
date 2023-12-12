@@ -106,9 +106,8 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py', dcr_descri
     role_title.text = "User"
     role_description = etree.SubElement(role, "description")
     role_description.text = "Dummy user"
-
+    parents_dict = {}
     if 'subprocesses' in dcr:
-        parents_dict = {}
         for sp_name, sp_events in dcr['subprocesses'].items():
             xml_event = etree.SubElement(root, "events")
             xml_event_id = etree.SubElement(xml_event, "id")
@@ -116,9 +115,21 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py', dcr_descri
             xml_event_label = etree.SubElement(xml_event, "label")
             xml_event_label.text = sp_name
             xml_event_type = etree.SubElement(xml_event, "type")
-            xml_event_type.text = "subprocess"  # TODO: try "nesting" if subprocess doesn't work
+            xml_event_type.text = "subprocess"
             for sp_event in sp_events:
                 parents_dict[sp_event] = sp_name
+    if 'nestings' in dcr:
+        for n_name, n_events in dcr['nestings'].items():
+            xml_event = etree.SubElement(root, "events")
+            xml_event_id = etree.SubElement(xml_event, "id")
+            xml_event_id.text = n_name
+            xml_event_label = etree.SubElement(xml_event, "label")
+            xml_event_label.text = n_name
+            xml_event_type = etree.SubElement(xml_event, "type")
+            xml_event_type.text = "nesting"
+            for n_event in n_events:
+                parents_dict[n_event] = n_name
+    if len(parents_dict)>0:
         export_dcr_graph(dcr, root, parents_dict, replace_whitespace=replace_whitespace)
     else:
         export_dcr_graph(dcr, root, None, replace_whitespace=replace_whitespace)

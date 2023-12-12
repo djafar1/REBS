@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import timedelta
 
-rels = ['conditionsFor', 'responseTo', 'includesTo', 'excludesTo', 'milestonesFor']
+from pm4py.objects.dcr.obj import Relations
 
 
 class DcrSemantics(object):
@@ -12,33 +12,134 @@ class DcrSemantics(object):
         self.parents_dict = {}
         self.cmd_print = cmd_print
         all_events = set(self.dcr['events'])
-        if 'subprocesses' in self.dcr.keys():
-            self.sp_events = set(self.dcr['subprocesses'].keys())
-            self.atomic_events = all_events.difference(self.sp_events)
-            in_sp_events = set()
-            for k, v in self.dcr['subprocesses'].items():
-                in_sp_events = in_sp_events.union(v)
-                for event in v:
-                    self.parents_dict[event] = k
-            self.tl_events = all_events.difference(in_sp_events)
-            self.just_events = self.tl_events.difference(self.sp_events)
-        else:
-            self.sp_events = set()
-            self.atomic_events = all_events
-            self.tl_events = all_events
-            self.just_events = all_events
+        # sp_or_n = False
+        # if 'subprocesses' in self.dcr.keys():
+        #     sp_or_n = True
+        #     self.sp_events = set(self.dcr['subprocesses'].keys())
+        #     self.atomic_events = all_events.difference(self.sp_events)
+        #     in_sp_events = set()
+        #     for k, v in self.dcr['subprocesses'].items():
+        #         in_sp_events = in_sp_events.union(v)
+        #         for event in v:
+        #             self.parents_dict[event] = k
+        #     self.tl_events = all_events.difference(in_sp_events)
+        #     self.just_events = self.tl_events.difference(self.sp_events)
+        # if 'nestings' in self.dcr.keys():
+        #     sp_or_n = True
+        #     self.sp_events = set(self.dcr['nestings'].keys())
+        #     self.atomic_events = all_events.difference(self.sp_events)
+        #     in_sp_events = set()
+        #     for k, v in self.dcr['nestings'].items():
+        #         in_sp_events = in_sp_events.union(v)
+        #         for event in v:
+        #             self.parents_dict[event] = k
+        #     self.tl_events = all_events.difference(in_sp_events)
+        #     self.just_events = self.tl_events.difference(self.sp_events)
+        # if not sp_or_n:
+        #     self.sp_events = set()
+        #     self.atomic_events = all_events
+        #     self.tl_events = all_events
+        #     self.just_events = all_events
         if 'pendingDeadline' not in self.dcr['marking'].keys():
             self.dcr['marking']['pendingDeadline'] = {}
         if 'executedTime' not in self.dcr['marking'].keys():
             self.dcr['marking']['executedTime'] = {}
+        self.nesting_map = {}
+        if 'nestings' in self.dcr and len(self.dcr['nestings']) > 0:
+            self.nesting_map = self.dcr['nestingsMap']
 
     def is_accepting(self):
         pend_incl = self.dcr['marking']['pending'].intersection(self.dcr['marking']['included'])
-        tle_pend_incl = pend_incl.intersection(self.tl_events)
+        tle_pend_incl = pend_incl  # .intersection(self.tl_events)
         res = len(tle_pend_incl) == 0
         if not res and self.cmd_print:
             print(f'[!] Not accepting there are pending included events {pend_incl}')
         return res
+
+    def get_all_events_under_nesting(self, event):
+        if event in self.dcr['nestings'].keys():
+            return self.dcr['nestings'][event]
+        else:
+            return set()
+
+    def get_highest_nesting(self, event):
+        if event in self.nesting_map:
+            highest_nesting = self.nesting_map[event]
+            while True:
+                if highest_nesting in self.nesting_map:
+                    highest_nesting = self.nesting_map[highest_nesting]
+                else:
+                    break
+            return highest_nesting
+        else:
+            return event
+
+    def get_atomic_events(self, event):
+        reverse_nesting = self.get_reverse_nesting()
+        res = set()
+        def find_lowest(e):
+            if e in reverse_nesting:
+                for nested_event in reverse_nesting[e]:
+                    if nested_event in reverse_nesting:
+                        find_lowest(nested_event)
+                    else:
+                        res.add(nested_event)
+            else:
+                res.add(e)
+
+        find_lowest(event)
+        return res
+
+    def get_reverse_nesting(self):
+        reverse_nesting = {}
+        for k, v in self.nesting_map.items():
+            if v not in reverse_nesting:
+                reverse_nesting[v] = set()
+            reverse_nesting[v].add(k)
+        return reverse_nesting
+
+    def flatten_dcr_nestings(self):
+        if len(self.dcr['nestings']) == 0:
+            return
+
+        reverse_nesting = self.get_reverse_nesting()
+        all_atomic_events = set()
+        nesting_top = {}
+        for event in self.dcr['events']:
+            atomic_events = set()
+
+            def find_lowest(e):
+                if e in reverse_nesting:
+                    for nested_event in reverse_nesting[e]:
+                        if nested_event in reverse_nesting:
+                            find_lowest(nested_event)
+                        else:
+                            atomic_events.add(nested_event)
+                else:
+                    atomic_events.add(e)
+
+            find_lowest(event)
+            all_atomic_events = all_atomic_events.union(atomic_events)
+            if event in self.dcr['nestings'].keys():
+                nesting_top[event] = atomic_events
+
+        for nest, atomic_events in nesting_top.items():
+            for r in Relations:
+                rel = r.value
+                if nest in self.dcr[rel]:
+                    for ae in atomic_events:
+                        self.dcr[rel][ae] = self.dcr[rel][nest]
+                    self.dcr[rel].pop(nest)
+                for k, v in self.dcr[rel].items():
+                    if nest in v:
+                        self.dcr[rel][k] = self.dcr[rel][k].union(atomic_events)
+                        self.dcr[rel][k].remove(nest)
+
+        self.dcr['events'] = all_atomic_events
+        self.dcr['marking']['included'] = all_atomic_events
+        self.dcr['nestings'] = {}
+        self.dcr['nestingsMap'] = {}
+        return self.dcr
 
     def execute(self, e):
         if isinstance(e, timedelta):
@@ -48,12 +149,12 @@ class DcrSemantics(object):
         elif e in self.dcr['events']:  # only atomic events are executable
             if self.is_enabled(e):
                 self.__weak_execute(e)
-                ancs = self.__get_ancestors(e)
-                for anc in ancs:
-                    if self.is_enabled(anc):
-                        self.__weak_execute(anc)
-                    else:
-                        return False, timedelta(0)
+                # ancs = self.__get_ancestors(e)
+                # for anc in ancs:
+                #     if self.is_enabled(anc):
+                #         self.__weak_execute(anc)
+                #     else:
+                #         return False, timedelta(0)
                 return True, timedelta(0)
             else:
                 print(f'[!] Event {e} not enabled!') if self.cmd_print else None
@@ -62,26 +163,29 @@ class DcrSemantics(object):
             print(f'[!] Event {e} {" does not exist" if e not in self.dcr["events"] else " is not an atomic event"}!') if self.cmd_print else None
             return False, timedelta(0)
 
-    def enabled_atomic_events(self):
-        return self.enabled().intersection(self.atomic_events)
-
-    def enabled_tl_events(self):
-        return self.enabled().intersection(self.tl_events)
-
-    def enabled_sp_events(self):
-        return self.enabled().intersection(self.sp_events)
+    # def enabled_atomic_events(self):
+    #     return self.enabled().intersection(self.atomic_events)
+    #
+    # def enabled_tl_events(self):
+    #     return self.enabled().intersection(self.tl_events)
+    #
+    # def enabled_sp_events(self):
+    #     return self.enabled().intersection(self.sp_events)
 
     def is_enabled(self, e):
         return e in self.enabled()
 
     def enabled(self):
         res = deepcopy(self.dcr['marking']['included'])
-        for e in set(self.dcr['conditionsFor'].keys()).intersection(res):
+        for e in set(self.dcr['conditionsFor'].keys()).difference(set(self.dcr['conditionsForDelays'].keys())).intersection(res):
             if len(self.dcr['conditionsFor'][e].intersection(self.dcr['marking']['included']).difference(self.dcr['marking']['executed'])) > 0:
                 res.discard(e)
-                if e in self.dcr['subprocesses'].keys():
-                    for e_in_sp in self.dcr['subprocesses'][e]:
-                        res.discard(e_in_sp)
+                # if e in self.dcr['subprocesses'].keys():
+                #     for e_in_sp in self.dcr['subprocesses'][e]:
+                #         res.discard(e_in_sp)
+                # if e in self.dcr['nestings'].keys():
+                #     for e_in_sp in self.dcr['nestings'][e]:
+                #         res.discard(e_in_sp)
 
         for e in set(self.dcr['conditionsForDelays'].keys()).intersection(res):
             for (e_prime, k) in self.dcr['conditionsForDelays'][e]:
@@ -90,20 +194,29 @@ class DcrSemantics(object):
                 elif e_prime in self.dcr['marking']['included'] and e_prime in self.dcr['marking']['executed']:
                     if self.dcr['marking']['executedTime'][e_prime] < timedelta(k):
                         res.discard(e)
-                        if e in self.dcr['subprocesses'].keys():
-                            for e_in_sp in self.dcr['subprocesses'][e]:
-                                res.discard(e_in_sp)
+                        # if e in self.dcr['subprocesses'].keys():
+                        #     for e_in_sp in self.dcr['subprocesses'][e]:
+                        #         res.discard(e_in_sp)
+                        # if e in self.dcr['nestings'].keys():
+                        #     for e_in_sp in self.dcr['nestings'][e]:
+                        #         res.discard(e_in_sp)
 
         for e in set(self.dcr['milestonesFor'].keys()).intersection(res):
-            if len(self.dcr['milestonesFor'][e].intersection(self.dcr['marking']['included'].intersection(self.dcr['marking']['pending'])))>0:
+            if len(self.dcr['milestonesFor'][e].intersection(self.dcr['marking']['included'].intersection(self.dcr['marking']['pending']))) > 0:
                 res.discard(e)
-                if e in self.dcr['subprocesses'].keys():
-                    for e_in_sp in self.dcr['subprocesses'][e]:
-                        res.discard(e_in_sp)
+                # if e in self.dcr['subprocesses'].keys():
+                #     for e_in_sp in self.dcr['subprocesses'][e]:
+                #         res.discard(e_in_sp)
+                # if e in self.dcr['nestings'].keys():
+                #     for e_in_sp in self.dcr['nestings'][e]:
+                #         res.discard(e_in_sp)
 
-        enabled_sps = self.sp_events.intersection(self.dcr['marking']['included'])
-        for s in self.sp_events.difference(enabled_sps):
-            res = res.difference(self.dcr['subprocesses'][s])
+        # enabled_sps = self.sp_events.intersection(self.dcr['marking']['included'])
+        # for s in self.sp_events.difference(enabled_sps):
+        #     if s in self.dcr['subprocesses']:
+        #         res = res.difference(self.dcr['subprocesses'][s])
+        #     if s in self.dcr['nestings']:
+        #         res = res.difference(self.dcr['nestings'][s])
         return res
 
     def find_next_deadline(self):
@@ -139,36 +252,36 @@ class DcrSemantics(object):
             print(f'[!] The time step is not allowed, you are gonna miss a deadline in {deadline}')
             return (False, time)
 
-    def find_all_ancestors(self):
-        ancestors_dict = {}
-        # for each event find the ancestors
-        for e in self.dcr['events']:
-            ancestors_dict[e] = self.__get_ancestors(e)
-        return ancestors_dict
+    # def find_all_ancestors(self):
+    #     ancestors_dict = {}
+    #     # for each event find the ancestors
+    #     for e in self.dcr['events']:
+    #         ancestors_dict[e] = self.__get_ancestors(e)
+    #     return ancestors_dict
 
-    def __get_ancestors(self, e, ancestors=None):
-        # first loop set it to an empty set
-        if ancestors is None:
-            ancestors = set()
-        # for each subprocess
-        if 'subprocesses' in self.dcr.keys():
-            for k, v in self.dcr['subprocesses'].items():
-                if e in v:
-                    # if the event is in the subprocess add that key as its ancestor
-                    ancestors.add(k)
-                    # if the key is a top level event we are done
-                    if k in self.tl_events:
-                        break
-                    else:
-                        # if the event is not a top level event then we go into the key of that subprocess and repeat
-                        ancestors = ancestors.union(self.__get_ancestors(k, ancestors))
-        return ancestors
+    # def __get_ancestors(self, e, ancestors=None):
+    #     # first loop set it to an empty set
+    #     if ancestors is None:
+    #         ancestors = set()
+    #     # for each subprocess
+    #     if 'subprocesses' in self.dcr.keys():
+    #         for k, v in self.dcr['subprocesses'].items():
+    #             if e in v:
+    #                 # if the event is in the subprocess add that key as its ancestor
+    #                 ancestors.add(k)
+    #                 # if the key is a top level event we are done
+    #                 if k in self.tl_events:
+    #                     break
+    #                 else:
+    #                     # if the event is not a top level event then we go into the key of that subprocess and repeat
+    #                     ancestors = ancestors.union(self.__get_ancestors(k, ancestors))
+    #     return ancestors
 
-    def __is_effectively_included(self, e, ancestors_dict):
-        return ancestors_dict[e].issubset(self.dcr['marking']['included'])
-
-    def __get_effectively_pending(self, e, ancestors_dict):
-        return ancestors_dict[e].issubset(self.dcr['marking']['pending'])
+    # def __is_effectively_included(self, e, ancestors_dict):
+    #     return ancestors_dict[e].issubset(self.dcr['marking']['included'])
+    #
+    # def __get_effectively_pending(self, e, ancestors_dict):
+    #     return ancestors_dict[e].issubset(self.dcr['marking']['pending'])
 
     def __execute(self, e):
         if isinstance(e, timedelta):

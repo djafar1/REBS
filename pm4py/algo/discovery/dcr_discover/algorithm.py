@@ -19,19 +19,23 @@ from copy import deepcopy
 
 import pm4py.objects.log.obj
 from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
-from pm4py.algo.discovery.dcr_discover.extenstions import time_constraints, initial_pending, subprocess
+from pm4py.algo.discovery.dcr_discover.extenstions import time_constraints, initial_pending, mutual_exclusion, nesting
 from enum import Enum
 
 
 class Variants(Enum):
     DCR_BASIC = dcr_discover
-    DCR_SUBPROCESS = subprocess
+    DCR_ME = mutual_exclusion
+    DCR_N = nesting
+    DCR_NME = [nesting, mutual_exclusion]
 
 
 DCR_BASIC = Variants.DCR_BASIC
-DCR_SUBPROCESS = Variants.DCR_SUBPROCESS
+DCR_ME = Variants.DCR_ME
+DCR_N = Variants.DCR_N
+DCR_NME = Variants.DCR_NME
 
-VERSIONS = {DCR_BASIC, DCR_SUBPROCESS}
+VERSIONS = {DCR_BASIC, DCR_ME, DCR_N, DCR_NME}
 
 
 def apply(input_log, variant=DCR_BASIC, **parameters):
@@ -41,8 +45,10 @@ def apply(input_log, variant=DCR_BASIC, **parameters):
     input_log
     variant
         Variant of the algorithm to use:
-            - DCR_BASIC
-            - DCR_SUBPROCESS
+            - BASIC
+            - N
+            - ME
+            - NME
     parameters
         Algorithm related params
         finaAdditionalConditions: [True or False]
@@ -63,9 +69,38 @@ def apply(input_log, variant=DCR_BASIC, **parameters):
         if 'pending' in parameters.keys() and parameters['pending']:
             dcr_model = initial_pending.apply(dcr_model, log)
         return dcr_model, la
-    elif variant.value == Variants.DCR_SUBPROCESS.value:
-        print('[i] Mining with Sp-DisCoveR')
-        dcr_model, sp_log = subprocess.apply(log, **parameters)
+    elif variant.value == Variants.DCR_ME.value:
+        print('[i] Mining with ME-DisCoveR')
+        dcr_model, sp_log = mutual_exclusion.apply(log, **parameters)
+        if 'timed' in parameters.keys() and parameters['timed']:
+            dcr_model = apply_timed(dcr_model, deepcopy(input_log), sp_log)
+        if 'pending' in parameters.keys() and parameters['pending']:
+            dcr_model = initial_pending.apply(dcr_model, sp_log)
+        dcr_model = post_processing(dcr_model, **parameters)
+        return dcr_model, sp_log
+    elif variant.value == Variants.DCR_N.value:
+        print('[i] Mining with N-DisCoveR')
+        dcr_model, sp_log = nesting.apply(log, **parameters)
+        if 'timed' in parameters.keys() and parameters['timed']:
+            dcr_model = apply_timed(dcr_model, deepcopy(input_log), sp_log)
+        if 'pending' in parameters.keys() and parameters['pending']:
+            dcr_model = initial_pending.apply(dcr_model, sp_log)
+        dcr_model = post_processing(dcr_model, **parameters)
+        return dcr_model, sp_log
+    elif variant.value == Variants.DCR_NME.value:
+        print('[i] Mining with NME-DisCoveR')
+        dcr_model, sp_log = mutual_exclusion.apply(log, **parameters)
+        from pm4py.algo.discovery.dcr_discover.extenstions.nesting import Nesting
+        nst = Nesting()
+        nst.create_encoding(dcr_model)
+        all_mes = set()
+        all_me_events = set()
+        for me, me_event in dcr_model['nestings'].items():
+            nst.nest(me_event)
+            all_mes.add(me)
+            all_me_events = all_me_events.union(me_event)
+        nst.nest(dcr_model['events'].union(all_mes).difference(all_me_events))
+        dcr_model = nst.get_nested_dcr_graph(dcr_model['nestings'])
         if 'timed' in parameters.keys() and parameters['timed']:
             dcr_model = apply_timed(dcr_model, deepcopy(input_log), sp_log)
         if 'pending' in parameters.keys() and parameters['pending']:
@@ -75,8 +110,8 @@ def apply(input_log, variant=DCR_BASIC, **parameters):
 
 
 def post_processing(dcr, timed=True, nestings=False,  **parameters):
-    if timed:
-        dcr = post_processing_timed(dcr)
+    # if timed:
+        # dcr = post_processing_timed(dcr)
     # future work on nestings
     # if nestings:
         # dcr = post_processing_nestings(dcr)

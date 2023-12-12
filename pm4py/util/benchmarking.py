@@ -15,7 +15,7 @@ def run_discover_config(event_log_file, variant, result_file_prefix, dcr_title, 
             'usePredecessors': False
         }
     t = ''
-    if config['timed'] == True:
+    if 'timed' in config and config['timed']:
         t = 'T'
     print(f'[i] Started with config: {config}')
     rfp = result_file_prefix
@@ -27,7 +27,7 @@ def run_discover_config(event_log_file, variant, result_file_prefix, dcr_title, 
     if variant == alg.DCR_BASIC:
         dcr_model, la = alg.apply(event_log, alg.DCR_BASIC, **config)
     else:
-        dcr_model, sp_log = alg.apply(event_log, alg.DCR_SUBPROCESS, **config)
+        dcr_model, sp_log = alg.apply(event_log, alg.DCR_ME, **config)
     dcr_exporter.apply(dcr_graph=dcr_model,
                        path=export_path,
                        variant=dcr_exporter.XML_SIMPLE,
@@ -47,7 +47,7 @@ def benchmark_subprocess_no_i2e_e2i(event_log_file, result_file_prefix, dcr_titl
             'usePredecessors': False
         }
     t = ''
-    if config['timed'] == True:
+    if 'timed' in config and config['timed']:
         t = 'T'
     print(f'[i] Started with config: {config}')
     rfp = result_file_prefix
@@ -56,7 +56,7 @@ def benchmark_subprocess_no_i2e_e2i(event_log_file, result_file_prefix, dcr_titl
     export_path = f'models/{rfp}_Sp{t}_no_i2e_e2i.xml'
     config2 = deepcopy(config)
     config2['inBetweenRels'] = False
-    sp_no_i2e_e2i_dcr, sp_no_i2e_e2i_log = alg.apply(event_log, alg.DCR_SUBPROCESS, **config)
+    sp_no_i2e_e2i_dcr, sp_no_i2e_e2i_log = alg.apply(event_log, alg.DCR_ME, **config)
     dcr_exporter.apply(dcr_graph=sp_no_i2e_e2i_dcr,
                        path=export_path,
                        variant=dcr_exporter.XML_SIMPLE,
@@ -86,7 +86,7 @@ def benchmark_event_log_from_configs(event_log_file, result_file_prefix, dcr_tit
         print(f'[i] Started with config: {config}')
         el = deepcopy(event_log)
         t = ''
-        if config['timed'] == True:
+        if 'timed' in config and config['timed']:
             t = 'T'
         export_path = f'models/{rfp}_{t}_config{i}.xml'
         dcr, log = alg.apply(el, **config)
@@ -111,7 +111,7 @@ def benchmark_event_log(event_log_file, result_file_prefix, dcr_title, config=No
             'usePredecessors': False
         }
     t = ''
-    if config['timed'] == True:
+    if 'timed' in config and config['timed']:
         t = 'T'
     print(f'[i] Started with config: {config}')
     rfp = result_file_prefix
@@ -130,7 +130,7 @@ def benchmark_event_log(event_log_file, result_file_prefix, dcr_title, config=No
 
     print('[i] Mining with SpT-DisCoveR - mutual exclusion (ME)!')
     export_path = f'models/{rfp}_Sp{t}.xml'
-    spme_dcr, spme_log = alg.apply(event_log, alg.DCR_SUBPROCESS, **config)
+    spme_dcr, spme_log = alg.apply(event_log, alg.DCR_ME, **config)
     dcr_exporter.apply(dcr_graph=spme_dcr,
                        path=export_path,
                        variant=dcr_exporter.XML_SIMPLE,
@@ -141,7 +141,7 @@ def benchmark_event_log(event_log_file, result_file_prefix, dcr_title, config=No
     if config['usePredecessors']:
         print('[i] Mining with SpT-DisCoveR - predecessors!')
         export_path = f'models/{rfp}_Sp{t}_preds.xml'
-        sp_dcr, sp_log = alg.apply(event_log, alg.DCR_SUBPROCESS, **config)
+        sp_dcr, sp_log = alg.apply(event_log, alg.DCR_ME, **config)
         dcr_exporter.apply(dcr_graph=sp_dcr,
                            path=export_path,
                            variant=dcr_exporter.XML_SIMPLE,
