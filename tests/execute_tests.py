@@ -21,7 +21,8 @@ enabled_tests = ["SimplifiedInterfaceTest", "SimplifiedInterface2Test", "DocTest
                  "DiagnDfConfChecking", "ProcessModelEvaluationTests", "DecisionTreeTest", "GraphsForming",
                  "HeuMinerTest", "MainFactoriesTest", "AlgorithmTest", "LogFilteringTest",
                  "DataframePrefilteringTest", "StatisticsLogTest", "StatisticsDfTest", "TransitionSystemTest",
-                 "ImpExpFromString", "WoflanTest", "OcelFilteringTest", "OcelDiscoveryTest"]
+                 "ImpExpFromString", "WoflanTest", "OcelFilteringTest", "OcelDiscoveryTest",
+                 "DcrImportExportTest", "DcrSemanticsTest", "DcrDiscoveryTest", "DcrConformanceTest", "DcrAlignmentTest"]
 
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
@@ -196,6 +197,31 @@ if "OcelDiscoveryTest" in enabled_tests:
 
     suite.addTests(loader.loadTestsFromTestCase(OcelDiscoveryTest))
 
+if "DcrImportExportTest" in enabled_tests:
+    from tests.dcr_test import TestImportExportDCR
+
+    suite.addTests(loader.loadTestsFromTestCase(TestImportExportDCR))
+
+if "DcrSemanticsTest" in enabled_tests:
+    from tests.dcr_test import TestObjSematics
+
+    suite.addTests(loader.loadTestsFromTestCase(TestObjSematics))
+
+if "DcrDiscoveryTest" in enabled_tests:
+    from tests.dcr_test import TestDiscoveryDCR
+
+    suite.addTests(loader.loadTestsFromTestCase(TestDiscoveryDCR))
+
+if "DcrConformanceTest" in enabled_tests:
+    from tests.dcr_test import TestConformanceDCR
+
+    suite.addTests(loader.loadTestsFromTestCase(TestConformanceDCR))
+
+if "DcrAlignmentTest" in enabled_tests:
+    from tests.dcr_test import TestAlignment
+
+    suite.addTests(loader.loadTestsFromTestCase(TestAlignment))
+    suite.addTest(unittest.makeSuite(OcelDiscoveryTest))
 
 def main():
     runner = unittest.TextTestRunner()

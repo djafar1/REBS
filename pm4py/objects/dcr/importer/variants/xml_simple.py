@@ -1,105 +1,103 @@
-from lxml import etree
-from datetime import datetime, timedelta
+import copy
+
+import isodate
+
+from pm4py.util import constants
+from copy import deepcopy
+from pm4py.objects.dcr.obj import Relations, dcr_template, DcrGraph
+
+I = Relations.I.value
+E = Relations.E.value
+R = Relations.R.value
+N = Relations.N.value
+C = Relations.C.value
+M = Relations.M.value
 
 
-def apply(xml_file, replace_whitespace='', **kwargs):
-    tree = etree.parse(xml_file)
-    root = tree.getroot()
+def parse_element(curr_el, parent, dcr):
+    # Create the DCR graph
+    tag = curr_el.tag.lower()
+    match tag:
+        case 'events':
+            id = curr_el.find('id').text
+            dcr['events'].add(id)
+            label = curr_el.find('label').text
+            dcr['labels'].add(label)
+            dcr['labelMapping'][label] = {id}
+        case 'rules':
+            type = curr_el.find('type').text
+            source = curr_el.find('source').text
+            target = curr_el.find('target').text
+            match type:
+                case 'condition':
+                    if not dcr['conditionsFor'].get(target):
+                        dcr['conditionsFor'][target] = set()
+                    dcr['conditionsFor'][target].add(source)
+                case 'response':
+                    if not dcr['responseTo'].get(source):
+                        dcr['responseTo'][source] = set()
+                    dcr['responseTo'][source].add(target)
+                case 'exclude':
+                    if not dcr['excludesTo'].get(source):
+                        dcr['excludesTo'][source] = set()
+                    dcr['excludesTo'][source].add(target)
+                case 'include':
+                    if not dcr['includesTo'].get(source):
+                        dcr['includesTo'][source] = set()
+                    dcr['includesTo'][source].add(target)
+        case _:
+            pass
+    for child in curr_el:
+        dcr = parse_element(child, curr_el, dcr)
 
-    dcr_template = {
-        'events': set(),
-        'conditionsFor': {},
-        'milestonesFor': {},
-        'responseTo': {},
-        'noResponseTo': {},
-        'includesTo': {},
-        'excludesTo': {},
-        'marking': {'executed': set(),
-                    'included': set(),
-                    'pending': set(),
-                    'executedTime': {},
-                    'pendingDeadline': {}},
-        'conditionsForDelays': {},
-        'responseToDeadlines': {},
-        'subprocesses': {},
-        'nestings': {},
-        'labels': set(),
-        'labelMapping': {},
-        'roles': set(),
-        'roleAssignments': {},
-        'readRoleAssignments': {}
-    }
+    return dcr
 
-    for event_elem in root.findall('.//events'):
-        event_id = event_elem.find('id').text.replace(' ', replace_whitespace)
-        dcr_template['events'].add(event_id)
-        dcr_template['marking']['included'].add(event_id)
 
-    for rule_elem in root.findall('.//rules'):
-        rule_type = rule_elem.find('type').text
-        source = rule_elem.find('source').text.replace(' ', replace_whitespace)
-        target = rule_elem.find('target').text.replace(' ', replace_whitespace)
+def import_xml_tree_from_root(root):
+    dcr = copy.deepcopy(dcr_template)
+    dcr = parse_element(root, None, dcr)
+    '''
+    Transform the dictionary into a DCR_Graph object
+    '''
+    graph = DcrGraph(dcr)
+    return graph
 
-        if rule_type == 'condition':
-            if 'conditionsFor' not in dcr_template:
-                dcr_template['conditionsFor'] = {}
-            if target not in dcr_template['conditionsFor']:
-                dcr_template['conditionsFor'][target] = set()
-            dcr_template['conditionsFor'][target].add(source)
 
-            # Handle duration
-            duration_elem = rule_elem.find('duration')
-            if duration_elem is not None:
-                duration = timedelta(seconds=float(duration_elem.text))
-                if 'conditionsForDelays' not in dcr_template:
-                    dcr_template['conditionsForDelays'] = {}
-                if target not in dcr_template['conditionsForDelays']:
-                    dcr_template['conditionsForDelays'][target] = {}
-                dcr_template['conditionsForDelays'][target][source] = duration
+def apply(path, parameters=None):
+    '''
+    Reads a DCR Graph from an XML file
 
-        elif rule_type == 'response':
-            if 'responseTo' not in dcr_template:
-                dcr_template['responseTo'] = {}
-            if source not in dcr_template['responseTo']:
-                dcr_template['responseTo'][source] = set()
-            dcr_template['responseTo'][source].add(target)
+    Parameters
+    ----------
+    path
+        Path to the XML file
 
-            # Handle duration
-            duration_elem = rule_elem.find('duration')
-            if duration_elem is not None:
-                duration = timedelta(seconds=float(duration_elem.text))
-                if 'responseToDeadlines' not in dcr_template:
-                    dcr_template['responseToDeadlines'] = {}
-                if source not in dcr_template['responseToDeadlines']:
-                    dcr_template['responseToDeadlines'][source] = {}
-                dcr_template['responseToDeadlines'][source][target] = duration
+    Returns
+    -------
+    DCR_Graph
+        DCR Graph object
+    '''
+    if parameters is None:
+        parameters = {}
 
-        elif rule_type == 'include':
-            if 'includesTo' not in dcr_template:
-                dcr_template['includesTo'] = {}
-            if source not in dcr_template['includesTo']:
-                dcr_template['includesTo'][source] = set()
-            dcr_template['includesTo'][source].add(target)
+    from lxml import etree, objectify
 
-        elif rule_type == 'exclude':
-            if 'excludesTo' not in dcr_template:
-                dcr_template['excludesTo'] = {}
-            if source not in dcr_template['excludesTo']:
-                dcr_template['excludesTo'][source] = set()
-            dcr_template['excludesTo'][source].add(target)
+    parser = etree.XMLParser(remove_comments=True)
+    xml_tree = objectify.parse(path, parser=parser)
 
-        elif rule_type == 'milestone':
-            if 'milestonesFor' not in dcr_template:
-                dcr_template['milestonesFor'] = {}
-            if target not in dcr_template['milestonesFor']:
-                dcr_template['milestonesFor'][target] = set()
-            dcr_template['milestonesFor'][target].add(source)
+    return import_xml_tree_from_root(xml_tree.getroot())
 
-        elif rule_type == 'coresponse':
-            if 'noResponseTo' not in dcr_template:
-                dcr_template['noResponseTo'] = {}
-            if source not in dcr_template['noResponseTo']:
-                dcr_template['noResponseTo'][source] = set()
-            dcr_template['noResponseTo'][source].add(target)
 
-    return dcr_template
+def import_from_string(dcr_string, parameters=None):
+    if parameters is None:
+        parameters = {}
+
+    if type(dcr_string) is str:
+        dcr_string = dcr_string.encode(constants.DEFAULT_ENCODING)
+
+    from lxml import etree, objectify
+
+    parser = etree.XMLParser(remove_comments=True)
+    root = objectify.fromstring(dcr_string, parser=parser)
+
+    return import_xml_tree_from_root(root)

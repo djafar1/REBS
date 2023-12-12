@@ -13,7 +13,7 @@ To use ``pm4py`` on any OS, install it using ``pip``:
 ``pmp4y`` uses the ``Graphviz`` library for rendering visualizations.
 Please install `Graphviz <https://graphviz.org/download/>`_.
 
-After installation, GraphViz is located in the ``program files`` directory. 
+After installation, GraphViz is located in the ``program files`` directory.
 The ``bin\`` folder of the GraphViz directory needs to be added manually to the ``system path``.
 In order to do so, please follow `this instruction <https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho>`_.
 
