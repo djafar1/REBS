@@ -1,9 +1,9 @@
 from typing import Set
 
-from pm4py.objects.dcr.semantics import DCRSemantics
+from pm4py.objects.dcr.semantics import DcrSemantics
 
 
-class MilestoneNoResponseSemantics(DCRSemantics):
+class MilestoneNoResponseSemantics(DcrSemantics):
 
     @classmethod
     def enabled(cls, graph) -> Set[str]:

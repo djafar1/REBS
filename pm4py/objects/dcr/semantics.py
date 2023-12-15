@@ -1,7 +1,6 @@
 from typing import Set
 from pm4py.objects.dcr.obj import Marking, Relations
 
-
 """
 We will implement the semantics according to the papers given in:
 DCR 2011, and
@@ -10,7 +9,7 @@ Following the schematic as the pm4py, by using definition function and no class 
 """
 
 
-class DCRSemantics(object):
+class DcrSemantics(object):
     """
         the semantics functions implemented is based on the paper by:
 
@@ -18,6 +17,7 @@ class DCRSemantics(object):
         Title: Declarative Event-BasedWorkflow as Distributed Dynamic Condition Response Graphs
         publisher: Electronic Proceedings in Theoretical Computer Science. EPTCS, Open Publishing Association, 2010, pp. 59–73. doi: 10.4204/EPTCS.69.5.
         """
+
     @classmethod
     def is_enabled(cls, event, graph) -> bool:
         """
@@ -26,7 +26,7 @@ class DCRSemantics(object):
         Parameters
         ----------
         :param event: the instance of event being check for if enabled
-        :param G: DCR graph that it check for being enabled
+        :param graph: DCR graph that it check for being enabled
 
         Returns
         -------
@@ -57,7 +57,7 @@ class DCRSemantics(object):
         return res
 
     @classmethod
-    def execute(cls, graph, event):
+    def execute(cls, event, graph):
         if cls.is_enabled(event, graph):
             return cls.weak_execute(event, graph)
 
@@ -107,7 +107,7 @@ class DCRSemantics(object):
 
         Returns
         ---------
-        :return: True if graph is accepting, false otherwise
+        :return: True if graph is accepting, False otherwise
         """
         res = graph.marking.pending.intersection(graph.marking.included)
         if len(res) > 0:
