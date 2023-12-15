@@ -237,6 +237,6 @@ def graphviz_visualization(net, image_format="png", initial_marking=None, final_
 
     viz.attr(overlap='false')
 
-    viz.format = image_format.replace("html", "plain-ext")
+    viz.format = image_format.replace("html", "plain-text")
 
     return viz
