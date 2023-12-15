@@ -16,7 +16,7 @@ The `dcr_template` dictionary provides a blueprint for initializing new DCR Grap
 
 from enum import Enum
 from typing import Set, Dict
-from copy import deepcopy
+
 
 class Relations(Enum):
     I = 'includesTo'
@@ -45,6 +45,7 @@ dcr_template = {
     'responseToDeadlines': {},
     'subprocesses': {},
     'nestings': {},
+    'nestingsMap': {},
     'labels': set(),
     'labelMapping': {},
     'roles': set(),
@@ -53,7 +54,8 @@ dcr_template = {
     'readRoleAssignments': {}
 }
 
-class Marking:
+
+class Marking(object):
     """
     This class contains the set of all markings M(G), in which it contains three sets:
     M(G) = executed x included x pending
@@ -74,12 +76,13 @@ class Marking:
 
 
     """
+
     def __init__(self, executed, included, pending) -> None:
         self.__executed = executed
         self.__included = included
         self.__pending = pending
 
-    # getters and setters for datamanipulation, mainly used for DCR semantics
+    # getters and setters for data manipulation, mainly used for DCR semantics
     @property
     def executed(self):
         return self.__executed
@@ -87,6 +90,10 @@ class Marking:
     @property
     def included(self):
         return self.__included
+
+    @included.setter
+    def included(self, value):
+        self.__included = value
 
     @property
     def pending(self):
@@ -112,7 +119,6 @@ class Marking:
 
     def __repr__(self):
         return f'{{executed: {self.__executed}, included: {self.__included}, pending: {self.__pending}}}'
-
 
     def __getitem__(self, item):
         for key, value in vars(self).items():
@@ -189,7 +195,7 @@ class DcrGraph(object):
         # DisCoveR uses bijective labelling, each event has one label
         self.__events = set() if template is None else template['events']
         self.__marking = Marking(set(), set(), set()) if template is None else (
-            Marking(template['marking']['executed'],template['marking']['included'], template['marking']['pending']))
+            Marking(template['marking']['executed'], template['marking']['included'], template['marking']['pending']))
         self.__labels = set() if template is None else template['labels']
         self.__conditionsFor = {} if template is None else template['conditionsFor']
         self.__responseTo = {} if template is None else template['responseTo']
@@ -201,6 +207,10 @@ class DcrGraph(object):
     @property
     def events(self) -> Set[str]:
         return self.__events
+
+    @events.setter
+    def events(self, value):
+        self.__events = value
 
     @property
     def marking(self) -> Marking:
@@ -304,7 +314,7 @@ class DcrGraph(object):
     def __repr__(self):
         string = ""
         for key, value in vars(self).items():
-            string += str(key.split("_")[-1])+": "+str(value)+"\n"
+            string += str(key.split("_")[-1]) + ": " + str(value) + "\n"
         return string
 
     def __str__(self):
@@ -323,6 +333,6 @@ class DcrGraph(object):
         return set()
 
     def __setitem__(self, item, value):
-        for key,_ in vars(self).items():
+        for key, _ in vars(self).items():
             if item == key.split("_")[-1]:
                 setattr(self, key, value)
