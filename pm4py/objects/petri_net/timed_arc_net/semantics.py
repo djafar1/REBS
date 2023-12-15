@@ -16,7 +16,7 @@
 '''
 import copy
 from pm4py.objects.petri_net.sem_interface import Semantics
-from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet
+from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet, TimedMarking
 from pm4py.objects.petri_net.properties import AGE_INVARIANT, AGE_MIN, AGE_MAX, TRANSPORT_INDEX
 
 
@@ -101,26 +101,30 @@ def is_enabled(t, pn, m):
             elif isinstance(a, TimedArcNet.TransportArc):  # the age of the token in the source place of the transport arc must satisfy the guards
                 min = 0
                 max = float("inf")
-                source_transport[a.source.properties[TRANSPORT_INDEX]] = a.source  # all transport in_arcs have a unique index to link them to transport out_arcs
+                source_transport[a.properties[TRANSPORT_INDEX]] = a.source  # all transport in_arcs have a unique index to link them to transport out_arcs
                 if AGE_MIN in a.properties:
                     min = a.properties[AGE_MIN]
                 if AGE_MAX in a.properties:
                     max = a.properties[AGE_MAX]
-            if min > m.timed_dict[a.source] or m.timed_dict[a.source] < max:
-                return False
+                if min > m.timed_dict[a.source] or m.timed_dict[a.source] > max:
+                    return False
             elif m[a.source] < a.weight:
                 return False
 
         for a in t.out_arcs:
             if isinstance(a, TimedArcNet.TransportArc) and isinstance(a.target, TimedArcNet.InvariantPlace):
-                if a.target[AGE_INVARIANT] >= m.timed_dict[source_transport[a.target.properties[TRANSPORT_INDEX]]]:
+                if a.target[AGE_INVARIANT] >= m.timed_dict[source_transport[a.properties[TRANSPORT_INDEX]]]:
                     return False
 
     return True
 
 
 def time_step(tics, pn, m):
+    for p in pn.places:
+        if AGE_INVARIANT in p.properties and p in m.timed_dict and p.properties[AGE_INVARIANT] < m.timed_dict[p] + tics:
+            return False
     m.time_step(tics)
+    return True
 
 
 def execute(t, pn, m):
@@ -128,7 +132,9 @@ def execute(t, pn, m):
         return None
 
     m_out = copy.copy(m)
-    transfer_time_dict = {}
+    if isinstance(pn, TimedArcNet):
+        m_out.timed_dict = copy.copy(m.timed_dict)
+        transfer_time_dict = {}
     for a in t.in_arcs:
         if isinstance(a, TimedArcNet.InhibitorArc):
             pass
@@ -137,20 +143,21 @@ def execute(t, pn, m):
             if m_out[a.source] == 0:
                 del m_out[a.source]
             if isinstance(a, TimedArcNet.TransportArc):
-                transfer_time_dict[a.source.properties[TRANSPORT_INDEX]] = m_out.timed_dict[a.source]
+                transfer_time_dict[a.properties[TRANSPORT_INDEX]] = m_out.timed_dict[a.source]
                 if m_out[a.source] == 0:
                     del m_out.timed_dict[a.source]
 
     for a in t.out_arcs:
         m_out[a.target] += a.weight
         if isinstance(a, TimedArcNet.TransportArc):
-            m_out.timed_dict[a.target] = transfer_time_dict[a.target.properties[TRANSPORT_INDEX]]
+            m_out.timed_dict[a.target] = transfer_time_dict[a.properties[TRANSPORT_INDEX]]
 
     return m_out
 
 
 def weak_execute(t, m):
     m_out = copy.copy(m)
+    m_out.timed_dict = copy.copy(m.timed_dict)
     transfer_time_dict = {}
     for a in t.in_arcs:
         if isinstance(a, TimedArcNet.InhibitorArc):
@@ -160,13 +167,13 @@ def weak_execute(t, m):
             if m_out[a.source] <= 0:
                 del m_out[a.source]
             if isinstance(a, TimedArcNet.TransportArc):
-                transfer_time_dict[a.source.properties[TRANSPORT_INDEX]] = m_out.timed_dict[a.source]
+                transfer_time_dict[a.properties[TRANSPORT_INDEX]] = m_out.timed_dict[a.source]
                 if m_out[a.source] <= 0:
                     del m_out.timed_dict[a.source]
     for a in t.out_arcs:
         m_out[a.target] += a.weight
         if isinstance(a, TimedArcNet.TransportArc):
-            m_out.timed_dict[a.target] = transfer_time_dict[a.target.properties[TRANSPORT_INDEX]]
+            m_out.timed_dict[a.target] = transfer_time_dict[a.properties[TRANSPORT_INDEX]]
     return m_out
 
 
