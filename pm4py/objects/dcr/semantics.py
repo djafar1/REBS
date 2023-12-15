@@ -1,8 +1,6 @@
 from typing import Set
-from pm4py.objects.dcr.obj import Marking
+from pm4py.objects.dcr.obj import Marking, Relations
 
-
-rels = ['conditionsFor', 'responseTo', 'includesTo', 'excludesTo', 'milestonesFor']
 
 """
 We will implement the semantics according to the papers given in:
@@ -50,7 +48,7 @@ class DCRSemantics(object):
         -------
         :param res: set of enabled activities
         """
-        #can be extended to check for milestones
+        # can be extended to check for milestones
         res = set(graph.marking.included)
         for e in set(graph.conditions.keys()).intersection(res):
             if len(graph.conditions[e].intersection(graph.marking.included.difference(
@@ -60,11 +58,14 @@ class DCRSemantics(object):
 
     @classmethod
     def execute(cls, graph, event):
+        if cls.is_enabled(event, graph):
+            return cls.weak_execute(event, graph)
+
+    @classmethod
+    def weak_execute(cls, event, graph):
         """
         Function based on semantics of execution a DCR graph
         will update the graph according to relations of the executed activity
-
-        can extend to allow of execution of milestone activity
 
         Parameters
         ----------
@@ -75,13 +76,12 @@ class DCRSemantics(object):
         ---------
         :return: DCR graph with updated marking
         """
-        #each event is called for execution is called
+        # each event is called for execution is called
         if event in graph.marking.pending:
             graph.marking.pending.discard(event)
         graph.marking.executed.add(event)
 
-        #the following if statements are used to provide to update DCR graph
-        # depeding on prime event structure within conditions relations
+        # the following if statements are used to update the DCR graph
         if event in graph.excludes:
             for e_prime in graph.excludes[event]:
                 graph.marking.included.discard(e_prime)
