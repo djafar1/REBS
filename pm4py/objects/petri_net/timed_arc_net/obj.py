@@ -9,8 +9,11 @@ class TimedMarking(Marking):
         self.timed_dict = {}  # place and age of token (the net is 1-safe or 1-bounded)
 
     def time_step(self, tics):
-        for k in self.timed_dict.keys():
-            self.timed_dict[k] += tics
+        for k in self.keys():
+            if k not in self.timed_dict:
+                self.timed_dict[k] = tics
+            else:
+                self.timed_dict[k] += tics
 
     def __repr__(self):
         return str([str(p.name) + ":" + str(self.get(p)) for p in sorted(list(self.keys()), key=lambda x: x.name)]) + " " + str(self.timed_dict)
