@@ -14,7 +14,7 @@ The running example is on the sepsis event log.
 
 ### Contributors on the dcr extension
 
-[paul-cvp](https://github.com/paul-cvp),[Timmovich](https://github.com/Timmovich)
+[paul-cvp](https://github.com/paul-cvp),[Timmovich](https://github.com/Timmovich), [Scones111](https://github.com/Scones111), [RagnarLaki](https://github.com/RagnarLaki), [simonhermansen](https://github.com/simonhermansen)
 
 ## From pm4py:
 
