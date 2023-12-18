@@ -216,8 +216,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # when an event is check for being enabled
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         # Then register request should return true, and other event has yet met conditions is false
         self.assertTrue(sem.is_enabled(log.iloc[0]["concept:name"], dcr))
         self.assertFalse(sem.is_enabled(log.iloc[1]["concept:name"], dcr))
@@ -232,8 +232,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # When event is executed, the event that has the event as a condition can then be executed
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         if sem.is_enabled(log.iloc[0]["concept:name"], dcr):
             dcr = sem.execute(dcr, log.iloc[0]["concept:name"])
 
@@ -249,8 +249,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # then the DCR is accepting
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         self.assertTrue(sem.is_accepting(dcr))
 
         del log
@@ -263,8 +263,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # when an event triggers a response relation
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         sem.execute(dcr, "register request")
         self.assertFalse(sem.is_accepting(dcr))
 
