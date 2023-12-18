@@ -1,6 +1,7 @@
 from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
 from pm4py.objects.dcr.obj import Relations
 
+
 def get_reverse_nesting(graph):
     reverse_nesting = {}
     for k, v in graph.nested_groups_map.items():
