@@ -2,11 +2,11 @@ import pandas as pd
 from typing import Optional, Any, Union, Dict
 import pm4py
 from pm4py.util import exec_utils, constants, xes_constants
-from pm4py.objects.dcr.roles.obj import RoledcrGraph
+from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 from pm4py.objects.log.obj import EventLog
 
 
-def apply(log, graph, parameters) -> RoledcrGraph:
+def apply(log, graph, parameters) -> RoleDcrGraph:
     """
     this method calls the role miner
 
@@ -130,4 +130,4 @@ class RoleMining:
             self.graph['principalsAssignments'][i] = set()
 
         self.__role_assignment_role_to_acitivity(log, activity_key, group_key, resource_key)
-        return RoledcrGraph(graph, self.graph)
+        return RoleDcrGraph(graph, self.graph)
