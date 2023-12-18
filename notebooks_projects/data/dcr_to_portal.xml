@@ -1,0 +1,54 @@
+<DCRModel>
+  <title>DCR from pm4py</title>
+  <graphType>DCRModel</graphType>
+  <roles>
+    <title>User</title>
+    <description>Dummy user</description>
+  </roles>
+  <events>
+    <id>A</id>
+    <label>A</label>
+  </events>
+  <events>
+    <id>D</id>
+    <label>D</label>
+  </events>
+  <rules>
+    <type>exclude</type>
+    <source>D</source>
+    <target>D</target>
+  </rules>
+  <rules>
+    <type>coresponse</type>
+    <source>D</source>
+    <target>B</target>
+  </rules>
+  <events>
+    <id>B</id>
+    <label>B</label>
+  </events>
+  <rules>
+    <type>response</type>
+    <source>B</source>
+    <target>A</target>
+  </rules>
+  <rules>
+    <type>milestone</type>
+    <source>B</source>
+    <target>A</target>
+  </rules>
+  <rules>
+    <type>condition</type>
+    <source>C</source>
+    <target>B</target>
+  </rules>
+  <events>
+    <id>C</id>
+    <label>C</label>
+  </events>
+  <rules>
+    <type>include</type>
+    <source>C</source>
+    <target>D</target>
+  </rules>
+</DCRModel>
