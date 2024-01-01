@@ -264,6 +264,7 @@ class PetriNet(object):
         self.__transitions = set() if transitions is None else transitions
         self.__arcs = set() if arcs is None else arcs
         self.__properties = dict() if properties is None else properties
+        self.__arc_matrix = {}
 
     def __get_name(self) -> str:
         return self.__name
@@ -282,6 +283,9 @@ class PetriNet(object):
 
     def __get_properties(self) -> Dict[str, Any]:
         return self.__properties
+
+    def __get_arc_matrix(self):
+        return self.__arc_matrix
 
     def __hash__(self):
         ret = 0
@@ -343,6 +347,7 @@ class PetriNet(object):
     transitions = property(__get_transitions)
     arcs = property(__get_arcs)
     properties = property(__get_properties)
+    arc_matrix = property(__get_arc_matrix)
 
 
 class InhibitorNet(PetriNet):

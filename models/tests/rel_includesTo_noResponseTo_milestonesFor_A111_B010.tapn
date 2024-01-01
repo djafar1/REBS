@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
+  <net id="netFromDCR" type="P/T net" active="true">
+    <place id="pending_A" displayName="true" name="pending_A" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_B" displayName="true" name="executed_B" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_A" displayName="true" name="executed_A" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_B" displayName="true" name="pending_B" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <transition angle="0" displayName="true" id="event_A0" infiniteServer="false" name="event_A0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_B0" infiniteServer="false" name="event_B0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="pend_A0" infiniteServer="false" name="pend_A0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_B0" infiniteServer="false" name="initpend_B0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_A0" infiniteServer="false" name="initpend_A0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="pend_B0" infiniteServer="false" name="pend_B0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <arc id="I0" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_B" target="event_B0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A1" inscription="1" nameOffsetX="0" nameOffsetY="0" source="pend_B0" target="executed_B" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A2" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_B0" target="executed_B" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A3" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_B" target="pend_B0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A4" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_B" target="event_B0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A5" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_A0" target="executed_A" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A6" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_A" target="event_A0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I7" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_A" target="initpend_A0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A8" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_A0" target="executed_A" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I9" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_A" target="event_A0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A10" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_A" target="initpend_A0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A11" inscription="1" nameOffsetX="0" nameOffsetY="0" source="pend_A0" target="executed_A" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A12" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_A" target="pend_A0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A13" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_A" target="pend_A0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A14" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_B0" target="executed_B" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A15" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_B" target="initpend_B0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I16" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_B" target="initpend_B0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A17" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_B" target="pend_B0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+  </net>
+  <k-bound bound="3"/>
+  <feature isGame="false" isTimed="false"/>
+</pnml>

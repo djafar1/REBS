@@ -154,7 +154,14 @@ def remove_place(net: PetriNet, place: PetriNet.Place) -> PetriNet:
     return net
 
 
-def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
+def check_arc_exists(source, target, net: PetriNet):
+    if source in net.arc_matrix and target in net.arc_matrix[source]:
+        return net.arc_matrix[source][target]
+    else:
+        return False
+
+
+def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False) -> PetriNet.Arc:
     """
     Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
 
@@ -197,9 +204,15 @@ def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
             raise Exception("trying to add a transport arc on a traditional Petri net object.")
     else:
         a = PetriNet.Arc(fr, to, weight)
-    net.arcs.add(a)
-    fr.out_arcs.add(a)
-    to.in_arcs.add(a)
+
+    if fr and to:
+        if not with_check or check_arc_exists(fr, to, net):
+            net.arcs.add(a)
+            fr.out_arcs.add(a)
+            to.in_arcs.add(a)
+            if fr not in net.arc_matrix:
+                net.arc_matrix[fr] = {}
+            net.arc_matrix[fr][to] = True
 
     return a
 

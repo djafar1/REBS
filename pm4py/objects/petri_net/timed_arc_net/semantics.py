@@ -106,6 +106,7 @@ def is_enabled(t, pn, m):
                     min = a.properties[AGE_MIN]
                 if AGE_MAX in a.properties:
                     max = a.properties[AGE_MAX]
+                print(m.timed_dict)
                 if min > m.timed_dict[a.source] or m.timed_dict[a.source] > max:
                     return False
             elif m[a.source] < a.weight:

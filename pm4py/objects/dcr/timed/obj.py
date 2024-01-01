@@ -29,13 +29,19 @@ class TimedDcrGraph(GroupSubprocessDcrGraph):
         self.__marking = TimedMarking(set(), set(), set()) if template is None else (
             TimedMarking(template['marking']['executed'], template['marking']['included'], template['marking']['pending'],
                          template['marking']['executedTime'], template['marking']['pendingDeadline']))
-        self.__timed_conditions = {} if template is None else template['conditionsForDelays']
-        self.__timed_responses = {} if template is None else template['responseToDeadlines']
+        self.__timedconditions = {} if template is None else template['conditionsForDelays']
+        self.__timedresponses = {} if template is None else template['responseToDeadlines']
+
+    def obj_to_template(self):
+        res = super().obj_to_template()
+        res['conditionsForDelays'] = self.__timedconditions
+        res['responseToDeadlines'] = self.__timedresponses
+        return res
 
     @property
-    def timed_conditions(self) -> Dict[str, Dict[str, timedelta]]:
-        return self.__timed_conditions
+    def timedconditions(self) -> Dict[str, Dict[str, timedelta]]:
+        return self.__timedconditions
 
     @property
-    def timed_responses(self) -> Dict[str, Dict[str, timedelta]]:
-        return self.__timed_responses
+    def timedresponses(self) -> Dict[str, Dict[str, timedelta]]:
+        return self.__timedresponses

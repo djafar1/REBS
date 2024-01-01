@@ -13,7 +13,7 @@ Classes:
 
 The `dcr_template` dictionary provides a blueprint for initializing new DCR Graphs with default settings.
 """
-
+import copy
 from enum import Enum
 from typing import Set, Dict
 
@@ -203,6 +203,20 @@ class DcrGraph(object):
         self.__excludesTo = {} if template is None else template['excludesTo']
         self.__labelMapping = {} if template is None else template['labelMapping']
 
+    def obj_to_template(self):
+        res = copy.deepcopy(dcr_template)
+        res['events'] = self.__events
+        res['marking']['included'] = self.__marking.included
+        res['marking']['pending'] = self.__marking.pending
+        res['marking']['executed'] = self.__marking.executed
+        res['labels'] = self.__labels
+        res['conditionsFor'] = self.__conditionsFor
+        res['responseTo'] = self.__responseTo
+        res['includesTo'] = self.__includesTo
+        res['excludesTo'] = self.__excludesTo
+        res['labelMapping'] = self.__labelMapping
+        return res
+
     # @property functions to extract values used for data manipulation and testing
     @property
     def events(self) -> Set[str]:
@@ -259,7 +273,7 @@ class DcrGraph(object):
             the event ID of activity
         """
         event = self.__labelMapping.get(activity, "None")
-        if event is "None":
+        if event == "None" or event is None:
             return activity
         event = event.pop()
         self.__labelMapping[activity].add(event)

@@ -66,12 +66,13 @@ def create_event_pattern_transitions_and_arcs(tapn, event, helper_struct, mappin
     for t_name in set(helper_struct[event]['t_types']).intersection(set(['initpend', 'pend'])):  # ['initpend','pend'] - copy transitions:
         for k in range(len(pend_places)):
             pend_place, e_prime = list(pend_places)[k]
-            pend_exc_place, _ = list(pend_exc_places)[k]
             name = f'{t_name}_{event}_by_{e_prime}{i_copy}' if len(e_prime) > 0 else f'{t_name}_{event}{i_copy}'
             t = PetriNet.Transition(name, f'{name}_label')
             tapn.transitions.add(t)
             # this if statement handles self response exclude
+            # TODO: test this mf
             if event in mapping_exceptions.self_exceptions[frozenset([Relations.E.value, Relations.R.value])]:
+                pend_exc_place, _ = list(pend_exc_places)[k]
                 pn_utils.add_arc_from_to(t, pend_exc_place, tapn)
 
             pn_utils.add_arc_from_to(inc_place, t, tapn)

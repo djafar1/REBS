@@ -97,7 +97,7 @@ class Dcr2PetriNet(object):
     def create_event_pattern(self, event, G, tapn, m) -> (PetriNet, Marking):
         tapn, m = self.create_event_pattern_places(event, G, tapn, m)
         tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct,
-                                                                             self.mapping_exceptions)
+                                                                   self.mapping_exceptions)
         self.helper_struct[event]['transitions'].extend(ts)
         return tapn, m
 
@@ -109,10 +109,10 @@ class Dcr2PetriNet(object):
         if self.reachability_timeout:
             max_elab_time = self.reachability_timeout
         trans_sys = reachability_graph.construct_reachability_graph(tapn, m, use_trans_name=True,
-                        parameters={
-                            'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
-                            'max_elab_time': max_elab_time
-                        })
+                                                                    parameters={
+                                                                        'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
+                                                                        'max_elab_time': max_elab_time
+                                                                    })
 
         fired_transitions = set()
 
@@ -177,8 +177,7 @@ class Dcr2PetriNet(object):
         debug_save_path = f'{path_without_extension}_{step}{extens}'
         pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
-    def dcr2tapn(self, G, tapn_path) -> (PetriNet, Marking):
-        G = nested_groups_and_sps_to_flat_dcr(G)
+    def apply(self, G, tapn_path=None) -> (InhibitorNet, Marking):
         self.basic = True  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
         self.timed = False  # False = untimed | True = timed cond (delay) and resp (deadline)
         self.initialize_helper_struct(G)
@@ -186,10 +185,10 @@ class Dcr2PetriNet(object):
         self.preoptimizer = preoptimizer.Preoptimizer()
         induction_step = 0
         pn_export_format = pnml_exporter.TAPN
-        if tapn_path.endswith("pnml"):
+        if tapn_path and tapn_path.endswith("pnml"):
             pn_export_format = pnml_exporter.PNML
 
-        tapn = PetriNet("Dcr2Tapn")
+        tapn = InhibitorNet("Dcr2Tapn")
         m = Marking()
         # pre-optimize mapping based on DCR graph behaviour
         if self.preoptimize:
@@ -280,97 +279,103 @@ class Dcr2PetriNet(object):
                 print('[i] post optimizing')
             tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, G)
 
-        if self.print_steps:
-            print(f'[i] export to {tapn_path}')
+        if tapn_path:
+            if self.print_steps:
+                print(f'[i] export to {tapn_path}')
 
-        pnml_exporter.apply(tapn, m, tapn_path, variant=pn_export_format, parameters={'isTimed': self.timed})
+            pnml_exporter.apply(tapn, m, tapn_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
         return tapn, m
 
 
-def run_specific_dcr():
-    '''
-    here you can write your own graph and run it
-    '''
-    dcr = {
-        'events': {'Triage', 'RelA', 'Reg', 'RelB','CRP'},
-        'conditionsFor': {'RelA': {'Triage','Reg','RelB'}, 'RelB': {'CRP'}},
-        'milestonesFor': {},
-        'responseTo': {},
-        'noResponseTo': {},
-        'includesTo': {},
-        'excludesTo': {'Reg': {'Reg'},'RelB': {'RelB'}, 'RelA': {'RelA', 'RelB', 'Triage'}},
-        'marking': {'executed': set(),
-                    'included': {'Triage', 'RelA', 'Reg', 'RelB','CRP'},
-                    'pending': set()
-                    }
-    }
-
+def apply(dcr, parameters):
+    # TODO: make parameters be part also of the class init method
     d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False)
-    print('[i] dcr')
-    tapn, m = d2p.dcr2tapn(dcr, tapn_path="/home/vco/Projects/pm4py-dcr/models/one_petri_test.tapn")
-
-def clean_input(dcr, white_space_replacement=None):
-    if white_space_replacement is None:
-        white_space_replacement = ''
-    # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
-    for k, v in deepcopy(dcr).items():
-        if k in ['includesTo', 'excludesTo', 'conditionsFor', 'responseTo', 'milestonesFor', 'noResponseTo']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = set([v3.strip().replace(' ', white_space_replacement) for v3 in v2])
-            dcr[k] = v_new
-        elif k in ['conditionsForDelays', 'responseToDeadlines']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = set([(v3.strip().replace(' ', white_space_replacement),d) for (v3,d) in v2])
-            dcr[k] = v_new
-        elif k == 'marking':
-            for k2 in ['executed', 'included', 'pending']:
-                new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
-                dcr[k][k2] = new_v
-        elif k in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = set([v3.strip().replace(' ', white_space_replacement) for v3 in v2])
-            dcr[k] = v_new
-        else:
-            new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k]])
-            dcr[k] = new_v
-    return dcr
-
-
-if __name__ == "__main__":
-    # run_specific_dcr()
-    import pm4py
-    from pm4py.algo.discovery.dcr_discover import algorithm as dcr_discover
-    from pm4py.objects.dcr.exporter import exporter as dcr_exporter
-
-    # dcr = {
-    #     'events': {'A', 'B', 'C'},
-    #     'conditionsFor': {'B': {'A'}},
-    #     'milestonesFor': {},
-    #     'responseTo': {},
-    #     'noResponseTo': {},
-    #     'includesTo': {},
-    #     'excludesTo': {'B': {'A', 'B', 'C'}, 'A': {'A', 'B', 'C'}, 'C': {'A','B','C'}},
-    #     'conditionsForDelays': {},
-    #     'responseToDeadlines': {},
-    #     'marking': {'executed': {},
-    #                 'included': {'A', 'B', 'C'},
-    #                 'pending': {},
-    #                 'pendingDeadline': {}
-    #                 }
-    # }
-
-    sepsis_log = pm4py.read_xes('/home/vco/Datasets/Sepsis Cases - Event Log.xes', return_legacy_log_object=True)
-    dcr_sepsis, _ = dcr_discover.apply(sepsis_log)
-    dcr_sepsis = clean_input(dcr_sepsis, '')
-    path = '/home/vco/Projects/pm4py-dcr/models/'
-    dcr_exporter.apply(dcr_sepsis, path+'sepsis.xml')
-    d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False)
-    file_name = 'sepsis.tapn'
-    d2p.print_steps = True
-    tapn = d2p.dcr2tapn(dcr_sepsis, path+file_name)
-    # file_name = 'me.tapn'
-    # tapn = d2p.dcr2tapn(dcr, path+file_name)
+    tapn, m = d2p.apply(dcr, **parameters)
+    return tapn, m
+# def run_specific_dcr():
+#     '''
+#     here you can write your own graph and run it
+#     '''
+#     dcr = {
+#         'events': {'Triage', 'RelA', 'Reg', 'RelB','CRP'},
+#         'conditionsFor': {'RelA': {'Triage','Reg','RelB'}, 'RelB': {'CRP'}},
+#         'milestonesFor': {},
+#         'responseTo': {},
+#         'noResponseTo': {},
+#         'includesTo': {},
+#         'excludesTo': {'Reg': {'Reg'},'RelB': {'RelB'}, 'RelA': {'RelA', 'RelB', 'Triage'}},
+#         'marking': {'executed': set(),
+#                     'included': {'Triage', 'RelA', 'Reg', 'RelB','CRP'},
+#                     'pending': set()
+#                     }
+#     }
+#
+#     d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False)
+#     print('[i] dcr')
+#     tapn, m = d2p.dcr2tapn(dcr, tapn_path="/home/vco/Projects/pm4py-dcr/models/one_petri_test.tapn")
+#
+# def clean_input(dcr, white_space_replacement=None):
+#     if white_space_replacement is None:
+#         white_space_replacement = ''
+#     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
+#     for k, v in deepcopy(dcr).items():
+#         if k in ['includesTo', 'excludesTo', 'conditionsFor', 'responseTo', 'milestonesFor', 'noResponseTo']:
+#             v_new = {}
+#             for k2, v2 in v.items():
+#                 v_new[k2.strip().replace(' ', white_space_replacement)] = set([v3.strip().replace(' ', white_space_replacement) for v3 in v2])
+#             dcr[k] = v_new
+#         elif k in ['conditionsForDelays', 'responseToDeadlines']:
+#             v_new = {}
+#             for k2, v2 in v.items():
+#                 v_new[k2.strip().replace(' ', white_space_replacement)] = set([(v3.strip().replace(' ', white_space_replacement),d) for (v3,d) in v2])
+#             dcr[k] = v_new
+#         elif k == 'marking':
+#             for k2 in ['executed', 'included', 'pending']:
+#                 new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
+#                 dcr[k][k2] = new_v
+#         elif k in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
+#             v_new = {}
+#             for k2, v2 in v.items():
+#                 v_new[k2.strip().replace(' ', white_space_replacement)] = set([v3.strip().replace(' ', white_space_replacement) for v3 in v2])
+#             dcr[k] = v_new
+#         else:
+#             new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k]])
+#             dcr[k] = new_v
+#     return dcr
+#
+#
+# if __name__ == "__main__":
+#     # run_specific_dcr()
+#     import pm4py
+#     from pm4py.algo.discovery.dcr_discover import algorithm as dcr_discover
+#     from pm4py.objects.dcr.exporter import exporter as dcr_exporter
+#
+#     # dcr = {
+#     #     'events': {'A', 'B', 'C'},
+#     #     'conditionsFor': {'B': {'A'}},
+#     #     'milestonesFor': {},
+#     #     'responseTo': {},
+#     #     'noResponseTo': {},
+#     #     'includesTo': {},
+#     #     'excludesTo': {'B': {'A', 'B', 'C'}, 'A': {'A', 'B', 'C'}, 'C': {'A','B','C'}},
+#     #     'conditionsForDelays': {},
+#     #     'responseToDeadlines': {},
+#     #     'marking': {'executed': {},
+#     #                 'included': {'A', 'B', 'C'},
+#     #                 'pending': {},
+#     #                 'pendingDeadline': {}
+#     #                 }
+#     # }
+#
+#     sepsis_log = pm4py.read_xes('/home/vco/Datasets/Sepsis Cases - Event Log.xes', return_legacy_log_object=True)
+#     dcr_sepsis, _ = dcr_discover.apply(sepsis_log)
+#     dcr_sepsis = clean_input(dcr_sepsis, '')
+#     path = '/home/vco/Projects/pm4py-dcr/models/'
+#     dcr_exporter.apply(dcr_sepsis, path+'sepsis.xml')
+#     d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False)
+#     file_name = 'sepsis.tapn'
+#     d2p.print_steps = True
+#     tapn = d2p.dcr2tapn(dcr_sepsis, path+file_name)
+#     # file_name = 'me.tapn'
+#     # tapn = d2p.dcr2tapn(dcr, path+file_name)

@@ -9,12 +9,13 @@ class Variants(Enum):
     XML_SIMPLE = xml_simple
 
 
+DEFAULT_VARIANT = Variants.XML_DCR_PORTAL
 XML_SIMPLE = Variants.XML_SIMPLE
 XML_DCR_PORTAL = Variants.XML_DCR_PORTAL
 DCR_JS_PORTAL = Variants.XML_DCR_PORTAL
 
 
-def apply(path, variant=XML_DCR_PORTAL, parameters=None):
+def apply(path, variant=DEFAULT_VARIANT, parameters=None):
     '''
     Reads a DCR Graph from an XML file
 
@@ -35,7 +36,7 @@ def apply(path, variant=XML_DCR_PORTAL, parameters=None):
     return exec_utils.get_variant(variant).apply(path, parameters=parameters)
 
 
-def deserialize(dcr_string, variant=XML_DCR_PORTAL, parameters=None):
+def deserialize(dcr_string, variant=DEFAULT_VARIANT, parameters=None):
     if parameters is None:
         parameters = {}
 

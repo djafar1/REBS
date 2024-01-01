@@ -10,6 +10,12 @@ class MilestoneNoResponseDcrGraph(DcrGraph):
         self.__milestonesFor = {} if template is None else template['milestonesFor']
         self.__noResponseTo = {} if template is None else template['noResponseTo']
 
+    def obj_to_template(self):
+        res = super().obj_to_template()
+        res['milestonesFor'] = self.__milestonesFor
+        res['noResponseTo'] = self.__noResponseTo
+        return res
+
     @property
     def milestones(self) -> Dict[str, Set[str]]:
         return self.__milestonesFor
