@@ -33,8 +33,10 @@ from typing import Optional, Dict, Any, Union, List, Tuple
 from heapq import heappop, heappush
 from enum import Enum
 
-from pm4py.objects.dcr.obj import DcrGraph
-from pm4py.objects.dcr.semantics import DcrSemantics
+# from pm4py.objects.dcr.milestone_noresponse.obj import DcrGraph
+# from pm4py.objects.dcr.milestone_noresponse.semantics import DcrSemantics
+from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph as DcrGraph
+from pm4py.objects.dcr.milestone_noresponse.semantics import MilestoneNoResponseSemantics as DcrSemantics
 from pm4py.util import constants, xes_constants, exec_utils
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.conversion.log import converter as log_converter
@@ -387,8 +389,10 @@ class DCRGraphHandler:
         """
 
     def __init__(self, graph: DcrGraph):
-        if not isinstance(graph, DcrGraph):
-            raise TypeError(f"Expected a DCR_Graph object, got {type(graph)} instead")
+        #TODO: make the specific dcr graph class and semantics be loadable dynamically
+
+        # if not isinstance(graph, DcrGraph):
+        #     raise TypeError(f"Expected a DCRGraph object, got {type(graph)} instead")
         self.graph = graph
 
     def is_enabled(self, event: Any) -> bool:

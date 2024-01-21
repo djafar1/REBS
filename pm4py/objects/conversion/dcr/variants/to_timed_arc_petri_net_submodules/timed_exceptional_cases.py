@@ -1,7 +1,9 @@
+import os
 from pm4py.objects.petri_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.dcr.obj import Relations
 from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules import timed_utils as utils
+from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 
 from itertools import combinations
 
@@ -154,13 +156,18 @@ class TimedExceptionalCases(object):
         self.G = G
         return G
 
-    def map_exceptional_cases_between_events(self, tapn, m=None) -> PetriNet:
+    def export_debug_net(self, tapn, m, path, step, pn_export_format):
+        path_without_extension, extens = os.path.splitext(path)
+        debug_save_path = f'{path_without_extension}_{step}{extens}'
+        pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': True})
+
+    def map_exceptional_cases_between_events(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for exception, pairs in self.exceptions.items():
             if len(pairs) > 0:
-                tapn = self.apply_exceptions[exception](tapn, m)
+                tapn = self.apply_exceptions[exception](tapn, m, tapn_path, induction_step, pn_export_format, debug)
         return tapn
 
-    def create_exception_condition_milestone_exclude_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_exclude_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, R, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -221,9 +228,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_exclude_no_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_exclude_no_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, N, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -277,9 +287,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_include_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_include_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, R, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -342,9 +355,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_include_no_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_include_no_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, N, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -403,9 +419,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([R, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -467,9 +486,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_no_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_no_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([N, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -525,9 +547,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -588,9 +613,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -631,9 +659,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_no_response_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_no_response_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, N, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -678,9 +709,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_no_response_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_no_response_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, N, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -722,9 +756,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_response_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_response_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, R, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             own_pend_place_e_prime = self.helper_struct['pend_matrix'][event_prime][event]
@@ -780,9 +817,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_excluded_place_e_prime, t, tapn)
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_response_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_response_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, R, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -844,9 +884,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(own_pend_excl_place_e_prime, t, tapn)
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_no_response_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_no_response_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([N, C, I])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -926,8 +969,11 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
-    def create_exception_condition_no_response_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_no_response_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([N, C, E])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1002,9 +1048,12 @@ class TimedExceptionalCases(object):
                         p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_response_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_response_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, R, C])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1095,9 +1144,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_response_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_response_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, R, C])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1188,9 +1240,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, C])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1253,9 +1308,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, C])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1320,9 +1378,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([R, C])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1441,9 +1502,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_response_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_response_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         '''
         DONE
         :param tapn:
@@ -1543,9 +1607,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_response_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_response_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         '''
         DONE
         :param tapn:
@@ -1626,9 +1693,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_no_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_no_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([N, C])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1704,9 +1774,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_no_response_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_no_response_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, N])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -1760,9 +1833,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_no_response_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_no_response_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, N])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -1821,9 +1897,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_no_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_no_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([N, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -1867,9 +1946,12 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_condition_milestone_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_condition_milestone_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([C, M])]:
             delay = None
             if event in self.G['conditionsForDelays'] and event_prime in self.G['conditionsForDelays'][event]:
@@ -1910,9 +1992,12 @@ class TimedExceptionalCases(object):
                     p_to_t.properties['agemin'] = delay
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_exclude_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_exclude_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([E, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
             pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
@@ -1938,9 +2023,12 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_include_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_include_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([I, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
 
@@ -1994,9 +2082,12 @@ class TimedExceptionalCases(object):
                     for pp, _ in pend_places_e_prime:
                         pn_utils.add_arc_from_to(pp, t, tapn, type='inhibitor')
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn
 
-    def create_exception_milestone_response_pattern(self, tapn, m=None) -> PetriNet:
+    def create_exception_milestone_response_pattern(self, tapn, m=None, tapn_path=None, induction_step=None, pn_export_format=None,debug=False) -> PetriNet:
         for (event, event_prime) in self.exceptions[frozenset([R, M])]:
             inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
 
@@ -2067,4 +2158,7 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
+            if debug:
+                self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions_{event}_{event_prime}', pn_export_format)
+                induction_step += 1
         return tapn

@@ -16,8 +16,11 @@
 '''
 from pm4py.objects.petri_net.utils.petri_utils import remove_arc, remove_transition, remove_place, add_arc_from_to, pre_set, post_set, get_arc_type
 from pm4py.objects.petri_net import properties
+from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 import itertools
 from itertools import combinations, chain
+
+from pm4py.objects.petri_net.obj import *
 
 
 def reduce_single_entry_transitions(net):
@@ -357,6 +360,49 @@ def apply_r_rule(net):
 
     return net
 
+def apply_bounded_net_inhibitor_removal_rule(net, im):
+    """
+    Remove the inhibitor arcs when a net is bounded.
+    Parameters
+    ----------
+    net
+
+    Returns
+    -------
+    net with no inhibitor arcs and new initial marking
+    """
+    inhibitor_arcs = [arc for arc in net.arcs if 'arctype' in arc.properties and arc.properties['arctype'] == properties.INHIBITOR_ARC]
+    for arc in inhibitor_arcs:
+        p = arc.source
+        co_p = PetriNet.Place(name=f'co_{p.name}')
+        net.places.add(co_p)
+        t = arc.target
+        has_reverse = False
+        remove_arc(net, arc)
+        for a in t.out_arcs.intersection(p.in_arcs):
+            if pn_utils.get_arc_type(a) == None:
+                has_reverse = True
+        if has_reverse and str(t.name).startswith('init_'):
+            add_arc_from_to(co_p, t, net)
+        else:
+            same_t = False
+            for in_arc in p.in_arcs:
+                source_t = in_arc.source
+                add_arc_from_to(co_p, source_t, net)
+                if t == source_t:
+                    same_t = True
+            for out_arc in p.out_arcs:
+                target_t = out_arc.target
+                add_arc_from_to(target_t, co_p, net)
+                if t == target_t:
+                    same_t = True
+            add_arc_from_to(co_p, t, net)
+            if not same_t:
+                add_arc_from_to(t, co_p, net)
+        if p not in im or im[p] == 0:
+            im[co_p] = 1
+    return net, im
+
 
 def power_set(iterable, min=0):
     s = list(iterable)
@@ -379,12 +425,15 @@ def apply_reset_inhibitor_net_reduction(net, im=None, fm=None):
     apply_fst_rule(net)
     apply_fsp_rule(net, im, fm)
     # (FPT) rule is exponential to model size
-    # apply_fpt_rule(net)
+    apply_fpt_rule(net)
     # (FPP) rule is exponential to model size
-    # apply_fpp_rule(net, im)
+    apply_fpp_rule(net, im)
     apply_elt_rule(net)
     apply_elp_rule(net, im)
     # (A) rule is exponential to model size
-    # apply_a_rule(net)
+    apply_a_rule(net)
     apply_r_rule(net)
-    return net, im, fm
+    if fm != {}:
+        return net, im, fm
+    else:
+        return net, im

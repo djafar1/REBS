@@ -3,14 +3,14 @@ import os
 from pm4py.objects.petri_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
-from pm4py.objects.dcr.group_subprocess.util import nested_groups_and_sps_to_flat_dcr
+from pm4py.objects.petri_net.utils import reduction
 
 from pm4py.objects.conversion.dcr.variants.to_petri_net_submodules import exceptional_cases, single_relations, preoptimizer, utils
 
 
 class Dcr2PetriNet(object):
 
-    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False) -> None:
+    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False, **kwargs)  -> None:
         self.in_t_types = ['event', 'init', 'initpend', 'pend']
         self.helper_struct = {}
         self.preoptimize = preoptimize
@@ -101,9 +101,8 @@ class Dcr2PetriNet(object):
         self.helper_struct[event]['transitions'].extend(ts)
         return tapn, m
 
-    def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> PetriNet:
+    def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None, merge_parallel_places=True) -> PetriNet:
         from pm4py.objects.petri_net.utils import reachability_graph
-        # from pm4py.visualization.transition_system import visualizer as ts_visualizer
         from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
         max_elab_time = 2 * 60 * 60  # 2 hours
         if self.reachability_timeout:
@@ -113,7 +112,10 @@ class Dcr2PetriNet(object):
                                                                         'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
                                                                         'max_elab_time': max_elab_time
                                                                     })
-
+        if self.debug:
+            from pm4py.visualization.transition_system import visualizer as ts_visualizer
+            gviz = ts_visualizer.apply(trans_sys, parameters={ts_visualizer.Variants.VIEW_BASED.value.Parameters.FORMAT: "png"})
+            ts_visualizer.view(gviz)
         fired_transitions = set()
 
         for transition in trans_sys.transitions:
@@ -132,44 +134,45 @@ class Dcr2PetriNet(object):
                 changed_places.add(state)
 
         parallel_places = set()
-        # places_to_rename = {}
+        places_to_rename = {}
         ps_to_remove = set(tapn.places).difference(changed_places)
-        # if G:
-        #     for event in G['events']:
-        #         for type, event_place in self.helper_struct[event]['places'].items():
-        #             for type_prime, event_place_prime in self.helper_struct[event]['places'].items():
-        #                 if event_place and event_place_prime and event_place.name != event_place_prime.name and \
-        #                         event_place not in parallel_places:
-        #                     is_parallel = False
-        #                     ep_ins = event_place.in_arcs
-        #                     epp_ins = event_place_prime.in_arcs
-        #                     ep_outs = event_place.out_arcs
-        #                     epp_outs = event_place_prime.out_arcs
-        #                     if len(ep_ins) == len(epp_ins) and len(ep_outs) == len(epp_outs):
-        #                         ep_sources = set()
-        #                         epp_sources = set()
-        #                         for ep_in in ep_ins:
-        #                             ep_sources.add(ep_in.source)
-        #                         for epp_in in epp_ins:
-        #                             epp_sources.add(epp_in.source)
-        #                         ep_targets = set()
-        #                         epp_targets = set()
-        #                         for ep_out in ep_outs:
-        #                             ep_targets.add(ep_out.target)
-        #                         for epp_out in epp_outs:
-        #                             epp_targets.add(epp_out.target)
-        #                         if ep_sources == epp_sources and ep_targets == epp_targets:
-        #                             is_parallel = True
-        #                     if is_parallel and m[event_place] == m[event_place_prime]:
-        #                         parallel_places.add(event_place_prime)
-        #                         places_to_rename[event_place] = f'{type_prime}_{event_place.name}'
+
+        if G and merge_parallel_places:
+            for event in G['events']:
+                for type, event_place in self.helper_struct[event]['places'].items():
+                    for type_prime, event_place_prime in self.helper_struct[event]['places'].items():
+                        if event_place and event_place_prime and event_place.name != event_place_prime.name and \
+                                event_place not in parallel_places:
+                            is_parallel = False
+                            ep_ins = event_place.in_arcs
+                            epp_ins = event_place_prime.in_arcs
+                            ep_outs = event_place.out_arcs
+                            epp_outs = event_place_prime.out_arcs
+                            if len(ep_ins) == len(epp_ins) and len(ep_outs) == len(epp_outs):
+                                ep_sources = set()
+                                epp_sources = set()
+                                for ep_in in ep_ins:
+                                    ep_sources.add(ep_in.source)
+                                for epp_in in epp_ins:
+                                    epp_sources.add(epp_in.source)
+                                ep_targets = set()
+                                epp_targets = set()
+                                for ep_out in ep_outs:
+                                    ep_targets.add(ep_out.target)
+                                for epp_out in epp_outs:
+                                    epp_targets.add(epp_out.target)
+                                if ep_sources == epp_sources and ep_targets == epp_targets:
+                                    is_parallel = True
+                            if is_parallel and m[event_place] == m[event_place_prime]:
+                                parallel_places.add(event_place_prime)
+                                places_to_rename[event_place] = f'{type_prime}_{event_place.name}'
         ps_to_remove = ps_to_remove.union(parallel_places)
+
         for p in ps_to_remove:
             tapn = pn_utils.remove_place(tapn, p)
 
-        # for p, name in places_to_rename.items():
-        #     p.name = name
-
+        for p, name in places_to_rename.items():
+            p.name = name
         return tapn
 
     def export_debug_net(self, tapn, m, path, step, pn_export_format):
@@ -177,7 +180,7 @@ class Dcr2PetriNet(object):
         debug_save_path = f'{path_without_extension}_{step}{extens}'
         pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
-    def apply(self, G, tapn_path=None) -> (InhibitorNet, Marking):
+    def apply(self, G, tapn_path=None, **kwargs) -> (InhibitorNet, Marking):
         self.basic = True  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
         self.timed = False  # False = untimed | True = timed cond (delay) and resp (deadline)
         self.initialize_helper_struct(G)
@@ -278,6 +281,8 @@ class Dcr2PetriNet(object):
             if self.print_steps:
                 print('[i] post optimizing')
             tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, G)
+            # tapn, m = reduction.apply_bounded_net_inhibitor_removal_rule(tapn, m)
+            # tapn, m = reduction.apply_reset_inhibitor_net_reduction(tapn, m)
 
         if tapn_path:
             if self.print_steps:
@@ -289,10 +294,11 @@ class Dcr2PetriNet(object):
 
 
 def apply(dcr, parameters):
-    # TODO: make parameters be part also of the class init method
-    d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False)
-    tapn, m = d2p.apply(dcr, **parameters)
+    d2p = Dcr2PetriNet(**parameters)
+    G = deepcopy(dcr)
+    tapn, m = d2p.apply(G, **parameters)
     return tapn, m
+
 # def run_specific_dcr():
 #     '''
 #     here you can write your own graph and run it

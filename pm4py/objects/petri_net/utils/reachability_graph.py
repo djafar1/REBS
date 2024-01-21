@@ -82,7 +82,7 @@ def marking_flow_petri(net, im, return_eventually_enabled=False, parameters=None
         m = active.pop()
         enabled_transitions = semantics.enabled_transitions(net, m)
         if return_eventually_enabled:
-            eventually_enabled[m] = align_utils.get_visible_transitions_eventually_enabled_by_marking(net, m)
+            eventually_enabled[m] = align_utils.get_visible_transitions_eventually_enabled_by_marking(net, m, semantics)
         outgoing_transitions[m] = {}
         for t in enabled_transitions:
             nm = semantics.weak_execute(t, net, m)
@@ -122,7 +122,10 @@ def construct_reachability_graph_from_flow(incoming_transitions, outgoing_transi
 
     map_states = {}
     for s in incoming_transitions:
-        map_states[s] = ts.TransitionSystem.State(staterep(repr(s)))
+        if use_trans_name:
+            map_states[s] = ts.TransitionSystem.State(s)
+        else:
+            map_states[s] = ts.TransitionSystem.State(staterep(repr(s)))
         re_gr.states.add(map_states[s])
 
     for s1 in outgoing_transitions:

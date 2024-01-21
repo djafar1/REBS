@@ -68,4 +68,4 @@ def nested_groups_and_sps_to_flat_dcr(graph):
     graph.marking.included = graph.marking.included.intersection(all_atomic_events)
     graph.nestedgroups = {}
     graph.nestedgroupsmap = {}
-    # return graph
+    return graph.obj_to_template()

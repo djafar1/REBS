@@ -20,7 +20,7 @@ class TimedSingleRelations(object):
         new_transitions = []
 
         # copy 1
-        if inc_place_e_prime:
+        if inc_place_e_prime and len(pend_places_e_prime) > 0 and len(pend_excl_places_e_prime) > 0:
             for _, (pend_place_e_prime, pend_excl_place_e_prime) in self.helper_struct[event_prime]['pending_pairs'].items():
                 for delta in range(len_delta):
                     # (exists) for each event create a transition with a transport arc link (independent of the other pending places)
@@ -37,7 +37,7 @@ class TimedSingleRelations(object):
                         t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
                         self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
         # copy 2
-        if inc_place_e_prime and len(pend_places_e_prime) > 0 and len(pend_excl_places_e_prime) > 0:
+        if inc_place_e_prime:
             for delta in range(len_delta):
                 tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
                 new_transitions.extend(ts)
@@ -77,7 +77,7 @@ class TimedSingleRelations(object):
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
                     pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-                    #(for all) no pending event exectutes this transition
+                    #(for all) no pending event executes this transition
                     for pend_place_e_prime, _ in pend_places_e_prime:
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
@@ -149,7 +149,9 @@ class TimedSingleRelations(object):
                     pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
                     pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
                     for pend_exc_other in pending_exc_others:
+                        pn_utils.add_arc_from_to(t, pend_exc_other, tapn)
                         pn_utils.add_arc_from_to(pend_exc_other,t,tapn,type='inhibitor')
+            # copy 2X
             for pend_exc_other in pending_exc_others:
                 for delta in range(len_delta):
                     tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
@@ -199,6 +201,7 @@ class TimedSingleRelations(object):
                 pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
                 pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
                 for pend_other in pending_others:
+                    pn_utils.add_arc_from_to(t, pend_other, tapn)
                     pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
 
         self.helper_struct[event]['transitions'].extend(new_transitions)

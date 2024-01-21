@@ -184,10 +184,12 @@ def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=Fa
             return TimedDcrGraph(dcr)
         elif len(dcr['subprocesses']) > 0 or len(dcr['nestings']) > 0:
             return GroupSubprocessDcrGraph(dcr)
+        elif len(dcr['noResponseTo']) > 0 or len(dcr['milestonesFor']):
+            return MilestoneNoResponseDcrGraph(dcr)
         elif len(dcr['roles']) > 0:
-            return RoleDcrGraph(dcr)
+            return MilestoneNoResponseDcrGraph(dcr) #TODO: change back to role
         else:
-            return DcrGraph(dcr)
+            return MilestoneNoResponseDcrGraph(dcr) #TODO: change back to basic
     else:
         return dcr
 

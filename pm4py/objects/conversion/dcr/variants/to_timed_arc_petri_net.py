@@ -1,8 +1,10 @@
 import os
+from copy import deepcopy
 
 from pm4py.objects.petri_net.timed_arc_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
+from pm4py.objects.petri_net import properties as pn_props
 
 from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules import (timed_exceptional_cases,
                                                                                      timed_single_relations,
@@ -12,7 +14,7 @@ from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules imp
 
 class Dcr2TimedArcPetri(object):
 
-    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False) -> None:
+    def __init__(self, preoptimize=True, postoptimize=False, map_unexecutable_events=False, debug=True, **kwargs) -> None:
         self.in_t_types = ['event', 'init', 'initpend', 'pend']
         self.helper_struct = {}
         self.preoptimize = preoptimize
@@ -49,7 +51,7 @@ class Dcr2TimedArcPetri(object):
                 self.helper_struct['pend_matrix'][event][event_prime] = None
                 self.helper_struct['pend_exc_matrix'][event][event_prime] = None
 
-    def create_event_pattern_places(self, event, G, tapn, m) -> (PetriNet, Marking):
+    def create_event_pattern_places(self, event, G, tapn, m) -> (TimedArcNet, TimedMarking):
         default_make_included = True
         default_make_pend = True
         default_make_pend_ex = True
@@ -61,7 +63,7 @@ class Dcr2TimedArcPetri(object):
             default_make_exec = event in self.preoptimizer.need_executed_place
 
         if default_make_included:
-            inc_place = PetriNet.Place(f'included_{event}')
+            inc_place = TimedArcNet.Place(f'included_{event}')
             tapn.places.add(inc_place)
             self.helper_struct[event]['places']['included'] = inc_place
             # fill the marking
@@ -70,7 +72,7 @@ class Dcr2TimedArcPetri(object):
 
         if default_make_pend:
             if event in G['marking']['pendingDeadline']:
-                init_pend_place = PetriNet.Place(f'init_pending_{event}')
+                init_pend_place = TimedArcNet.Place(f'init_pending_{event}')
                 init_pend_place.properties['ageinvariant'] = G['marking']['pendingDeadline'][event]
                 tapn.places.add(init_pend_place)
                 self.helper_struct[event]['places']['pending'].add((init_pend_place, event))
@@ -81,7 +83,7 @@ class Dcr2TimedArcPetri(object):
 
         if default_make_pend_ex:
             if event in G['marking']['pendingDeadline']:
-                init_pend_excl_place = PetriNet.Place(f'init_pending_excluded_{event}')
+                init_pend_excl_place = TimedArcNet.Place(f'init_pending_excluded_{event}')
                 tapn.places.add(init_pend_excl_place)
                 self.helper_struct[event]['places']['pending_excluded'].add((init_pend_excl_place, event))
                 self.helper_struct['pend_exc_matrix'][event][event] = init_pend_excl_place
@@ -91,6 +93,11 @@ class Dcr2TimedArcPetri(object):
                     m[init_pend_excl_place] = 1
 
         e_prime_pending_by_e = {}
+        for k, v1 in G['responseToDeadlines'].items():
+            for v in v1:
+                if v not in e_prime_pending_by_e:
+                    e_prime_pending_by_e[v] = set()
+                e_prime_pending_by_e[v].add(k)
         for k, v1 in G['responseTo'].items():
             for v in v1:
                 if v not in e_prime_pending_by_e:
@@ -99,8 +106,9 @@ class Dcr2TimedArcPetri(object):
         if event in e_prime_pending_by_e:
             if default_make_pend:
                 for event_prime in e_prime_pending_by_e[event]:
-                    pend_by_place = PetriNet.Place(f'pending_{event}_by_{event_prime}')
-                    pend_by_place.properties['ageinvariant'] = G['responseToDeadlines'][event_prime][event]
+                    pend_by_place = TimedArcNet.Place(f'pending_{event}_by_{event_prime}')
+                    if event_prime in G['responseToDeadlines'] and event in G['responseToDeadlines'][event_prime]:
+                        pend_by_place.properties['ageinvariant'] = G['responseToDeadlines'][event_prime][event]
                     tapn.places.add(pend_by_place)
                     self.helper_struct[event]['places']['pending'].add((pend_by_place, event_prime))
                     self.helper_struct['pend_matrix'][event][event_prime] = pend_by_place
@@ -108,14 +116,14 @@ class Dcr2TimedArcPetri(object):
 
             if default_make_pend_ex:
                 for event_prime in e_prime_pending_by_e[event]:
-                    pend_excl_by_place = PetriNet.Place(f'pending_excluded_{event}_by_{event_prime}')
+                    pend_excl_by_place = TimedArcNet.Place(f'pending_excluded_{event}_by_{event_prime}')
                     tapn.places.add(pend_excl_by_place)
                     self.helper_struct[event]['places']['pending_excluded'].add((pend_excl_by_place, event_prime))
                     self.helper_struct['pend_exc_matrix'][event][event_prime] = pend_excl_by_place
                     self.helper_struct[event]['pending_pairs'][event_prime] = (self.helper_struct[event]['pending_pairs'][event_prime], pend_excl_by_place)
         else:
             if default_make_pend:
-                pend_place = PetriNet.Place(f'pending_{event}')
+                pend_place = TimedArcNet.Place(f'pending_{event}')
                 tapn.places.add(pend_place)
                 self.helper_struct[event]['places']['pending'] = set([(pend_place, '')])
                 # fill the marking
@@ -123,7 +131,7 @@ class Dcr2TimedArcPetri(object):
                     m[pend_place] = 1
 
             if default_make_pend_ex:
-                pend_excl_place = PetriNet.Place(f'pending_excluded_{event}')
+                pend_excl_place = TimedArcNet.Place(f'pending_excluded_{event}')
                 tapn.places.add(pend_excl_place)
                 self.helper_struct[event]['places']['pending_excluded'] = set([(pend_excl_place, '')])
                 # fill the marking
@@ -131,7 +139,7 @@ class Dcr2TimedArcPetri(object):
                     m[pend_excl_place] = 1
 
         if default_make_exec:
-            exec_place = PetriNet.Place(f'executed_{event}')
+            exec_place = TimedArcNet.Place(f'executed_{event}')
             tapn.places.add(exec_place)
             self.helper_struct[event]['places']['executed'] = exec_place
             # fill the marking
@@ -149,7 +157,7 @@ class Dcr2TimedArcPetri(object):
 
         return tapn, m
 
-    def create_event_pattern(self, event, G, tapn, m) -> (PetriNet, Marking):
+    def create_event_pattern(self, event, G, tapn, m) -> (TimedArcNet, TimedMarking):
         tapn, m = self.create_event_pattern_places(event, G, tapn, m)
 
         tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct,
@@ -157,17 +165,18 @@ class Dcr2TimedArcPetri(object):
         self.helper_struct[event]['transitions'].extend(ts)
         return tapn, m
 
-    def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> PetriNet:
+    def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> TimedArcNet:
         from pm4py.objects.petri_net.utils import reachability_graph
         # from pm4py.visualization.transition_system import visualizer as ts_visualizer
         from pm4py.objects.petri_net.timed_arc_net import semantics as tapn_semantics
+        from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
         max_elab_time = 2 * 60 * 60  # 2 hours
         if self.reachability_timeout:
             max_elab_time = self.reachability_timeout
-        print(m)
         trans_sys = reachability_graph.construct_reachability_graph(tapn, m, use_trans_name=True,
                                                                     parameters={
-                                                                        'petri_semantics': tapn_semantics.TimedArcSemantics(),
+                                                                        'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
+                                                                        # 'petri_semantics': tapn_semantics.TimedArcSemantics(),
                                                                         'max_elab_time': max_elab_time})
 
         fired_transitions = set()
@@ -243,14 +252,18 @@ class Dcr2TimedArcPetri(object):
                     is_parallel = True
             if is_parallel and m[event_place] == m[event_place_prime]:
                 parallel_places.add(event_place_prime)
-                places_to_rename[event_place] = f'{type_prime}_{event_place.name}'
+                by_who = ''
+                if pn_props.AGE_INVARIANT not in event_place.properties and pn_props.AGE_INVARIANT in event_place_prime.properties:
+                    event_place.properties[pn_props.AGE_INVARIANT] = event_place_prime.properties[pn_props.AGE_INVARIANT]
+                    by_who = f"_by_{str.split(event_place_prime.name,'_')[-1]}"
+                places_to_rename[event_place] = f'{type_prime}_{event_place.name}{by_who}'
 
     def export_debug_net(self, tapn, m, path, step, pn_export_format):
         path_without_extension, extens = os.path.splitext(path)
         debug_save_path = f'{path_without_extension}_{step}{extens}'
         pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
-    def apply(self, G, tapn_path=None) -> (TimedArcNet, TimedMarking):
+    def apply(self, G, tapn_path=None, **kwargs) -> (TimedArcNet, TimedMarking):
         self.basic = False  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
         self.timed = True  # False = untimed | True = timed cond (delay) and resp (deadline)
         self.transport_idx = 0
@@ -313,18 +326,6 @@ class Dcr2TimedArcPetri(object):
         # map effect relations
         if self.print_steps:
             print('[i] map effect relations')
-        for event in G['includesTo']:
-            for event_prime in G['includesTo'][event]:
-                tapn = sr.create_include_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}includesTo', pn_export_format)
-                    induction_step += 1
-        for event in G['excludesTo']:
-            for event_prime in G['excludesTo'][event]:
-                tapn = sr.create_exclude_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}excludesTo', pn_export_format)
-                    induction_step += 1
         for event in G['responseTo']:
             for event_prime in G['responseTo'][event]:
                 tapn = sr.create_response_pattern(event, event_prime, tapn)
@@ -338,16 +339,33 @@ class Dcr2TimedArcPetri(object):
                     if self.debug:
                         self.export_debug_net(tapn, m, tapn_path, f'{induction_step}noResponseTo', pn_export_format)
                         induction_step += 1
+        for event in G['includesTo']:
+            for event_prime in G['includesTo'][event]:
+                tapn = sr.create_include_pattern(event, event_prime, tapn)
+                if self.debug:
+                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}includesTo', pn_export_format)
+                    induction_step += 1
+        for event in G['excludesTo']:
+            for event_prime in G['excludesTo'][event]:
+                tapn = sr.create_exclude_pattern(event, event_prime, tapn)
+                if self.debug:
+                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}{event}excludesTo{event_prime}', pn_export_format)
+                    induction_step += 1
 
         # handle all relation exceptions
         if self.print_steps:
             print('[i] handle all relation exceptions')
-        tapn = self.mapping_exceptions.map_exceptional_cases_between_events(tapn, m)
+        tapn = self.mapping_exceptions.map_exceptional_cases_between_events(tapn, m, tapn_path, induction_step, pn_export_format, self.debug)
+        if self.debug:
+            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions', pn_export_format)
+            induction_step += 1
 
         # post-optimize based on the petri net reachability graph
         if self.postoptimize:
             if self.print_steps:
                 print('[i] post optimizing')
+            for k in tapn.places:
+                m.timed_dict[k] = 0
             tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, G)
 
         if tapn_path:
@@ -360,9 +378,9 @@ class Dcr2TimedArcPetri(object):
 
 
 def apply(dcr, parameters):
-    # TODO: make parameters be part also of the class init method
-    d2p = Dcr2TimedArcPetri(preoptimize=True, postoptimize=True, map_unexecutable_events=False)
-    tapn, m = d2p.apply(dcr, **parameters)
+    d2p = Dcr2TimedArcPetri(**parameters)
+    G = deepcopy(dcr)
+    tapn, m = d2p.apply(G, **parameters)
     return tapn, m
 
 # def run_specific_dcr():
