@@ -1,12 +1,7 @@
-<dcrgraph title="Railroad choreography simpler" dataTypesStatus="hide" filterLevel="-1" insightFilter="false" zoomLevel="0" formGroupStyle="Normal" formLayoutStyle="Horizontal" formShowPendingCount="true" graphBG="#f1f6fe" graphType="0" exercise="false">
+<dcrgraph title="Railroad choreography simpler" dataTypesStatus="hide" filterLevel="-1" insightFilter="false" zoomLevel="0" formGroupStyle="Normal" formLayoutStyle="Horizontal" formShowPendingCount="true" graphBG="#f1f6fe" graphType="0" exercise="false" version="1.0">
     <meta>
-        <graph id="1701100" hash="0D2F1D0AD7C498D8FB5CC3C9FF5D750C" guid="2F720DBF-0127-4DD5-8A8B-FC34BB137539" OwnerName="Thomas Hildebrandt" OwnerId="248" categoryId="343" categoryTitle="Default" Keywords=""/>
-        <revision id="3391855" type="minor" date="2023-10-09T10:38:42.747"/>
-        <organization id="1" name="Community" type="Demonstration"/>
-    </meta>
-    <meta>
-        <graph id="1701100" hash="0D2F1D0AD7C498D8FB5CC3C9FF5D750C" guid="2F720DBF-0127-4DD5-8A8B-FC34BB137539" OwnerName="Thomas Hildebrandt" OwnerId="248" categoryId="343" categoryTitle="Default" Keywords=""/>
-        <revision id="3391855" type="minor" date="2023-10-09T10:38:42.747"/>
+        <graph id="1701100" hash="D60686AC75D4F95A4456EC4480F496F4" guid="2F720DBF-0127-4DD5-8A8B-FC34BB137539" OwnerName="Thomas Hildebrandt" OwnerId="248" categoryId="343" categoryTitle="Default" Keywords=""/>
+        <revision id="3578393" type="minor" date="2024-01-15T11:23:59.750"/>
         <organization id="1" name="Community" type="Demonstration"/>
     </meta>
     <specification>
@@ -16,7 +11,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="225" yLoc="725"/>
+                            <location xLoc="250" yLoc="575"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -48,7 +43,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="250" yLoc="775"/>
+                                <location xLoc="275" yLoc="775"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -81,7 +76,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="475" yLoc="775"/>
+                                <location xLoc="275" yLoc="625"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -115,7 +110,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="500" yLoc="1075"/>
+                            <location xLoc="50" yLoc="625"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -148,7 +143,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="900" yLoc="125"/>
+                            <location xLoc="850" yLoc="125"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -180,7 +175,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="925" yLoc="175"/>
+                                <location xLoc="875" yLoc="175"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -212,7 +207,7 @@
                             <precondition message=""/>
                             <custom>
                                 <visualization>
-                                    <location xLoc="950" yLoc="225"/>
+                                    <location xLoc="900" yLoc="225"/>
                                     <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                                 </visualization>
                                 <roles>
@@ -245,7 +240,7 @@
                             <precondition message=""/>
                             <custom>
                                 <visualization>
-                                    <location xLoc="1100" yLoc="225"/>
+                                    <location xLoc="1050" yLoc="225"/>
                                     <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                                 </visualization>
                                 <roles>
@@ -279,7 +274,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="925" yLoc="425"/>
+                                <location xLoc="875" yLoc="425"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -311,7 +306,7 @@
                             <precondition message=""/>
                             <custom>
                                 <visualization>
-                                    <location xLoc="950" yLoc="475"/>
+                                    <location xLoc="900" yLoc="475"/>
                                     <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                                 </visualization>
                                 <roles>
@@ -344,7 +339,7 @@
                             <precondition message=""/>
                             <custom>
                                 <visualization>
-                                    <location xLoc="1100" yLoc="475"/>
+                                    <location xLoc="1050" yLoc="475"/>
                                     <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                                 </visualization>
                                 <roles>
@@ -379,7 +374,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="725" yLoc="925"/>
+                            <location xLoc="675" yLoc="725"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -411,7 +406,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="900" yLoc="975"/>
+                                <location xLoc="850" yLoc="775"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -444,7 +439,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="750" yLoc="975"/>
+                                <location xLoc="700" yLoc="775"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -478,7 +473,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="275" yLoc="125"/>
+                            <location xLoc="250" yLoc="125"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -510,7 +505,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="300" yLoc="175"/>
+                                <location xLoc="275" yLoc="175"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -543,7 +538,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="300" yLoc="425"/>
+                                <location xLoc="275" yLoc="325"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -577,7 +572,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="575" yLoc="475"/>
+                            <location xLoc="500" yLoc="475"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -609,7 +604,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="600" yLoc="525"/>
+                                <location xLoc="525" yLoc="525"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -642,7 +637,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="750" yLoc="525"/>
+                                <location xLoc="675" yLoc="525"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -676,7 +671,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="475" yLoc="50"/>
+                            <location xLoc="575" yLoc="50"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -741,7 +736,7 @@
                         <precondition message=""/>
                         <custom>
                             <visualization>
-                                <location xLoc="500" yLoc="275"/>
+                                <location xLoc="600" yLoc="275"/>
                                 <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                             </visualization>
                             <roles>
@@ -775,7 +770,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="250" yLoc="1075"/>
+                            <location xLoc="50" yLoc="775"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -808,56 +803,56 @@
             <subProcesses/>
             <distribution/>
             <labels>
-                <label id="Closing"/>
+                <label id="closing"/>
                 <label id="close"/>
                 <label id="down"/>
-                <label id="sound alarm!"/>
-                <label id="on crossing"/>
-                <label id="on crossing train1"/>
-                <label id="enter1"/>
-                <label id="leave1"/>
-                <label id="on crossing train2"/>
-                <label id="enter2"/>
-                <label id="leave2"/>
-                <label id="Opening"/>
+                <label id="sound_alarm"/>
+                <label id="on_crossing"/>
+                <label id="on_crossing_train_one"/>
+                <label id="enter_one"/>
+                <label id="leave_one"/>
+                <label id="on_crossing_train_two"/>
+                <label id="enter_two"/>
+                <label id="leave_two"/>
+                <label id="opening"/>
                 <label id="up"/>
                 <label id="open"/>
                 <label id="green"/>
-                <label id="green1"/>
-                <label id="green2"/>
+                <label id="green_one"/>
+                <label id="green_two"/>
                 <label id="break"/>
-                <label id="break2"/>
-                <label id="break1"/>
+                <label id="break_two"/>
+                <label id="break_one"/>
                 <label id="approaching"/>
-                <label id="approach1"/>
-                <label id="approach2"/>
-                <label id="set alarm timer"/>
+                <label id="approach_one"/>
+                <label id="approach_two"/>
+                <label id="set_alarm_timer"/>
             </labels>
             <labelMappings>
-                <labelMapping eventId="Activity3" labelId="Closing"/>
+                <labelMapping eventId="Activity3" labelId="closing"/>
                 <labelMapping eventId="Activity1" labelId="close"/>
                 <labelMapping eventId="Activity2" labelId="down"/>
-                <labelMapping eventId="Activity5" labelId="sound alarm!"/>
-                <labelMapping eventId="Activity6" labelId="on crossing"/>
-                <labelMapping eventId="Activity20_2" labelId="on crossing train1"/>
-                <labelMapping eventId="Activity7" labelId="enter1"/>
-                <labelMapping eventId="Activity22" labelId="leave1"/>
-                <labelMapping eventId="Activity22_1" labelId="on crossing train2"/>
-                <labelMapping eventId="Activity10" labelId="enter2"/>
-                <labelMapping eventId="Activity23" labelId="leave2"/>
-                <labelMapping eventId="Activity8" labelId="Opening"/>
+                <labelMapping eventId="Activity5" labelId="sound_alarm"/>
+                <labelMapping eventId="Activity6" labelId="on_crossing"/>
+                <labelMapping eventId="Activity20_2" labelId="on_crossing_train_one"/>
+                <labelMapping eventId="Activity7" labelId="enter_one"/>
+                <labelMapping eventId="Activity22" labelId="leave_one"/>
+                <labelMapping eventId="Activity22_1" labelId="on_crossing_train_two"/>
+                <labelMapping eventId="Activity10" labelId="enter_two"/>
+                <labelMapping eventId="Activity23" labelId="leave_two"/>
+                <labelMapping eventId="Activity8" labelId="opening"/>
                 <labelMapping eventId="Activity14" labelId="up"/>
                 <labelMapping eventId="Activity15" labelId="open"/>
                 <labelMapping eventId="Activity20_1" labelId="green"/>
-                <labelMapping eventId="Activity16" labelId="green1"/>
-                <labelMapping eventId="Activity17" labelId="green2"/>
+                <labelMapping eventId="Activity16" labelId="green_one"/>
+                <labelMapping eventId="Activity17" labelId="green_two"/>
                 <labelMapping eventId="Activity21_1" labelId="break"/>
-                <labelMapping eventId="Activity20" labelId="break2"/>
-                <labelMapping eventId="Activity19" labelId="break1"/>
+                <labelMapping eventId="Activity20" labelId="break_two"/>
+                <labelMapping eventId="Activity19" labelId="break_one"/>
                 <labelMapping eventId="Activity21" labelId="approaching"/>
-                <labelMapping eventId="Activity12" labelId="approach1"/>
-                <labelMapping eventId="Activity13" labelId="approach2"/>
-                <labelMapping eventId="Activity23_1" labelId="set alarm timer"/>
+                <labelMapping eventId="Activity12" labelId="approach_one"/>
+                <labelMapping eventId="Activity13" labelId="approach_two"/>
+                <labelMapping eventId="Activity23_1" labelId="set_alarm_timer"/>
             </labelMappings>
             <expressions/>
             <variables/>
@@ -888,7 +883,9 @@
                 <hightlighterMarkup id="HLM"/>
                 <highlighterMarkup>
                     <highlightLayers>
-                        <highlightLayer default="true" name="description">DCR Process</highlightLayer>
+                        <highlightLayer default="true" name="description">
+                            <![CDATA[DCR Process]]>
+                        </highlightLayer>
                     </highlightLayers>
                     <highlights/>
                 </highlighterMarkup>

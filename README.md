@@ -1,3 +1,23 @@
+
+# for dcr to tapn PN2024:
+
+The source xml dcr graphs and resulting tapn nets can be found in the models folder
+
+RunningExampleTAPNoriginal
+
+DCR: ```models/RunningExampleTAPNoriginal.xml```
+
+TAPN: ```models/RunningExampleTAPNoriginal.tapn```
+
+rail_example
+
+DCR: ```models/rail_example.xml```
+
+TAPN: ```models/rail_example.tapn```
+
+the notebook to rerun the experiments can be found in: ```notebook_projects/dcrtotapn.ipynb```
+Remember to change the cwd to your own system path in the first notebook cell.
+
 # pm4py
 pm4py is a python library that supports (state-of-the-art) process mining algorithms in python. 
 It is open source (licensed under GPL) and intended to be used in both academia and industry projects.

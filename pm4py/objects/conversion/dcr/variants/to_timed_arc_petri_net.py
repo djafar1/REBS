@@ -43,6 +43,9 @@ class Dcr2TimedArcPetri(object):
             self.helper_struct[event]['pending_pairs'] = {}
             self.helper_struct[event]['trans_group_index'] = 0
 
+            self.helper_struct[event]['firstResp'] = True
+            self.helper_struct[event]['firstNoResp'] = True
+
             self.transitions[event] = {}
             self.helper_struct['pend_matrix'][event] = {}
             self.helper_struct['pend_exc_matrix'][event] = {}
@@ -50,6 +53,9 @@ class Dcr2TimedArcPetri(object):
                 self.transitions[event][event_prime] = []
                 self.helper_struct['pend_matrix'][event][event_prime] = None
                 self.helper_struct['pend_exc_matrix'][event][event_prime] = None
+            # if effect (resp or noresp) > 1 between event -> multiple event_prime
+            # then the default makes pending or makes not pending has to have the same effect on all
+            # therefore you do not copy that transition for multiple relations
 
     def create_event_pattern_places(self, event, G, tapn, m) -> (TimedArcNet, TimedMarking):
         default_make_included = True
@@ -154,7 +160,6 @@ class Dcr2TimedArcPetri(object):
             if default_make_pend:
                 ts.append('pend')
             self.helper_struct[event]['t_types'] = ts
-
         return tapn, m
 
     def create_event_pattern(self, event, G, tapn, m) -> (TimedArcNet, TimedMarking):
@@ -163,6 +168,7 @@ class Dcr2TimedArcPetri(object):
         tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct,
                                                                          self.mapping_exceptions)
         self.helper_struct[event]['transitions'].extend(ts)
+        self.helper_struct[event]['len_internal'] = len(ts)
         return tapn, m
 
     def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> TimedArcNet:
@@ -286,17 +292,17 @@ class Dcr2TimedArcPetri(object):
                 G = self.preoptimizer.remove_un_executable_events_from_dcr(G)
 
         # including the handling of exception cases from the induction step
-        G = self.mapping_exceptions.filter_exceptional_cases(G)
         if self.preoptimize:
             if self.print_steps:
                 print('[i] finding exceptional behaviour')
             self.preoptimizer.preoptimize_based_on_exceptional_cases(G, self.mapping_exceptions)
 
+        G, original_G = self.mapping_exceptions.filter_exceptional_cases(G)
         # map events
         if self.print_steps:
             print('[i] mapping events')
         for event in G['events']:
-            tapn, m = self.create_event_pattern(event, G, tapn, m)
+            tapn, m = self.create_event_pattern(event, original_G, tapn, m)
         if self.debug:
             self.export_debug_net(tapn, m, tapn_path, f'{induction_step}event', pn_export_format)
             induction_step += 1
@@ -409,5 +415,20 @@ def apply(dcr, parameters):
 #     tapn, m = d2p.dcr2tapn(dcr, tapn_path="/home/vco/Projects/pm4py-dcr/models/one_petri_timed.tapn")
 #
 #
-# if __name__ == "__main__":
-#     run_specific_dcr()
+if __name__ == "__main__":
+    import os
+
+    print(os.getcwd())
+    os.chdir('/home/vco/Projects/pm4py-dcr/')
+    print(os.getcwd())
+    from pm4py.objects.dcr.importer import importer as dcr_importer
+    from pm4py.objects.conversion.dcr import converter as dcr_to_tapn
+    from pm4py.objects.dcr.utils.dcr_utils import nested_groups_and_sps_to_flat_dcr
+
+    example = 'models/rail_example.xml'
+    # example = 'models/test.xml'
+    dcr_dict = dcr_importer.apply(example, parameters={'as_dcr_object': True, 'labels_as_ids': True})
+    nested_groups_and_sps_to_flat_dcr(dcr_dict)
+    dcr_dict = dcr_dict.obj_to_template()
+    tapn, m = dcr_to_tapn.apply(dcr_dict, variant=dcr_to_tapn.Variants.TO_TIMED_ARC_PETRI_NET,
+                                parameters={'preoptimize': True, 'postoptimize': True, 'map_unexecutable_events': False, 'debug': True, 'tapn_path': 'models/rail_example.tapn'})

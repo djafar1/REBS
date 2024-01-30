@@ -89,6 +89,7 @@ class TimedExceptionalCases(object):
         self.apply_exceptions[frozenset([C, M])] = self.create_exception_condition_milestone_pattern
 
     def filter_exceptional_cases(self, G):
+        G_copy = deepcopy(G)
         for e in G['events']:
             for e_prime in G['events']:
                 if e == e_prime:
@@ -154,7 +155,7 @@ class TimedExceptionalCases(object):
                                 for rel in exception:
                                     G[rel][e].remove(e_prime)
         self.G = G
-        return G
+        return G, G_copy
 
     def export_debug_net(self, tapn, m, path, step, pn_export_format):
         path_without_extension, extens = os.path.splitext(path)
@@ -181,7 +182,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -245,7 +246,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -306,7 +307,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -372,7 +373,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -438,7 +439,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -503,7 +504,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -564,7 +565,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -629,7 +630,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -671,7 +672,7 @@ class TimedExceptionalCases(object):
             pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -721,7 +722,7 @@ class TimedExceptionalCases(object):
             pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -771,7 +772,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -814,7 +815,7 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(own_pend_place_e_prime, t, tapn, type='inhibitor')
 
                     for pend_excluded_place_e_prime, _ in pend_excluded_places_e_prime:
-                        pn_utils.add_arc_from_to(pend_excluded_place_e_prime, t, tapn)
+                        pn_utils.add_arc_from_to(pend_excluded_place_e_prime, t, tapn, type='inhibitor')
 
             self.helper_struct[event]['transitions'].extend(new_transitions)
             if debug:
@@ -834,7 +835,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -900,7 +901,7 @@ class TimedExceptionalCases(object):
             pend_excl_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -984,7 +985,7 @@ class TimedExceptionalCases(object):
             pend_excl_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1064,7 +1065,7 @@ class TimedExceptionalCases(object):
             own_pend_excl_place_e_prime = self.helper_struct['pend_exc_matrix'][event_prime][event]
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1165,7 +1166,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -1257,7 +1258,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -1281,7 +1282,7 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
             # copy 2
-            if inc_place_e_prime and len(pend_places_e_prime) > 0:
+            if inc_place_e_prime:# and len(pend_places_e_prime) > 0:
                 for delta in range(len_delta):
                     tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self)
                     new_transitions.extend(ts)
@@ -1325,7 +1326,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1399,7 +1400,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -1520,7 +1521,7 @@ class TimedExceptionalCases(object):
             pend_excl_place_e_prime = self.helper_struct['pend_exc_matrix'][event_prime][event]
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1540,7 +1541,7 @@ class TimedExceptionalCases(object):
 
                         pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
                         pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
-
+            # copy 1X
                 for pend_other in pending_others:
                     for delta in range(len_delta):
                         tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self)
@@ -1625,7 +1626,7 @@ class TimedExceptionalCases(object):
             pend_excl_place_e_prime = self.helper_struct['pend_exc_matrix'][event_prime][event]
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1709,7 +1710,7 @@ class TimedExceptionalCases(object):
             pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1786,7 +1787,7 @@ class TimedExceptionalCases(object):
             pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1845,7 +1846,7 @@ class TimedExceptionalCases(object):
             pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1909,7 +1910,7 @@ class TimedExceptionalCases(object):
             pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
 
@@ -1962,7 +1963,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -2004,7 +2005,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -2042,7 +2043,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1
@@ -2101,7 +2102,7 @@ class TimedExceptionalCases(object):
 
             copy_0 = self.helper_struct[event]['transitions']
             len_copy_0 = len(copy_0)
-            len_internal = len(self.helper_struct[event]['t_types'])
+            len_internal = self.helper_struct[event]['len_internal']
             len_delta = int(len_copy_0 / len_internal)
             new_transitions = []
             # copy 1

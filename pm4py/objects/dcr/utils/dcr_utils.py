@@ -46,7 +46,9 @@ def nested_groups_and_sps_to_flat_dcr(graph):
             rel = r.value
             if nest in graph[rel]:
                 for ae in atomic_events:
-                    graph[rel][ae] = graph[rel][nest]
+                    if ae not in graph[rel]:
+                        graph[rel][ae] = set()
+                    graph[rel][ae] = graph[rel][ae].union(graph[rel][nest])
                 graph[rel].pop(nest)
             for k, v in graph[rel].items():
                 if nest in v:

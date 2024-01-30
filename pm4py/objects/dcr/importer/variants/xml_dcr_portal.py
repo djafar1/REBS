@@ -183,7 +183,7 @@ def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=Fa
         if len(dcr['conditionsForDelays']) > 0 or len(dcr['responseToDeadlines']) > 0:
             return TimedDcrGraph(dcr)
         elif len(dcr['subprocesses']) > 0 or len(dcr['nestings']) > 0:
-            return GroupSubprocessDcrGraph(dcr)
+            return TimedDcrGraph(dcr)  #TODO: change back to GroupSubprocessDcr
         elif len(dcr['noResponseTo']) > 0 or len(dcr['milestonesFor']):
             return MilestoneNoResponseDcrGraph(dcr)
         elif len(dcr['roles']) > 0:
