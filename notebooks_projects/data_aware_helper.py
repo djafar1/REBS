@@ -19,10 +19,16 @@ def show_graph_with_labels(adjacency_matrix, mylabels=None):
     edges = zip(rows.tolist(), cols.tolist())
     gr = nx.DiGraph()
     gr.add_edges_from(edges)
-    plt.figure(figsize=(15, 15))
+    for layer, nodes in enumerate(nx.topological_generations(gr)):
+        # `multipartite_layout` expects the layer as a node attribute, so add the
+        # numeric layer value as a node attribute
+        for node in nodes:
+            gr.nodes[node]["layer"] = layer
+    plt.figure(figsize=(10, 10))
+    pos = nx.multipartite_layout(gr, subset_key="layer")
     if mylabels:
-        nx.draw_circular(gr, node_size=100, labels=mylabels, with_labels=True, font_size=12,
-                             horizontalalignment='left', verticalalignment='bottom')
+        nx.draw(gr, pos=pos, node_size=500, labels=mylabels, with_labels=True, font_size=15,
+                             horizontalalignment='center', verticalalignment='bottom', clip_on=False)
     else:
         nx.draw(gr, node_size=100, with_labels=False, font_size=8)
     plt.show()
@@ -115,21 +121,62 @@ def get_always_executed_events():
     return always_executed_events
 
 
-def extract_event_binomial(event, log):
+def extract_event_binomial(event, log, unfolded=False, group_threshold=1):
     # return the probability of observation as a binomial distribution
-    no_cases = len(log['case:concept:name'].unique())
-    event_cases = len(log[log['concept:name'] == event]['case:concept:name'].unique())
-    prob = event_cases / no_cases
-    if prob == 1:
-        always_executed_events.add(event)
-    print(f'[x] Event {event} prob of success: {prob:.2f}')
-    return lambda: r.choice([1, 0], p=[prob, (1 - prob)])
+    events = [event]
+    has_unfolded = False
+    if unfolded:
+        res, new_events = extract_event_unfolded(event, deepcopy(log))
+        if res is not None and len(new_events) > 0:
+            log = res
+            has_unfolded = True
+            events.append(new_events)
+    e_func_dict = {}
+    merge_instances = []
+    merge_probs = False
+    probs = []
+    for e in events:
+        no_cases = len(log['case:concept:name'].unique())
+        event_cases = len(log[log['concept:name'] == e]['case:concept:name'].unique())
+        prob = event_cases / no_cases
+        if prob == 1:
+            always_executed_events.add(e)
+            print(f'[i] Event {e} prob of success: {prob:.2f}')
+            e_func_dict[e] = (lambda: r.choice([1, 0], p=[prob, (1 - prob)]), prob)
+        elif has_unfolded and prob < group_threshold:
+            merge_probs = True
+            merge_instances += e
+        else:
+            probs.append(prob)
+            print(f'[i] Event {e} prob of success: {prob:.2f}')
+            e_func_dict[e] = (lambda: r.choice([1, 0], p=[prob, (1 - prob)]), prob)
+    if has_unfolded and merge_probs:
+        remaining_prob = 1 - sum(probs)
+        merge_name = ''.join(merge_instances)
+        print(f'[i] Merged event {merge_name} prob of success: {remaining_prob:.2f}')
+        e_func_dict[merge_name] = (lambda: r.choice([1, 0], p=[remaining_prob, (1 - remaining_prob)]), remaining_prob)
+    return e_func_dict
 
 
 def extract_event_unfolded(event, log):
     # unfold the event (each subsequent execution after the first one is a new binomial variable)
-    log[log['concept:name'] == event].groupby('case:concept:name').count()
-    pass
+    i = 1
+    new_events = []
+    while (True):
+        log['case:concept:name:d'] = log['case:concept:name'].shift(i)
+        mask = log['case:concept:name'] == log['case:concept:name:d']
+        if any(mask):
+            new_event_name = f"{event}{i}"
+            log.loc[mask, 'concept:name'] = new_event_name
+            new_events.append(new_event_name)
+            i += 1
+        else:
+            break
+    log = log.drop(['case:concept:name:d'], axis=1)
+    if i == 1:
+        return None, new_events
+    else:
+        return log, new_events
 
 
 def extract_event_multinomial(event, log):
@@ -137,20 +184,34 @@ def extract_event_multinomial(event, log):
     pass
 
 
-def extract_categorical_data_attribute(events, data_attribute, log, data_instances_to_ignore=[]):
+def extract_categorical_data_attribute(events, data_attribute, log, data_instances_to_ignore=[], group_threshold=0.1):
     # fit a multinomial distribution
     all_instances = log[(log['concept:name'].isin(events)) & ~(log[data_attribute].isin(data_instances_to_ignore))].groupby(data_attribute, dropna=False).count()[
         'concept:name'].sort_values(ascending=False)
     all_sum = all_instances.sum()
     pvals = []
     pdict = {}
-    print(f'[i] For data attribute: {data_attribute}')
+    print(f'[i] For categorical data attribute: {data_attribute}')
+    merge_instances = []
+    merge_probs = False
     for k, v in all_instances.to_dict().items():
         prob = v / all_sum
-        pvals.append(prob)
-        pdict[k] = prob
-        print(f'[i] Data instance {k} prob of success {prob:.2f}')
-    return lambda: r.multinomial(1, pvals=pvals)
+        if prob < group_threshold:
+            merge_instances.append(k)
+            merge_probs = True
+        else:
+            pvals.append(prob)
+            pdict[k] = prob
+            print(f'[i] Data instance {k} prob of success {prob:.2f}')
+
+    if merge_probs:
+        inst_str = ''.join(merge_instances)
+        remaining_prob = 1 - sum(pvals)
+        print(f'[i] Merged instance {inst_str} prob of success {remaining_prob:.2f}')
+        pvals.append(remaining_prob)
+        pdict[inst_str] = remaining_prob
+
+    return lambda: r.multinomial(1, pvals=pvals), pdict
 
 
 def extract_numerical_data_attribute(events, data_attribute, log):
@@ -183,6 +244,7 @@ def extract_numerical_data_attribute(events, data_attribute, log):
     best_dist, fitted_params = f.get_best().popitem()
 
     dist_func = getattr(stats, best_dist)
+    print(f'[i] For numerical data attribute: {data_attribute} dist:{best_dist} params:{fitted_params}')
     return lambda x: dist_func.pdf(x, **fitted_params)
 
 
@@ -199,7 +261,7 @@ def extract_categorical_data_attribute_per_event(event, data_attribute, log, dat
         pvals.append(prob)
         pdict[k] = prob
         print(f'[i] Data instance {k} prob of success {prob:.2f}')
-    return lambda: r.multinomial(1, pvals=pvals)
+    return lambda: r.multinomial(1, pvals=pvals), pdict
 
 
 def extract_numerical_data_attribute_per_event(event, data_attribute, log):
