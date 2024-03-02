@@ -11,9 +11,9 @@ TAPN: ```models/RunningExampleTAPNoriginal.tapn```
 
 rail_example
 
-DCR: ```models/rail_example.xml```
+DCR: ```models/rail_example_simpler.xml```
 
-TAPN: ```models/rail_example.tapn```
+TAPN: ```models/rail_example_simpler.tapn```
 
 the notebook to rerun the experiments can be found in: ```notebook_projects/dcrtotapn.ipynb```
 Remember to change the cwd to your own system path in the first notebook cell.
