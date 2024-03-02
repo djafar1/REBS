@@ -27,7 +27,7 @@ def test_plausible_parent_set(X, y, z):
     This test assumes that the populations have identical variances by default.
     Parameters
     ----------
-    X
+    X[0,1,2,..,8]
     y
     z
 
@@ -55,10 +55,10 @@ def preselect_parents(X, y, n):
     return selected
 
 
-ICP = namedtuple("ICP", ["S_hat", "q_values", "p_value"])
+ICP = namedtuple("ICP", ["estimate", "target", "S_hat", "q_values", "p_value"])
 
 
-def invariant_causal_prediction(X, y, z, alpha=0.1):
+def invariant_causal_prediction(X, y, z, alpha=0.1,target=None):
     """
     Perform Invariant Causal Prediction.
 
@@ -98,10 +98,10 @@ def invariant_causal_prediction(X, y, z, alpha=0.1):
 
     q_values = np.minimum(q_values, 1)
     S_hat = np.where(q_values <= alpha)[0]
-    return ICP(S_hat, q_values, p_value_model)
+    return ICP(S_hat,target,S_hat, q_values, p_value_model)
 
 
-def fit_dataset(data, target):
+def fit(data, target,**kwargs):
     """
 
     Parameters
@@ -124,7 +124,7 @@ def fit_dataset(data, target):
     z = np.array(z)
     x = np.delete(data, target, axis=2).reshape((data.shape[0]*data.shape[1], data.shape[2]-1))
     y = data[:, :, target].reshape((data.shape[0]*data.shape[1], 1))
-    return invariant_causal_prediction(x, y, z, alpha=0.1)
+    return invariant_causal_prediction(x, y, z, alpha=0.1,target=target)
 
 
 if __name__ == '__main__':
@@ -143,5 +143,5 @@ if __name__ == '__main__':
                       [-14.85266731, -11.02688079, -8.71264951, -40.37471919],
                       [-16.08519052, -11.73497156, -10.58198058, -42.55646184],
                       [-17.07817707, -11.29005529, -10.04063011, -45.01702447]])]
-    result = fit_dataset(data, target=3)
+    result = fit(data, target=3)
     print(result)

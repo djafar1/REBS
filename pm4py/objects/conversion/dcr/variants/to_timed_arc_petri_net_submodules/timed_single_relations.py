@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from pm4py.objects.petri_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 
@@ -293,6 +295,8 @@ class TimedSingleRelations(object):
                 t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
                 p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
                 self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                if isinstance(delay, timedelta):
+                    delay = delay.days
                 if delay and delay > 0:
                     p_to_t.properties['agemin'] = delay
 

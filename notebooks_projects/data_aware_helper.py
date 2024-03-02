@@ -15,6 +15,7 @@ from copy import deepcopy
 
 
 def show_graph_with_labels(adjacency_matrix, mylabels=None):
+    nodes_no_edges = set(np.where(~adjacency_matrix.any(axis=0))[0]).intersection(set(np.where(~adjacency_matrix.any(axis=1))[0]))
     rows, cols = np.where(adjacency_matrix == 1)
     edges = zip(rows.tolist(), cols.tolist())
     gr = nx.DiGraph()
@@ -24,11 +25,14 @@ def show_graph_with_labels(adjacency_matrix, mylabels=None):
         # numeric layer value as a node attribute
         for node in nodes:
             gr.nodes[node]["layer"] = layer
+    for node in nodes_no_edges:
+        gr.add_node(node)
+        gr.nodes[node]['layer'] = layer+1
     plt.figure(figsize=(10, 10))
     pos = nx.multipartite_layout(gr, subset_key="layer")
     if mylabels:
         nx.draw(gr, pos=pos, node_size=500, labels=mylabels, with_labels=True, font_size=15,
-                             horizontalalignment='center', verticalalignment='bottom', clip_on=False)
+                horizontalalignment='center', verticalalignment='bottom', clip_on=False)
     else:
         nx.draw(gr, node_size=100, with_labels=False, font_size=8)
     plt.show()
@@ -82,11 +86,12 @@ def fit_and_plot_fine_list(fine_list):
     ax.set_title(f'Plot of Create Fine amount')
     ax.legend()
     fig.tight_layout()
-    return dist_func ,best_dist, fitted_params
+    return dist_func, best_dist, fitted_params
+
 
 def box_plot_fine_amount(road_traffic_train):
-    fine_amount = road_traffic_train[road_traffic_train['concept:name']=='Create Fine']['amount']
-    fine_list = fine_amount#[fine_amount.lt(600)]
+    fine_amount = road_traffic_train[road_traffic_train['concept:name'] == 'Create Fine']['amount']
+    fine_list = fine_amount  # [fine_amount.lt(600)]
     fig, ax = plt.subplots(figsize=(16, 5))
     ax.set_xlim(xmin=0, xmax=100)
     res = ax.boxplot(fine_list, vert=False)
@@ -205,6 +210,7 @@ def extract_categorical_data_attribute(events, data_attribute, log, data_instanc
             print(f'[i] Data instance {k} prob of success {prob:.2f}')
 
     if merge_probs:
+        print(merge_instances)
         inst_str = ''.join(merge_instances)
         remaining_prob = 1 - sum(pvals)
         print(f'[i] Merged instance {inst_str} prob of success {remaining_prob:.2f}')
@@ -212,6 +218,16 @@ def extract_categorical_data_attribute(events, data_attribute, log, data_instanc
         pdict[inst_str] = remaining_prob
 
     return lambda: r.multinomial(1, pvals=pvals), pdict
+
+
+def extract_data_binomial(event, attr, log):
+    # return the probability of observation as a binomial distribution
+    print(event,attr)
+    no_cases = len(log[log['concept:name'].isin(event)]['concept:name'])
+    event_cases = len(log[(log['concept:name'].isin(event)) & (log[attr] == True)])
+    prob = event_cases / no_cases
+    print(f'[i] Binomial data attribute {attr} for {event} prob of success: {prob:.2f}')
+    return lambda: r.choice([1, 0], p=[prob, (1 - prob)]), prob
 
 
 def extract_numerical_data_attribute(events, data_attribute, log):
@@ -232,7 +248,8 @@ def extract_numerical_data_attribute(events, data_attribute, log):
     pdf = pd.Series(y, x)
     pdf.plot(lw=2, label=f'PDF of {best_dist}', color='r', legend=True)
     '''
-    data = log[log['concept:name'].isin(events)][data_attribute]
+    print(data_attribute, events)
+    data = log[log['concept:name'].isin(events)][data_attribute].dropna()
     Nbins, binwidth = freedman_diaconis_rule(data)
     f = Fitter(data, distributions=get_common_distributions(), timeout=2 * 60, bins=Nbins, density=True)
     f.fit()
