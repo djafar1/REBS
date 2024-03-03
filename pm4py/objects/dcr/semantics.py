@@ -188,11 +188,11 @@ class DcrSemantics(object):
                 #         res.discard(e_in_sp)
 
         for e in set(self.dcr['conditionsForDelays'].keys()).intersection(res):
-            for (e_prime, k) in self.dcr['conditionsForDelays'][e]:
+            for e_prime, k in self.dcr['conditionsForDelays'][e].items():
                 if e_prime in self.dcr['marking']['included'] and e_prime not in self.dcr['marking']['executed']:
                     res.discard(e)
                 elif e_prime in self.dcr['marking']['included'] and e_prime in self.dcr['marking']['executed']:
-                    if self.dcr['marking']['executedTime'][e_prime] < timedelta(k):
+                    if self.dcr['marking']['executedTime'][e_prime] < k:#timedelta(k):
                         res.discard(e)
                         # if e in self.dcr['subprocesses'].keys():
                         #     for e_in_sp in self.dcr['subprocesses'][e]:
@@ -232,9 +232,10 @@ class DcrSemantics(object):
     def find_next_delay(self):
         nextDelay = None
         for e in self.dcr['conditionsForDelays']:
-            for (e_prime, k) in self.dcr['conditionsForDelays'][e]:
+            for e_prime, k in self.dcr['conditionsForDelays'][e].itmes():
                 if e_prime in self.dcr['marking']['executed'] and e_prime in self.dcr['marking']['included']:
-                    delay = timedelta(k) - self.dcr['marking']['executedTime'][e_prime]
+                    # delay = timedelta(k) - self.dcr['marking']['executedTime'][e_prime]
+                    delay = k - self.dcr['marking']['executedTime'][e_prime]
                     if delay > timedelta(0) and (nextDelay is None or delay < nextDelay):
                         nextDelay = delay
         return nextDelay
@@ -309,8 +310,8 @@ class DcrSemantics(object):
         maxDelay = timedelta(0)
         if 'conditionsForDelays' in self.dcr:
             for e in self.dcr['conditionsForDelays']:
-                for (e_prime, k) in self.dcr['conditionsForDelays'][e]:
-                    k_td = timedelta(k)
+                for e_prime, k in self.dcr['conditionsForDelays'][e].items():
+                    k_td = k#timedelta(k)
                     if e_prime == event:
                         if k_td > maxDelay:
                             maxDelay = k_td
@@ -341,6 +342,6 @@ class DcrSemantics(object):
             for e_prime in self.dcr['responseTo'][e]:
                 self.dcr['marking']['pending'].add(e_prime)
         if e in self.dcr['responseToDeadlines']:
-            for (e_prime, k) in self.dcr['responseToDeadlines'][e]:
-                self.dcr['marking']['pendingDeadline'][e_prime] = timedelta(k)
+            for e_prime, k in self.dcr['responseToDeadlines'][e].items():
+                self.dcr['marking']['pendingDeadline'][e_prime] = k#timedelta(k)
                 self.dcr['marking']['pending'].add(e_prime)

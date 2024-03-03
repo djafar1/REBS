@@ -139,5 +139,5 @@ dmypy.json
 renovate.json5
 # project specific
 datasets/
-models/
+#models/
 nirdizati/
