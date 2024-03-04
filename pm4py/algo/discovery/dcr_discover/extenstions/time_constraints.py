@@ -13,7 +13,7 @@ class AggregationMethod(Enum):
 
 
 def apply(dcr_model, event_log, method=AggregationMethod.STANDARD, sp_log=None):
-    #TODO: add a parameter for the time according to the desired output.
+    # TODO: add a parameter for the time according to the desired output.
     # Make sure it's in the ISO format in the DCR (then no need to worry in the export function about it)
     timings = get_timing_values(dcr_model, event_log, sp_log)
     result_dict = {}
@@ -33,6 +33,7 @@ def apply(dcr_model, event_log, method=AggregationMethod.STANDARD, sp_log=None):
                     # MIN Delay
                     result_dict[k] = np.min(v)
     return result_dict
+
 
 def get_all_timings(event_log):
     if isinstance(event_log, pd.DataFrame):
@@ -54,6 +55,7 @@ def get_all_timings(event_log):
         res[event_pair] = data
 
     return res
+
 
 def get_timing_values(dcr_model, event_log, sp_log):
     timing_input_dict = {}
@@ -118,6 +120,7 @@ def get_log_with_pair(event_log, e1, e2):
         'case:concept:name'].unique()
     return event_log[event_log['case:concept:name'].isin(cids)].copy(deep=True)
 
+
 def get_timings(timing_input_dict, log):
     if isinstance(log, pd.DataFrame):
         event_log = log
@@ -133,13 +136,14 @@ def get_timings(timing_input_dict, log):
                 res[(rule, event_pair[0], event_pair[1])] = data
 
     return res
-def get_timings_subprocess(timing_input_dict, log, sp_log,sps):
+
+
+def get_timings_subprocess(timing_input_dict, log, sp_log, sps):
     if isinstance(log, pd.DataFrame):
         event_log = log
     else:
         event_log = pm4py.convert_to_dataframe(log)
     # el_events = event_log['concept:name'].unique()
-
     if isinstance(sp_log, pd.DataFrame):
         sp_event_log = sp_log
     else:

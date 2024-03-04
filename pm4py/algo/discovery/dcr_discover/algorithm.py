@@ -102,6 +102,7 @@ def apply(input_log, variant=DCR_BASIC, **parameters):
         nst.nest(dcr_model['events'].union(all_mes).difference(all_me_events))
         dcr_model = nst.get_nested_dcr_graph(dcr_model['nestings'])
         if 'timed' in parameters.keys() and parameters['timed']:
+            sp_log = get_abstracted_log(deepcopy(input_log), dcr_model['nestings'])
             dcr_model = apply_timed(dcr_model, deepcopy(input_log), sp_log)
         if 'pending' in parameters.keys() and parameters['pending']:
             dcr_model = initial_pending.apply(dcr_model, sp_log)
@@ -135,6 +136,24 @@ def post_processing_timed(dcr):
     # group that subprocess based on the same rule.
     return dcr
 
+def get_abstracted_log(event_log, nestings):
+    subprocess_log = pm4py.objects.log.obj.EventLog()
+    trace: pm4py.objects.log.obj.Trace
+    event: pm4py.objects.log.obj.Event
+    for trace in event_log:
+        sp_trace = pm4py.objects.log.obj.Trace(attributes=trace.attributes, properties=trace.properties)
+        for event in trace:
+            sp_event = None
+            for name, ns in nestings.items():
+                if event['concept:name'] in ns:
+                    # if the event is in the subprocess then replace it with the subprocess name
+                    event['concept:name'] = name
+                    sp_event = event
+            if not sp_event:
+                sp_event = event
+            sp_trace.append(sp_event)
+        subprocess_log.append(sp_trace)
+    return subprocess_log
 
 def replace_events_ne(dcr, e0, new_sp):
     new_dcr = deepcopy(dcr)
