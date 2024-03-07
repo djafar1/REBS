@@ -16,20 +16,24 @@
 '''
 from enum import Enum
 
-from pm4py.objects.conversion.dcr.variants import to_petri_net, to_timed_arc_petri_net
+from pm4py.objects.conversion.dcr.variants import to_inhibitor_net, to_timed_arc_petri_net
+from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 from pm4py.util import exec_utils
 
 
 class Variants(Enum):
-    TO_PETRI_NET = to_petri_net
+    TO_INHIBITOR_NET = to_inhibitor_net
     TO_TIMED_ARC_PETRI_NET = to_timed_arc_petri_net
 
 
-DEFAULT_VARIANT = Variants.TO_PETRI_NET
+DEFAULT_VARIANT = Variants.TO_INHIBITOR_NET
+TO_INHIBITOR_NET = Variants.TO_INHIBITOR_NET
+TO_TIMED_ARC_PETRI_NET = Variants.TO_TIMED_ARC_PETRI_NET
 
 
 def apply(obj, variant=DEFAULT_VARIANT, parameters=None):
     if parameters is None:
         parameters = {}
-
+    if isinstance(obj, TimedDcrGraph):
+        obj = obj.obj_to_template()
     return exec_utils.get_variant(variant).apply(obj, parameters=parameters)

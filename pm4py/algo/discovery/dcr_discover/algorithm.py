@@ -124,13 +124,13 @@ def post_processing_timed(dcr):
     # we do this due to the way we mine time from the event log which is different from the definition of a
     # delay condition. This delay is observed in all log traces therefore it is more accurate w.r.t. the log
     # to have this delay persist event after the executed event is excluded
-    conditions = deepcopy(dcr['conditionsForDelays'])
+    conditions = deepcopy(dcr['conditionsForDelays']) #TODO for response to
     for e1, cond_time_dict in conditions.items():
         for e0, time in cond_time_dict.items():
             if time > datetime.timedelta(0):
                 new_sp = f'{e0}_ne'  # not excluded
                 dcr = replace_events_ne(dcr, e0, new_sp)
-                dcr['subprocesses'][new_sp] = set([e0])
+                dcr['nestings'][new_sp] = set([e0])
     # if there are 2 or more events that have the exact same relations to/from the exact same events
     # then they can be grouped into subprocesses. This can be done iteratively. Discover a subprocess then
     # group that subprocess based on the same rule.

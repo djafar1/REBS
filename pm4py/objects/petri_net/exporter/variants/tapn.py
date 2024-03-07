@@ -25,8 +25,7 @@ from pm4py.util import constants
 
 def export_petri_tree(petrinet, marking, final_marking=None, export_prom5=False, parameters=None):
     """
-    Export a Petrinet to a XML tree.
-    VCO: this will become a TAPN that can be imported to TAPAAL
+    Export a Petrinet to a XML tree as a TAPN that can be imported to TAPAAL
 
     Parameters
     ----------

@@ -21,10 +21,9 @@ from typing import Optional, Set
 from copy import copy, deepcopy
 
 from pm4py.objects.log.obj import Trace, Event
-from pm4py.objects.petri_net import properties
 from pm4py.objects.petri_net import semantics, properties
-from pm4py.objects.petri_net.utils.networkx_graph import create_networkx_directed_graph
-from pm4py.objects.petri_net.obj import PetriNet, Marking, ResetNet, InhibitorNet
+from pm4py.objects.petri_net.obj import PetriNet, Marking, ResetNet, InhibitorNet, ResetInhibitorNet
+from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet
 from pm4py.objects.petri_net.saw_net.obj import StochasticArcWeightNet
 from pm4py.util import xes_constants as xes_util
 
@@ -154,29 +153,17 @@ def remove_place(net: PetriNet, place: PetriNet.Place) -> PetriNet:
         net.places.remove(place)
     return net
 
-def check_arc_exists(source, target, tapn:PetriNet):
-    if source in tapn.arc_matrix and target in tapn.arc_matrix[source]:
-        return tapn.arc_matrix[source][target]
+
+def check_arc_exists(source, target, net: PetriNet):
+    if source in net.arc_matrix and target in net.arc_matrix[source]:
+        return net.arc_matrix[source][target]
     else:
         return False
 
-def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False) -> PetriNet.Arc:
-    """
-    TODO: merge add_arc_from_to into add_arc_from_to_newer
-    Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
 
-    Parameters
-    ----------
-    fr: transition/place from
-    to:  transition/place to
-    net: net to use
-    weight: weight associated to the arc
-
-    Returns
-    -------
-    None
-    """
-    a = PetriNet.Arc(fr, to, weight)
+def add_arc_from_to(fr, to, net: TimedArcNet, weight=1, type=None, with_check=True) -> TimedArcNet.Arc:
+    #TODO: make it work in the commented method below FFFFFF
+    a = TimedArcNet.Arc(fr, to, weight)
     if with_check and (fr and to):
        with_check = check_arc_exists(fr, to, net)
     if (fr and to) and not with_check:  # and not check_arc_exists(fr,to,net):
@@ -190,47 +177,66 @@ def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False
         net.arc_matrix[fr][to] = True
 
     return a
-def add_arc_from_to_newer(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
-    """
-    TODO: merge add_arc_from_to into add_arc_from_to_newer
-    Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
 
-    Parameters
-    ----------
-    fr: transition/place from
-    to:  transition/place to
-    net: net to use
-    weight: weight associated to the arc
 
-    Returns
-    -------
-    None
-    """
-    if type == properties.INHIBITOR_ARC:
-        if isinstance(net, InhibitorNet):
-            a = InhibitorNet.InhibitorArc(fr, to, weight)
-            a.properties[properties.ARCTYPE] = type
-        else:
-            raise Exception("trying to add an inhibitor arc on a traditional Petri net object.")
-    elif type == properties.RESET_ARC:
-        if isinstance(net, ResetNet):
-            a = ResetNet.ResetArc(fr, to, weight)
-            a.properties[properties.ARCTYPE] = type
-        else:
-            raise Exception("trying to add a reset arc on a traditional Petri net object.")
-    elif type == properties.STOCHASTIC_ARC:
-        if isinstance(net, StochasticArcWeightNet):
-            a = StochasticArcWeightNet.Arc(fr, to, weight)
-            #a.properties[properties.ARCTYPE] = type
-        else:
-            raise Exception("trying to add a stochastic arc on a traditional Petri net object.")
-    else:
-        a = PetriNet.Arc(fr, to, weight)
-    net.arcs.add(a)
-    fr.out_arcs.add(a)
-    to.in_arcs.add(a)
 
-    return a
+# def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False) -> PetriNet.Arc:
+#     """
+#     Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
+#
+#     Parameters
+#     ----------
+#     fr: transition/place from
+#     to:  transition/place to
+#     net: net to use
+#     weight: weight associated to the arc
+#
+#     Returns
+#     -------
+#     None
+#     """
+#     if type == properties.INHIBITOR_ARC:
+#         if isinstance(net, InhibitorNet) or isinstance(net, TimedArcNet):
+#             if isinstance(fr, PetriNet.Transition):
+#                 raise Exception("trying to add an inhibitor arc from a Transition object is prohibited.")
+#             a = InhibitorNet.InhibitorArc(fr, to, weight)
+#             a.properties[properties.ARCTYPE] = type
+#         else:
+#             raise Exception("trying to add an inhibitor arc on a traditional Petri net object.")
+#     elif type == properties.RESET_ARC:
+#         if isinstance(net, ResetNet):
+#             a = ResetNet.ResetArc(fr, to, weight)
+#             a.properties[properties.ARCTYPE] = type
+#         else:
+#             raise Exception("trying to add a reset arc on a traditional Petri net object.")
+#     elif type == properties.STOCHASTIC_ARC:
+#         if isinstance(net, StochasticArcWeightNet):
+#             a = StochasticArcWeightNet.Arc(fr, to, weight)
+#             #a.properties[properties.ARCTYPE] = type
+#         else:
+#             raise Exception("trying to add a stochastic arc on a traditional Petri net object.")
+#     elif type == properties.TRANSPORT_ARC:
+#         if isinstance(net, TimedArcNet):
+#             a = TimedArcNet.TransportArc(fr, to, weight)
+#             a.properties[properties.ARCTYPE] = type
+#         else:
+#             # TODO: figure out why it doesn't register this is a TAPN?
+#             # raise Exception("trying to add a transport arc on a traditional Petri net object.")
+#             a = TimedArcNet.TransportArc(fr, to, weight)
+#             a.properties[properties.ARCTYPE] = type
+#     else:
+#         a = PetriNet.Arc(fr, to, weight)
+#
+#     if fr and to:
+#         if not with_check or check_arc_exists(fr, to, net):
+#             net.arcs.add(a)
+#             fr.out_arcs.add(a)
+#             to.in_arcs.add(a)
+#             if fr not in net.arc_matrix:
+#                 net.arc_matrix[fr] = {}
+#             net.arc_matrix[fr][to] = True
+#
+#     return a
 
 
 def construct_trace_net(trace, trace_name_key=xes_util.DEFAULT_NAME_KEY, activity_key=xes_util.DEFAULT_NAME_KEY):
