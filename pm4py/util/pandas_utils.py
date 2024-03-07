@@ -14,8 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
-import pkgutil
-
 import pandas as pd
 
 from pm4py.util import constants, xes_constants
@@ -256,13 +254,11 @@ def check_is_pandas_dataframe(log):
     boolean
         Is dataframe?
     """
-    if pkgutil.find_loader("pandas"):
-        import pandas as pd
-        return type(log) is pd.DataFrame
-    return False
+    import pandas as pd
+    return type(log) is pd.DataFrame
 
 
-def check_pandas_dataframe_columns(df, activity_key=None, case_id_key=None, timestamp_key=None):
+def check_pandas_dataframe_columns(df, activity_key=None, case_id_key=None, timestamp_key=None, start_timestamp_key=None):
     """
     Checks if the dataframe contains all the required columns.
     If not, raise an exception
@@ -313,6 +309,16 @@ def check_pandas_dataframe_columns(df, activity_key=None, case_id_key=None, time
 
         if df[timestamp_key].isnull().values.any():
             raise Exception("the timestamp column should not contain any empty value.")
+
+    if start_timestamp_key is not None:
+        if start_timestamp_key not in df.columns:
+            raise Exception("the specified start timestamp column is not contained in the dataframe. Available columns: "+str(sorted(list(df.columns))))
+
+        if start_timestamp_key not in timest_columns:
+            raise Exception("the start timestamp column should be of time datetime. Use the function pandas.to_datetime")
+
+        if df[start_timestamp_key].isnull().values.any():
+            raise Exception("the start timestamp column should not contain any empty value.")
 
     """if len(set(df.columns).intersection(
             set([constants.CASE_CONCEPT_NAME, xes_constants.DEFAULT_NAME_KEY,
