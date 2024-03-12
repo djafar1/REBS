@@ -26,7 +26,8 @@ from enum import Enum
 from pm4py.util import constants
 from typing import Optional, Dict, Any, Union, Tuple
 from pm4py.objects.log.obj import EventLog, EventStream
-from pm4py.objects.petri_net.obj import PetriNet, Marking
+from pm4py.objects.petri_net.timed_arc_net import semantics as tapn_semantics
+from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet, TimedMarking
 from pm4py.objects.conversion.log import converter as log_converter
 import pandas as pd
 
@@ -59,7 +60,7 @@ although the implementation seems to follow the paper concept
 """
 
 
-def apply(log: EventLog, net: PetriNet, marking: Marking, final_marking: Marking, parameters: Optional[Dict[Union[str, Parameters], Any]] = None):
+def apply(log: EventLog, net: TimedArcNet, marking: TimedMarking, final_marking: TimedMarking, parameters: Optional[Dict[Union[str, Parameters], Any]] = None):
     """
     Get ET Conformance precision
 
@@ -115,7 +116,7 @@ def apply(log: EventLog, net: PetriNet, marking: Marking, final_marking: Marking
 
     # fix: also the empty prefix should be counted!
     start_activities = set(get_start_activities(log, parameters=parameters))
-    trans_en_ini_marking = set([x.label for x in get_visible_transitions_eventually_enabled_by_marking(net, marking)])
+    trans_en_ini_marking = set([x.label for x in get_visible_transitions_eventually_enabled_by_marking(net, marking,tapn_semantics)])
     diff = trans_en_ini_marking.difference(start_activities)
     sum_at += len(log) * len(trans_en_ini_marking)
     sum_ee += len(log) * len(diff)

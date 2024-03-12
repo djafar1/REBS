@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from pm4py.objects.dcr.obj import Relations
 from pm4py.objects.petri_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 
@@ -337,6 +338,14 @@ class TimedSingleRelations(object):
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
                     pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+                    # this handles condition delays when the event is self excluding
+                    if event in self.mapping_exceptions.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
 
         # copy 0
         if exec_place_e_prime:

@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
+  <net active="true" id="netFromDCR" type="P/T net">
+    <place displayName="true" id="included_Send_Fine" initialMarking="1" invariant="&lt; inf" name="included_Send_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="450" positionY="270"/>
+    <place displayName="true" id="executed_Send_Fine" initialMarking="0" invariant="&lt; inf" name="executed_Send_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="370" positionY="350"/>
+    <place displayName="true" id="co_included_Create_Fine" initialMarking="0" invariant="&lt; inf" name="co_included_Create_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="290" positionY="270"/>
+    <place displayName="true" id="included_Send_Appeal_to_Prefecture" initialMarking="1" invariant="&lt; inf" name="included_Send_Appeal_to_Prefecture" nameOffsetX="-5" nameOffsetY="35" positionX="290" positionY="110"/>
+    <place displayName="true" id="pending_Add_penalty_by_Insert_Fine_Notification" initialMarking="0" invariant="&lt;= 60" name="pending_Add_penalty_by_Insert_Fine_Notification" nameOffsetX="-5" nameOffsetY="35" positionX="610" positionY="430"/>
+    <place displayName="true" id="executed_Insert_Fine_Notification" initialMarking="0" invariant="&lt; inf" name="executed_Insert_Fine_Notification" nameOffsetX="-5" nameOffsetY="35" positionX="210" positionY="510"/>
+    <place displayName="true" id="included_Notify_Result_Appeal_to_Offender" initialMarking="1" invariant="&lt; inf" name="included_Notify_Result_Appeal_to_Offender" nameOffsetX="-5" nameOffsetY="35" positionX="290" positionY="430"/>
+    <place displayName="true" id="included_Payment" initialMarking="1" invariant="&lt; inf" name="included_Payment" nameOffsetX="-5" nameOffsetY="35" positionX="130" positionY="350"/>
+    <place displayName="true" id="included_Send_for_Credit_Collection" initialMarking="1" invariant="&lt; inf" name="included_Send_for_Credit_Collection" nameOffsetX="-5" nameOffsetY="35" positionX="930" positionY="430"/>
+    <place displayName="true" id="co_included_Insert_Fine_Notification" initialMarking="0" invariant="&lt; inf" name="co_included_Insert_Fine_Notification" nameOffsetX="-5" nameOffsetY="35" positionX="370" positionY="510"/>
+    <place displayName="true" id="co_executed_Insert_Fine_Notification" initialMarking="1" invariant="&lt; inf" name="co_executed_Insert_Fine_Notification" nameOffsetX="-5" nameOffsetY="35" positionX="450" positionY="510"/>
+    <place displayName="true" id="included_Add_penalty" initialMarking="1" invariant="&lt; inf" name="included_Add_penalty" nameOffsetX="-5" nameOffsetY="35" positionX="610" positionY="350"/>
+    <place displayName="true" id="executed_Add_penalty" initialMarking="0" invariant="&lt; inf" name="executed_Add_penalty" nameOffsetX="-5" nameOffsetY="35" positionX="690" positionY="350"/>
+    <place displayName="true" id="included_Insert_Fine_Notification" initialMarking="1" invariant="&lt; inf" name="included_Insert_Fine_Notification" nameOffsetX="-5" nameOffsetY="35" positionX="450" positionY="430"/>
+    <place displayName="true" id="co_included_Add_penalty" initialMarking="0" invariant="&lt; inf" name="co_included_Add_penalty" nameOffsetX="-5" nameOffsetY="35" positionX="610" positionY="510"/>
+    <place displayName="true" id="included_Receive_Result_Appeal_from_Prefecture" initialMarking="1" invariant="&lt; inf" name="included_Receive_Result_Appeal_from_Prefecture" nameOffsetX="-5" nameOffsetY="35" positionX="370" positionY="430"/>
+    <place displayName="true" id="included_Create_Fine" initialMarking="1" invariant="&lt; inf" name="included_Create_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="100" positionY="270"/>
+    <place displayName="true" id="executed_Create_Fine" initialMarking="0" invariant="&lt; inf" name="executed_Create_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="210" positionY="190"/>
+    <place displayName="true" id="included_Appeal_to_Judge" initialMarking="1" invariant="&lt; inf" name="included_Appeal_to_Judge" nameOffsetX="-5" nameOffsetY="35" positionX="355" positionY="50"/>
+    <place displayName="true" id="included_Insert_Date_Appeal_to_Prefecture" initialMarking="1" invariant="&lt; inf" name="included_Insert_Date_Appeal_to_Prefecture" nameOffsetX="-5" nameOffsetY="35" positionX="225" positionY="380"/>
+    <place displayName="true" id="co_included_Send_Fine" initialMarking="0" invariant="&lt; inf" name="co_included_Send_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="530" positionY="350"/>
+    <place displayName="true" id="co_executed_Add_penalty" initialMarking="1" invariant="&lt; inf" name="co_executed_Add_penalty" nameOffsetX="-5" nameOffsetY="35" positionX="770" positionY="430"/>
+    <place displayName="true" id="co_executed_Create_Fine" initialMarking="1" invariant="&lt; inf" name="co_executed_Create_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="140" positionY="55"/>
+    <place displayName="true" id="co_executed_Send_Fine" initialMarking="1" invariant="&lt; inf" name="co_executed_Send_Fine" nameOffsetX="-5" nameOffsetY="35" positionX="370" positionY="190"/>
+    <place displayName="true" id="co_pending_Add_penalty_by_Insert_Fine_Notification" initialMarking="1" invariant="&lt; inf" name="co_pending_Add_penalty_by_Insert_Fine_Notification" nameOffsetX="-5" nameOffsetY="35" positionX="530" positionY="510"/>
+    <transition angle="0" displayName="true" id="init_Send_Fine1" infiniteServer="false" name="init_Send_Fine1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="370" positionY="270" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Receive_Result_Appeal_from_Prefecture1" infiniteServer="false" name="event_Receive_Result_Appeal_from_Prefecture1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="450" positionY="350" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Send_for_Credit_Collection3" infiniteServer="false" name="event_Send_for_Credit_Collection3" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="850" positionY="430" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_Add_penalty_by_Insert_Fine_Notification1" infiniteServer="false" name="initpend_Add_penalty_by_Insert_Fine_Notification1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="690" positionY="430" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Appeal_to_Judge1" infiniteServer="false" name="event_Appeal_to_Judge1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="210" positionY="110" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Send_Appeal_to_Prefecture1" infiniteServer="false" name="event_Send_Appeal_to_Prefecture1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="290" positionY="190" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Notify_Result_Appeal_to_Offender1" infiniteServer="false" name="event_Notify_Result_Appeal_to_Offender1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="290" positionY="510" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Insert_Date_Appeal_to_Prefecture1" infiniteServer="false" name="event_Insert_Date_Appeal_to_Prefecture1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="210" positionY="270" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Payment1" infiniteServer="false" name="event_Payment1" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="290" positionY="350" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_Insert_Fine_Notification3" infiniteServer="false" name="init_Insert_Fine_Notification3" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="530" positionY="430" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_Create_Fine0" infiniteServer="false" name="init_Create_Fine0" nameOffsetX="-5" nameOffsetY="35" player="0" positionX="130" positionY="190" priority="0" urgent="false"/>
+    <arc id="A0" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Create_Fine" target="init_Send_Fine1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="317" yCoord="294"/>
+      <arcpath arcPointType="false" id="1" xCoord="349" yCoord="318"/>
+      <arcpath arcPointType="false" id="2" xCoord="379" yCoord="290"/>
+    </arc>
+    <arc id="A1" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Send_Fine1" target="co_included_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="380" yCoord="279"/>
+      <arcpath arcPointType="false" id="1" xCoord="349" yCoord="256"/>
+      <arcpath arcPointType="false" id="2" xCoord="317" yCoord="276"/>
+    </arc>
+    <arc id="A2" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Appeal_to_Judge" target="event_Appeal_to_Judge1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="356" yCoord="70"/>
+      <arcpath arcPointType="false" id="1" xCoord="230" yCoord="120"/>
+    </arc>
+    <arc id="A3" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Insert_Fine_Notification" target="init_Insert_Fine_Notification3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="479" yCoord="445"/>
+      <arcpath arcPointType="false" id="1" xCoord="539" yCoord="446"/>
+    </arc>
+    <arc id="A4" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_executed_Add_penalty" target="initpend_Add_penalty_by_Insert_Fine_Notification1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="770" yCoord="445"/>
+      <arcpath arcPointType="false" id="1" xCoord="709" yCoord="445"/>
+    </arc>
+    <arc id="A5" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Receive_Result_Appeal_from_Prefecture1" target="co_included_Send_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="470" yCoord="360"/>
+      <arcpath arcPointType="false" id="1" xCoord="500" yCoord="332"/>
+      <arcpath arcPointType="false" id="2" xCoord="532" yCoord="356"/>
+    </arc>
+    <arc id="A6" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Send_for_Credit_Collection" target="event_Send_for_Credit_Collection3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="930" yCoord="445"/>
+      <arcpath arcPointType="false" id="1" xCoord="869" yCoord="445"/>
+    </arc>
+    <arc id="A7" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Payment" target="event_Payment1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="158" yCoord="370"/>
+      <arcpath arcPointType="false" id="1" xCoord="230" yCoord="398"/>
+      <arcpath arcPointType="false" id="2" xCoord="299" yCoord="365"/>
+    </arc>
+    <arc id="A8" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Send_Fine1" target="co_included_Send_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="389" yCoord="290"/>
+      <arcpath arcPointType="false" id="1" xCoord="531" yCoord="358"/>
+    </arc>
+    <arc id="A12" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Create_Fine" target="event_Insert_Date_Appeal_to_Prefecture1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="292" yCoord="293"/>
+      <arcpath arcPointType="false" id="1" xCoord="260" yCoord="315"/>
+      <arcpath arcPointType="false" id="2" xCoord="229" yCoord="290"/>
+    </arc>
+    <arc id="A13" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Send_Appeal_to_Prefecture" target="event_Send_Appeal_to_Prefecture1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="305" yCoord="140"/>
+      <arcpath arcPointType="false" id="1" xCoord="305" yCoord="190"/>
+    </arc>
+    <arc id="A14" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Add_penalty_by_Insert_Fine_Notification" target="initpend_Add_penalty_by_Insert_Fine_Notification1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="639" yCoord="444"/>
+      <arcpath arcPointType="false" id="1" xCoord="700" yCoord="442"/>
+    </arc>
+    <arc id="A15" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_executed_Add_penalty" target="event_Send_for_Credit_Collection3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="797" yCoord="453"/>
+      <arcpath arcPointType="false" id="1" xCoord="829" yCoord="475"/>
+      <arcpath arcPointType="false" id="2" xCoord="859" yCoord="454"/>
+    </arc>
+    <arc id="A16" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Create_Fine" target="event_Appeal_to_Judge1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="298" yCoord="271"/>
+      <arcpath arcPointType="false" id="1" xCoord="276" yCoord="221"/>
+      <arcpath arcPointType="false" id="2" xCoord="225" yCoord="140"/>
+    </arc>
+    <arc id="A11" inscription="[59,inf):15" nameOffsetX="0" nameOffsetY="0" source="executed_Insert_Fine_Notification" target="initpend_Add_penalty_by_Insert_Fine_Notification1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="239" yCoord="523"/>
+      <arcpath arcPointType="false" id="1" xCoord="484" yCoord="500"/>
+      <arcpath arcPointType="false" id="2" xCoord="699" yCoord="448"/>
+    </arc>
+    <arc id="A17" inscription="[59,inf):15" nameOffsetX="0" nameOffsetY="0" source="initpend_Add_penalty_by_Insert_Fine_Notification1" target="executed_Insert_Fine_Notification" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="699" yCoord="445"/>
+      <arcpath arcPointType="false" id="1" xCoord="454" yCoord="469"/>
+      <arcpath arcPointType="false" id="2" xCoord="239" yCoord="521"/>
+    </arc>
+    <arc id="A18" inscription="[37,inf):2" nameOffsetX="0" nameOffsetY="0" source="executed_Insert_Fine_Notification" target="event_Notify_Result_Appeal_to_Offender1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="237" yCoord="533"/>
+      <arcpath arcPointType="false" id="1" xCoord="270" yCoord="555"/>
+      <arcpath arcPointType="false" id="2" xCoord="299" yCoord="525"/>
+    </arc>
+    <arc id="A9" inscription="[37,inf):2" nameOffsetX="0" nameOffsetY="0" source="event_Notify_Result_Appeal_to_Offender1" target="executed_Insert_Fine_Notification" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="300" yCoord="520"/>
+      <arcpath arcPointType="false" id="1" xCoord="270" yCoord="492"/>
+      <arcpath arcPointType="false" id="2" xCoord="237" yCoord="516"/>
+    </arc>
+    <arc id="A20" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Send_Fine1" target="executed_Send_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="385" yCoord="300"/>
+      <arcpath arcPointType="false" id="1" xCoord="385" yCoord="350"/>
+    </arc>
+    <arc id="A21" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_executed_Send_Fine" target="init_Send_Fine1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="385" yCoord="220"/>
+      <arcpath arcPointType="false" id="1" xCoord="385" yCoord="270"/>
+    </arc>
+    <arc id="A22" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Send_Fine" target="init_Insert_Fine_Notification3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="554" yCoord="377"/>
+      <arcpath arcPointType="false" id="1" xCoord="575" yCoord="405"/>
+      <arcpath arcPointType="false" id="2" xCoord="550" yCoord="437"/>
+    </arc>
+    <arc id="A24" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="included_Add_penalty" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="545" yCoord="430"/>
+      <arcpath arcPointType="false" id="1" xCoord="567" yCoord="395"/>
+      <arcpath arcPointType="false" id="2" xCoord="611" yCoord="371"/>
+    </arc>
+    <arc id="A25" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Create_Fine" target="event_Send_Appeal_to_Prefecture1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="314" yCoord="273"/>
+      <arcpath arcPointType="false" id="1" xCoord="335" yCoord="245"/>
+      <arcpath arcPointType="false" id="2" xCoord="309" yCoord="205"/>
+    </arc>
+    <arc id="A26" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Insert_Date_Appeal_to_Prefecture1" target="co_included_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="230" yCoord="284"/>
+      <arcpath arcPointType="false" id="1" xCoord="260" yCoord="252"/>
+      <arcpath arcPointType="false" id="2" xCoord="292" yCoord="276"/>
+    </arc>
+    <arc id="A27" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Appeal_to_Judge1" target="co_included_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="225" yCoord="140"/>
+      <arcpath arcPointType="false" id="1" xCoord="246" yCoord="191"/>
+      <arcpath arcPointType="false" id="2" xCoord="297" yCoord="272"/>
+    </arc>
+    <arc id="A28" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="co_included_Add_penalty" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="549" yCoord="454"/>
+      <arcpath arcPointType="false" id="1" xCoord="567" yCoord="468"/>
+      <arcpath arcPointType="false" id="2" xCoord="614" yCoord="514"/>
+    </arc>
+    <arc id="A29" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="pending_Add_penalty_by_Insert_Fine_Notification" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="549" yCoord="448"/>
+      <arcpath arcPointType="false" id="1" xCoord="610" yCoord="445"/>
+    </arc>
+    <arc id="A31" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Payment1" target="included_Payment" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="300" yCoord="360"/>
+      <arcpath arcPointType="false" id="1" xCoord="230" yCoord="332"/>
+      <arcpath arcPointType="false" id="2" xCoord="158" yCoord="359"/>
+    </arc>
+    <arc id="A33" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="co_included_Send_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="540" yCoord="436"/>
+      <arcpath arcPointType="false" id="1" xCoord="515" yCoord="405"/>
+      <arcpath arcPointType="false" id="2" xCoord="536" yCoord="377"/>
+    </arc>
+    <arc id="A34" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="co_included_Insert_Fine_Notification" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="539" yCoord="448"/>
+      <arcpath arcPointType="false" id="1" xCoord="398" yCoord="518"/>
+    </arc>
+    <arc id="A35" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Notify_Result_Appeal_to_Offender" target="event_Notify_Result_Appeal_to_Offender1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="305" yCoord="460"/>
+      <arcpath arcPointType="false" id="1" xCoord="305" yCoord="510"/>
+    </arc>
+    <arc id="A36" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Add_penalty" target="event_Send_for_Credit_Collection3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="639" yCoord="522"/>
+      <arcpath arcPointType="false" id="1" xCoord="764" yCoord="503"/>
+      <arcpath arcPointType="false" id="2" xCoord="859" yCoord="448"/>
+    </arc>
+    <arc id="A37" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_Add_penalty_by_Insert_Fine_Notification1" target="co_included_Add_penalty" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="699" yCoord="455"/>
+      <arcpath arcPointType="false" id="1" xCoord="635" yCoord="514"/>
+    </arc>
+    <arc id="A39" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_pending_Add_penalty_by_Insert_Fine_Notification" target="init_Insert_Fine_Notification3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="545" yCoord="510"/>
+      <arcpath arcPointType="false" id="1" xCoord="545" yCoord="460"/>
+    </arc>
+    <arc id="A40" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Send_Appeal_to_Prefecture1" target="co_included_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="299" yCoord="210"/>
+      <arcpath arcPointType="false" id="1" xCoord="275" yCoord="245"/>
+      <arcpath arcPointType="false" id="2" xCoord="296" yCoord="273"/>
+    </arc>
+    <arc id="A41" inscription="[1,inf):10" nameOffsetX="0" nameOffsetY="0" source="executed_Create_Fine" target="init_Send_Fine1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="237" yCoord="212"/>
+      <arcpath arcPointType="false" id="1" xCoord="324" yCoord="264"/>
+      <arcpath arcPointType="false" id="2" xCoord="380" yCoord="280"/>
+    </arc>
+    <arc id="A19" inscription="[1,inf):10" nameOffsetX="0" nameOffsetY="0" source="init_Send_Fine1" target="executed_Create_Fine" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="380" yCoord="279"/>
+      <arcpath arcPointType="false" id="1" xCoord="294" yCoord="230"/>
+      <arcpath arcPointType="false" id="2" xCoord="239" yCoord="210"/>
+    </arc>
+    <arc id="A23" inscription="[40,inf):0" nameOffsetX="0" nameOffsetY="0" source="executed_Send_Fine" target="event_Receive_Result_Appeal_from_Prefecture1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="397" yCoord="372"/>
+      <arcpath arcPointType="false" id="1" xCoord="430" yCoord="392"/>
+      <arcpath arcPointType="false" id="2" xCoord="460" yCoord="360"/>
+    </arc>
+    <arc id="A42" inscription="[40,inf):0" nameOffsetX="0" nameOffsetY="0" source="event_Receive_Result_Appeal_from_Prefecture1" target="executed_Send_Fine" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="460" yCoord="359"/>
+      <arcpath arcPointType="false" id="1" xCoord="429" yCoord="336"/>
+      <arcpath arcPointType="false" id="2" xCoord="397" yCoord="356"/>
+    </arc>
+    <arc id="A43" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_Add_penalty_by_Insert_Fine_Notification1" target="co_included_Insert_Fine_Notification" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="699" yCoord="445"/>
+      <arcpath arcPointType="false" id="1" xCoord="534" yCoord="471"/>
+      <arcpath arcPointType="false" id="2" xCoord="399" yCoord="519"/>
+    </arc>
+    <arc id="A44" inscription="[11,inf):7" nameOffsetX="0" nameOffsetY="0" source="executed_Create_Fine" target="event_Send_Appeal_to_Prefecture1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="237" yCoord="212"/>
+      <arcpath arcPointType="false" id="1" xCoord="270" yCoord="233"/>
+      <arcpath arcPointType="false" id="2" xCoord="299" yCoord="205"/>
+    </arc>
+    <arc id="A32" inscription="[11,inf):7" nameOffsetX="0" nameOffsetY="0" source="event_Send_Appeal_to_Prefecture1" target="executed_Create_Fine" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="300" yCoord="200"/>
+      <arcpath arcPointType="false" id="1" xCoord="270" yCoord="172"/>
+      <arcpath arcPointType="false" id="2" xCoord="237" yCoord="196"/>
+    </arc>
+    <arc id="A45" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Send_Fine" target="init_Send_Fine1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="450" yCoord="285"/>
+      <arcpath arcPointType="false" id="1" xCoord="389" yCoord="285"/>
+    </arc>
+    <arc id="A46" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Add_penalty" target="initpend_Add_penalty_by_Insert_Fine_Notification1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="635" yCoord="375"/>
+      <arcpath arcPointType="false" id="1" xCoord="700" yCoord="436"/>
+    </arc>
+    <arc id="A47" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Create_Fine0" target="executed_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="149" yCoord="205"/>
+      <arcpath arcPointType="false" id="1" xCoord="210" yCoord="205"/>
+    </arc>
+    <arc id="A48" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="executed_Insert_Fine_Notification" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="539" yCoord="448"/>
+      <arcpath arcPointType="false" id="1" xCoord="239" yCoord="521"/>
+    </arc>
+    <arc id="A49" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Insert_Fine_Notification" target="initpend_Add_penalty_by_Insert_Fine_Notification1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="399" yCoord="523"/>
+      <arcpath arcPointType="false" id="1" xCoord="564" yCoord="501"/>
+      <arcpath arcPointType="false" id="2" xCoord="699" yCoord="454"/>
+    </arc>
+    <arc id="A50" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Notify_Result_Appeal_to_Offender1" target="co_included_Insert_Fine_Notification" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="310" yCoord="520"/>
+      <arcpath arcPointType="false" id="1" xCoord="340" yCoord="492"/>
+      <arcpath arcPointType="false" id="2" xCoord="372" yCoord="516"/>
+    </arc>
+    <arc id="A52" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Create_Fine" target="event_Payment1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="314" yCoord="297"/>
+      <arcpath arcPointType="false" id="1" xCoord="335" yCoord="325"/>
+      <arcpath arcPointType="false" id="2" xCoord="309" yCoord="365"/>
+    </arc>
+    <arc id="A53" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_executed_Insert_Fine_Notification" target="init_Insert_Fine_Notification3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="475" yCoord="514"/>
+      <arcpath arcPointType="false" id="1" xCoord="539" yCoord="453"/>
+    </arc>
+    <arc id="A54" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Add_penalty" target="init_Insert_Fine_Notification3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="618" yCoord="378"/>
+      <arcpath arcPointType="false" id="1" xCoord="597" yCoord="423"/>
+      <arcpath arcPointType="false" id="2" xCoord="550" yCoord="444"/>
+    </arc>
+    <arc id="A55" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Add_penalty" target="init_Insert_Fine_Notification3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="614" yCoord="514"/>
+      <arcpath arcPointType="false" id="1" xCoord="597" yCoord="497"/>
+      <arcpath arcPointType="false" id="2" xCoord="549" yCoord="451"/>
+    </arc>
+    <arc id="A56" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Payment" target="event_Send_for_Credit_Collection3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="159" yCoord="366"/>
+      <arcpath arcPointType="false" id="1" xCoord="860" yCoord="442"/>
+    </arc>
+    <arc id="A57" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Send_for_Credit_Collection3" target="co_executed_Add_penalty" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="860" yCoord="435"/>
+      <arcpath arcPointType="false" id="1" xCoord="830" yCoord="415"/>
+      <arcpath arcPointType="false" id="2" xCoord="797" yCoord="436"/>
+    </arc>
+    <arc id="A58" inscription="[1,inf):4" nameOffsetX="0" nameOffsetY="0" source="executed_Create_Fine" target="event_Insert_Date_Appeal_to_Prefecture1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="234" yCoord="217"/>
+      <arcpath arcPointType="false" id="1" xCoord="255" yCoord="245"/>
+      <arcpath arcPointType="false" id="2" xCoord="230" yCoord="280"/>
+    </arc>
+    <arc id="A51" inscription="[1,inf):4" nameOffsetX="0" nameOffsetY="0" source="event_Insert_Date_Appeal_to_Prefecture1" target="executed_Create_Fine" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="219" yCoord="285"/>
+      <arcpath arcPointType="false" id="1" xCoord="195" yCoord="245"/>
+      <arcpath arcPointType="false" id="2" xCoord="216" yCoord="217"/>
+    </arc>
+    <arc id="A59" inscription="[1,inf):27" nameOffsetX="0" nameOffsetY="0" source="executed_Create_Fine" target="event_Appeal_to_Judge1" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="234" yCoord="193"/>
+      <arcpath arcPointType="false" id="1" xCoord="255" yCoord="165"/>
+      <arcpath arcPointType="false" id="2" xCoord="229" yCoord="130"/>
+    </arc>
+    <arc id="A30" inscription="[1,inf):27" nameOffsetX="0" nameOffsetY="0" source="event_Appeal_to_Judge1" target="executed_Create_Fine" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="219" yCoord="125"/>
+      <arcpath arcPointType="false" id="1" xCoord="195" yCoord="165"/>
+      <arcpath arcPointType="false" id="2" xCoord="216" yCoord="193"/>
+    </arc>
+    <arc id="A60" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Create_Fine" target="init_Create_Fine0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="121" yCoord="271"/>
+      <arcpath arcPointType="false" id="1" xCoord="145" yCoord="220"/>
+    </arc>
+    <arc id="A61" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Send_Fine" target="event_Receive_Result_Appeal_from_Prefecture1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="532" yCoord="373"/>
+      <arcpath arcPointType="false" id="1" xCoord="500" yCoord="395"/>
+      <arcpath arcPointType="false" id="2" xCoord="469" yCoord="365"/>
+    </arc>
+    <arc id="A62" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_Add_penalty_by_Insert_Fine_Notification1" target="executed_Add_penalty" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="705" yCoord="430"/>
+      <arcpath arcPointType="false" id="1" xCoord="705" yCoord="380"/>
+    </arc>
+    <arc id="A63" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Create_Fine0" target="co_included_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="149" yCoord="205"/>
+      <arcpath arcPointType="false" id="1" xCoord="291" yCoord="278"/>
+    </arc>
+    <arc id="A64" inscription="[1,inf):21" nameOffsetX="0" nameOffsetY="0" source="executed_Send_Fine" target="init_Insert_Fine_Notification3" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="398" yCoord="372"/>
+      <arcpath arcPointType="false" id="1" xCoord="484" yCoord="420"/>
+      <arcpath arcPointType="false" id="2" xCoord="540" yCoord="439"/>
+    </arc>
+    <arc id="A38" inscription="[1,inf):21" nameOffsetX="0" nameOffsetY="0" source="init_Insert_Fine_Notification3" target="executed_Send_Fine" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="540" yCoord="436"/>
+      <arcpath arcPointType="false" id="1" xCoord="454" yCoord="389"/>
+      <arcpath arcPointType="false" id="2" xCoord="399" yCoord="369"/>
+    </arc>
+    <arc id="A65" inscription="[209,inf):25" nameOffsetX="0" nameOffsetY="0" source="executed_Add_penalty" target="event_Send_for_Credit_Collection3" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="718" yCoord="372"/>
+      <arcpath arcPointType="false" id="1" xCoord="804" yCoord="419"/>
+      <arcpath arcPointType="false" id="2" xCoord="860" yCoord="436"/>
+    </arc>
+    <arc id="A10" inscription="[209,inf):25" nameOffsetX="0" nameOffsetY="0" source="event_Send_for_Credit_Collection3" target="executed_Add_penalty" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="860" yCoord="435"/>
+      <arcpath arcPointType="false" id="1" xCoord="774" yCoord="388"/>
+      <arcpath arcPointType="false" id="2" xCoord="719" yCoord="369"/>
+    </arc>
+    <arc id="A66" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Receive_Result_Appeal_from_Prefecture" target="event_Receive_Result_Appeal_from_Prefecture1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="395" yCoord="434"/>
+      <arcpath arcPointType="false" id="1" xCoord="459" yCoord="370"/>
+    </arc>
+    <arc id="A67" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_executed_Create_Fine" target="init_Create_Fine0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="153" yCoord="84"/>
+      <arcpath arcPointType="false" id="1" xCoord="145" yCoord="190"/>
+    </arc>
+    <arc id="A68" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="co_included_Insert_Fine_Notification" target="event_Notify_Result_Appeal_to_Offender1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="372" yCoord="533"/>
+      <arcpath arcPointType="false" id="1" xCoord="340" yCoord="555"/>
+      <arcpath arcPointType="false" id="2" xCoord="309" yCoord="525"/>
+    </arc>
+    <arc id="A69" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Payment1" target="co_included_Create_Fine" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="300" yCoord="360"/>
+      <arcpath arcPointType="false" id="1" xCoord="275" yCoord="325"/>
+      <arcpath arcPointType="false" id="2" xCoord="296" yCoord="297"/>
+    </arc>
+    <arc id="A70" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Insert_Date_Appeal_to_Prefecture" target="event_Insert_Date_Appeal_to_Prefecture1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="237" yCoord="380"/>
+      <arcpath arcPointType="false" id="1" xCoord="225" yCoord="300"/>
+    </arc>
+    <arc id="A71" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Send_for_Credit_Collection3" target="co_included_Add_penalty" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="859" yCoord="445"/>
+      <arcpath arcPointType="false" id="1" xCoord="734" yCoord="470"/>
+      <arcpath arcPointType="false" id="2" xCoord="638" yCoord="518"/>
+    </arc>
+  </net>
+  <k-bound bound="3"/>
+  <feature isGame="false" isTimed="false"/>
+</pnml>

@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
+  <net id="netFromDCR" type="P/T net" active="true">
+    <place id="included_Unmatched" displayName="true" name="included_Unmatched" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_Accepted_by_Queued" displayName="true" name="pending_Accepted_by_Queued" invariant="&lt;= 2254" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_Completed_by_Unmatched" displayName="true" name="pending_Completed_by_Unmatched" invariant="&lt;= 959" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_Completed_by_Accepted" displayName="true" name="pending_Completed_by_Accepted" invariant="&lt;= 1173" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <transition angle="0" displayName="true" id="pend_Accepted_by_Queued2" infiniteServer="false" name="pend_Accepted_by_Queued2" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Accepted1" infiniteServer="false" name="event_Accepted1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Accepted2" infiniteServer="false" name="event_Accepted2" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Queued0" infiniteServer="false" name="event_Queued0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="pend_Completed_by_Unmatched0" infiniteServer="false" name="pend_Completed_by_Unmatched0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="pend_Completed_by_Accepted0" infiniteServer="false" name="pend_Completed_by_Accepted0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Completed0" infiniteServer="false" name="event_Completed0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Accepted0" infiniteServer="false" name="event_Accepted0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="pend_Accepted_by_Queued0" infiniteServer="false" name="pend_Accepted_by_Queued0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Queued1" infiniteServer="false" name="event_Queued1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Unmatched1" infiniteServer="false" name="event_Unmatched1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_Unmatched2" infiniteServer="false" name="event_Unmatched2" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="pend_Accepted_by_Queued1" infiniteServer="false" name="pend_Accepted_by_Queued1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <arc id="I0" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="event_Accepted1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I1" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="pend_Accepted_by_Queued1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I2" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="pend_Accepted_by_Queued2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I3" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="event_Unmatched1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I4" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="event_Unmatched1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A5" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Unmatched2" target="pending_Completed_by_Unmatched" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I6" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="event_Unmatched2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I7" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="event_Completed0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I8" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="event_Completed0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A9" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="pend_Completed_by_Unmatched0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A10" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="pend_Completed_by_Accepted0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I11" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="event_Queued1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I12" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="event_Accepted2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A13" inscription="1" nameOffsetX="0" nameOffsetY="0" source="pend_Accepted_by_Queued1" target="pending_Completed_by_Accepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A14" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="pend_Accepted_by_Queued2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A15" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Accepted2" target="pending_Completed_by_Accepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A16" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="pend_Accepted_by_Queued0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A17" inscription="1" nameOffsetX="0" nameOffsetY="0" source="pend_Accepted_by_Queued2" target="pending_Completed_by_Accepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I18" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="pend_Accepted_by_Queued1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I19" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="event_Accepted1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A20" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="pend_Accepted_by_Queued2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A21" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="pend_Accepted_by_Queued1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A22" inscription="1" nameOffsetX="0" nameOffsetY="0" source="pend_Accepted_by_Queued0" target="pending_Completed_by_Accepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A23" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="event_Unmatched2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A24" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="event_Queued0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I25" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="event_Accepted0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A26" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="pend_Accepted_by_Queued0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A27" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Queued1" target="pending_Accepted_by_Queued" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A28" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Queued0" target="pending_Accepted_by_Queued" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A29" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Unmatched1" target="pending_Completed_by_Unmatched" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A30" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Unmatched" target="event_Unmatched2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A31" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Accepted" target="event_Accepted0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I32" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Accepted_by_Queued" target="event_Accepted2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A33" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Accepted1" target="pending_Completed_by_Accepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A34" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="event_Accepted2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I35" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_Completed_by_Unmatched" target="event_Accepted1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A36" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Accepted0" target="pending_Completed_by_Accepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A37" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Unmatched" target="event_Unmatched1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+  </net>
+  <k-bound bound="3"/>
+  <feature isGame="false" isTimed="true"/>
+</pnml>

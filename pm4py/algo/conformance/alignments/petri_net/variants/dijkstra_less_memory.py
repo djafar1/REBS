@@ -22,7 +22,7 @@ from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from pm4py.util import exec_utils
 from pm4py.objects.petri_net.obj import Marking
-from pm4py.objects.petri_net.semantics import enabled_transitions
+from pm4py.objects.petri_net.timed_arc_net.semantics import enabled_transitions
 from pm4py.util import variants_util
 from enum import Enum
 from copy import copy

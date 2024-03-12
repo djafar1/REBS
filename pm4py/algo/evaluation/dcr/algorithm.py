@@ -10,6 +10,7 @@ from pathlib import Path
 from pm4py.algo.discovery.dcr_discover.algorithm import Variants
 from pm4py.util.benchmarking import *
 from pm4py.algo.evaluation.simplicity.variants import dcr_relations as dcr_simplicity
+from pm4py.objects.dcr.exporter import exporter as dcr_exporter
 from pm4py.algo.evaluation.confusion_matrix.algorithm import fitness
 from pm4py.objects.dcr import semantics as dcr_semantics
 from pm4py.objects.dcr.obj import Relations
@@ -336,6 +337,7 @@ def score_based_on_config(train, ground_truth, config, log_name, alg_name='DisCo
     start_time = time.time()
     dcr = train_dcr_model(train, config)
     elapsed = time.time() - start_time
+    dcr_exporter.apply(dcr,f'models/dcrbpic15/{log_name}-{alg_name}.xml')
 
     size = dcr_size(dcr)
     density = dcr_density(dcr)

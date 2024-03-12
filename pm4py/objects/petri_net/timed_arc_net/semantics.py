@@ -17,6 +17,7 @@
 import copy
 from pm4py.objects.petri_net import properties
 from pm4py.objects.petri_net.sem_interface import Semantics
+from pm4py.objects.petri_net.obj import ResetNet
 from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet, TimedMarking
 from pm4py.objects.petri_net.properties import AGE_INVARIANT, AGE_MIN, AGE_MAX, TRANSPORT_INDEX
 
@@ -85,11 +86,43 @@ class TimedArcSemantics(Semantics):
         """
         return enabled_transitions(pn, m)
 
+    def minimum_time_step(self, pn, m, **kwargs):
+        """
+        Returns a set of enabled transitions in a Petri net and given marking
+
+        Parameters
+        ----------
+        :param pn: Petri net
+        :param m: marking of the pn
+
+        Returns
+        -------
+        :return: the time step executed or None if ir could not
+        """
+        return minimum_time_step(pn, m)
+
 
 # 29/08/2021: the following methods have been encapsulated in the InhibitorResetSemantics class.
 # the long term idea is to remove them. However, first we need to adapt the existing code to the new
 # structure. Moreover, for performance reason, it is better to leave the code here, without having
 # to instantiate a TimedArcSemantics object.
+
+def minimum_time_step(pn, m):
+    nd = next_delay(pn, m)[0]
+    if nd == float('inf'):
+        print('[i] No next delay or net is untimed!')
+        return None
+    if nd < next_deadline(pn, m):
+        res = time_step(nd, pn, m)
+        if res:
+            return nd
+        else:
+            return None
+    else:
+        print('[i] Will miss a deadline!')
+        return None
+
+
 def is_enabled(t, pn, m):
     if t not in pn.transitions:
         return False
@@ -102,18 +135,19 @@ def is_enabled(t, pn, m):
                 if m[a.source] > 0:
                     return False
             elif isinstance(a, TimedArcNet.TransportArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC or
-                                                                                                a.properties[properties.ARCTYPE] == "transport")):  # the age of the token in the source place of the transport arc must satisfy the guards
-
-
+                                                                                                a.properties[properties.ARCTYPE] == "transport")):
+                # the age of the token in the source place of the transport arc must satisfy the guards
                 min = 0
-                max = float("inf")
+                max = float("inf") # max is always infinity
                 source_transport[a.properties[TRANSPORT_INDEX]] = a.source  # all transport in_arcs have a unique index to link them to transport out_arcs
                 if AGE_MIN in a.properties:
                     min = a.properties[AGE_MIN]
-                if AGE_MAX in a.properties:
-                    max = a.properties[AGE_MAX]
-                if min > m.timed_dict[a.source] or m.timed_dict[a.source] > max:
+                # if AGE_MAX in a.properties:
+                #     max = a.properties[AGE_MAX]
+                if a.source in m.timed_dict and min > m.timed_dict[a.source]:# or m.timed_dict[a.source] > max):
                     return False
+            elif isinstance(a, ResetNet.ResetArc):
+                pass
             elif m[a.source] < a.weight:
                 return False
 
@@ -125,28 +159,32 @@ def is_enabled(t, pn, m):
     return True
 
 
-def next_delay(pn):
+def next_delay(pn, m):
     transport_arcs = [arc for arc in pn.arcs
                       if properties.ARCTYPE in arc.properties and arc.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC
                       and isinstance(arc.source, TimedArcNet.Place)]
     first_delay = float("inf")
-    first_enabled_transition = None
+    first_enabled_transition = set()
     for arc in transport_arcs:
         min_age = arc.properties[properties.AGE_MIN]
-        if min_age < first_delay:
+        if min_age < first_delay and min_age > m.global_time:
             first_delay = min_age
-            first_enabled_transition = arc.target
-    return first_delay, first_enabled_transition
+            first_enabled_transition.add(arc.target)
+    for arc in transport_arcs:
+        min_age = arc.properties[properties.AGE_MIN]
+        if min_age == first_delay:
+            first_enabled_transition.add(arc.target)
+    return first_delay-m.global_time, first_enabled_transition
 
 
-def next_deadline(pn):
+def next_deadline(pn, m):
     invariant_places = [p for p in pn.places if properties.AGE_INVARIANT in p.properties]
     first_deadline = float("inf")
     for place in invariant_places:
         age_invariant = place.properties[properties.AGE_INVARIANT]
         if age_invariant < first_deadline:
             first_deadline = age_invariant
-    return first_deadline
+    return first_deadline-m.global_time
 
 
 def time_step(tics, pn, m):
@@ -166,7 +204,10 @@ def execute(t, pn, m):
         m_out.timed_dict = copy.copy(m.timed_dict)
     transfer_time_dict = {}
     for a in t.in_arcs:
-        if isinstance(a, TimedArcNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
+        if isinstance(a, ResetNet.ResetArc):
+            m_out[a.source] = 0
+            del m_out[a.source]
+        elif isinstance(a, TimedArcNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
                                                                                                     a.properties[properties.ARCTYPE] == "tapnInhibitor" or
                                                                                                     a.properties[properties.ARCTYPE] == "inhibitor")):
             pass
@@ -174,14 +215,17 @@ def execute(t, pn, m):
             m_out[a.source] -= a.weight
             if m_out[a.source] == 0:
                 del m_out[a.source]
+                if a.source in m_out.timed_dict:
+                    del m_out.timed_dict[a.source]
             if isinstance(a, TimedArcNet.TransportArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC or
                                                                                                 a.properties[properties.ARCTYPE] == "transport")):
                 transfer_time_dict[a.properties[TRANSPORT_INDEX]] = m_out.timed_dict[a.source]
-                if m_out[a.source] == 0:
-                    del m_out.timed_dict[a.source]
+            #     if m_out[a.source] == 0:
+            #         del m_out.timed_dict[a.source]
 
     for a in t.out_arcs:
         m_out[a.target] += a.weight
+        m_out.timed_dict[a.target] = 0
         if isinstance(a, TimedArcNet.TransportArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC or
                                                                                                 a.properties[properties.ARCTYPE] == "transport")):
             m_out.timed_dict[a.target] = transfer_time_dict[a.properties[TRANSPORT_INDEX]]
@@ -194,7 +238,10 @@ def weak_execute(t, m):
     m_out.timed_dict = copy.copy(m.timed_dict)
     transfer_time_dict = {}
     for a in t.in_arcs:
-        if isinstance(a, TimedArcNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
+        if isinstance(a, ResetNet.ResetArc):
+            m_out[a.source] = 0
+            del m_out[a.source]
+        elif isinstance(a, TimedArcNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
                                                                                                     a.properties[properties.ARCTYPE] == "tapnInhibitor" or
                                                                                                     a.properties[properties.ARCTYPE] == "inhibitor")):
             pass
@@ -202,13 +249,16 @@ def weak_execute(t, m):
             m_out[a.source] -= a.weight
             if m_out[a.source] <= 0:
                 del m_out[a.source]
+                if a.source in m_out.timed_dict:
+                    del m_out.timed_dict[a.source]
             if isinstance(a, TimedArcNet.TransportArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC or
                                                                                                 a.properties[properties.ARCTYPE] == "transport")):
                 transfer_time_dict[a.properties[TRANSPORT_INDEX]] = m_out.timed_dict[a.source]
-                if m_out[a.source] <= 0:
-                    del m_out.timed_dict[a.source]
+                # if m_out[a.source] <= 0:
+                #     del m_out.timed_dict[a.source]
     for a in t.out_arcs:
         m_out[a.target] += a.weight
+        m_out.timed_dict[a.target] = 0
         if isinstance(a, TimedArcNet.TransportArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.TRANSPORT_ARC or
                                                                                                 a.properties[properties.ARCTYPE] == "transport")):
             m_out.timed_dict[a.target] = transfer_time_dict[a.properties[TRANSPORT_INDEX]]
@@ -217,9 +267,12 @@ def weak_execute(t, m):
 
 def enabled_transitions(pn, m):
     enabled = set()
-    print(next_delay(pn))
-    print(next_deadline(pn))
     for t in pn.transitions:
         if is_enabled(t, pn, m):
             enabled.add(t)
+    #
+    #     print(next_delay(pn))
+    #     print(next_deadline(pn))
+    #     print(time_step(next_delay(pn)[0], pn, m))
+    #     enabled = enabled.union(enabled_transitions(pn, m))
     return enabled

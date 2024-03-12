@@ -1,0 +1,429 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
+  <net id="netFromDCR" type="P/T net" active="true">
+    <place id="pending_AConcept_by_ACreateApplication" displayName="true" name="pending_AConcept_by_ACreateApplication" invariant="&lt;= 5" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OSentmailandonline" displayName="true" name="included_OSentmailandonline" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ACreateApplication" displayName="true" name="executed_ACreateApplication" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ACreateApplication" displayName="true" name="included_ACreateApplication" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AComplete" displayName="true" name="included_AComplete" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WAssesspotentialfraud" displayName="true" name="included_WAssesspotentialfraud" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WCallincompletefiles" displayName="true" name="included_WCallincompletefiles" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_AAccepted_by_AConcept" displayName="true" name="pending_AAccepted_by_AConcept" invariant="&lt;= 30" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ASubmitted" displayName="true" name="included_ASubmitted" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_WHandleleads" displayName="true" name="executed_WHandleleads" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OAccepted" displayName="true" name="included_OAccepted" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WCompleteapplication" displayName="true" name="included_WCompleteapplication" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WPersonalLoancollection" displayName="true" name="included_WPersonalLoancollection" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ORefused" displayName="true" name="included_ORefused" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OCreated" displayName="true" name="included_OCreated" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_AConcept_by_WHandleleads" displayName="true" name="pending_AConcept_by_WHandleleads" invariant="&lt;= 4" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OSentonlineonly" displayName="true" name="included_OSentonlineonly" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_AConcept" displayName="true" name="executed_AConcept" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AConcept" displayName="true" name="included_AConcept" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ACancelled" displayName="true" name="included_ACancelled" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_ACreateApplication" displayName="true" name="pending_ACreateApplication" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OCreateOffer" displayName="true" name="included_OCreateOffer" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ASubmitted" displayName="true" name="executed_ASubmitted" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ADenied" displayName="true" name="included_ADenied" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AAccepted" displayName="true" name="included_AAccepted" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_WAssesspotentialfraud" displayName="true" name="executed_WAssesspotentialfraud" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WHandleleads" displayName="true" name="included_WHandleleads" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AIncomplete" displayName="true" name="included_AIncomplete" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_WHandleleads_by_ASubmitted" displayName="true" name="pending_WHandleleads_by_ASubmitted" invariant="&lt;= 0" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AValidating" displayName="true" name="included_AValidating" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WCallafteroffers" displayName="true" name="included_WCallafteroffers" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_excluded_WHandleleads_by_ASubmitted" displayName="true" name="pending_excluded_WHandleleads_by_ASubmitted" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OReturned" displayName="true" name="included_OReturned" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_WShortenedcompletion" displayName="true" name="included_WShortenedcompletion" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_APending" displayName="true" name="included_APending" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_OCancelled" displayName="true" name="included_OCancelled" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <transition angle="0" displayName="true" id="initpend_AConcept_by_ACreateApplication19" infiniteServer="false" name="initpend_AConcept_by_ACreateApplication19" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_WAssesspotentialfraud3" infiniteServer="false" name="init_WAssesspotentialfraud3" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_ACreateApplication1" infiniteServer="false" name="initpend_ACreateApplication1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_AConcept_by_WHandleleads11" infiniteServer="false" name="initpend_AConcept_by_WHandleleads11" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_AConcept_by_ACreateApplication11" infiniteServer="false" name="initpend_AConcept_by_ACreateApplication11" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ASubmitted3" infiniteServer="false" name="init_ASubmitted3" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ASubmitted5" infiniteServer="false" name="init_ASubmitted5" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_WHandleleads1" infiniteServer="false" name="event_WHandleleads1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_WHandleleads_by_ASubmitted11" infiniteServer="false" name="initpend_WHandleleads_by_ASubmitted11" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_WAssesspotentialfraud1" infiniteServer="false" name="event_WAssesspotentialfraud1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <arc id="A0" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AConcept" target="initpend_ACreateApplication1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A1" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_WHandleleads11" target="executed_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A2" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AConcept" target="initpend_AConcept_by_ACreateApplication11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A3" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication11" target="executed_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I4" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AConcept" target="initpend_AConcept_by_ACreateApplication11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A5" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_ACreateApplication" target="initpend_AConcept_by_ACreateApplication11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A6" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AConcept" target="initpend_AConcept_by_WHandleleads11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I7" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AConcept" target="initpend_AConcept_by_WHandleleads11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A8" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_WHandleleads" target="initpend_AConcept_by_WHandleleads11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A9" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AConcept" target="initpend_AConcept_by_ACreateApplication19" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A10" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="initpend_AConcept_by_ACreateApplication11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A11" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication19" target="executed_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I12" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AConcept" target="initpend_AConcept_by_ACreateApplication19" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I13" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_WHandleleads" target="initpend_AConcept_by_ACreateApplication11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A14" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_ACreateApplication" target="initpend_AConcept_by_ACreateApplication19" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I15" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="initpend_AConcept_by_ACreateApplication11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I16" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AAccepted_by_AConcept" target="initpend_AConcept_by_ACreateApplication11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A17" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AAccepted" target="initpend_AConcept_by_ACreateApplication11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A18" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication11" target="included_AAccepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A19" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication11" target="pending_AAccepted_by_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A20" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="initpend_AConcept_by_WHandleleads11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I21" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_WHandleleads_by_ASubmitted" target="initpend_AConcept_by_ACreateApplication11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A22" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="initpend_AConcept_by_ACreateApplication19" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I23" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_WHandleleads" target="initpend_AConcept_by_ACreateApplication19" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I24" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="initpend_AConcept_by_ACreateApplication19" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I25" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AAccepted_by_AConcept" target="initpend_AConcept_by_ACreateApplication19" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A26" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AAccepted" target="initpend_AConcept_by_ACreateApplication19" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A27" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication19" target="included_AAccepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A28" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication19" target="pending_AAccepted_by_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A29" inscription="[0,inf):834" nameOffsetX="0" nameOffsetY="0" source="pending_WHandleleads_by_ASubmitted" target="initpend_AConcept_by_ACreateApplication19" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A30" inscription="[0,inf):834" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_ACreateApplication19" target="pending_excluded_WHandleleads_by_ASubmitted" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A31" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WAssesspotentialfraud" target="event_WAssesspotentialfraud1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A32" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_WAssesspotentialfraud1" target="included_WAssesspotentialfraud" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A33" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_WAssesspotentialfraud1" target="executed_WAssesspotentialfraud" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A34" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_WAssesspotentialfraud" target="event_WAssesspotentialfraud1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I35" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="event_WAssesspotentialfraud1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I36" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_ACreateApplication" target="initpend_AConcept_by_WHandleleads11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I37" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="initpend_AConcept_by_WHandleleads11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A38" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AAccepted" target="initpend_AConcept_by_WHandleleads11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I39" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AAccepted_by_AConcept" target="initpend_AConcept_by_WHandleleads11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A40" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_WHandleleads11" target="included_AAccepted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A41" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_AConcept_by_WHandleleads11" target="pending_AAccepted_by_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I42" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_WHandleleads_by_ASubmitted" target="initpend_AConcept_by_WHandleleads11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A43" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="initpend_WHandleleads_by_ASubmitted11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A44" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_WHandleleads_by_ASubmitted11" target="included_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A45" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_WHandleleads_by_ASubmitted11" target="executed_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I46" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_WHandleleads" target="initpend_WHandleleads_by_ASubmitted11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A47" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_WHandleleads_by_ASubmitted" target="initpend_WHandleleads_by_ASubmitted11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I48" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ASubmitted" target="initpend_WHandleleads_by_ASubmitted11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A49" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="initpend_ACreateApplication1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A50" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_ACreateApplication1" target="executed_ACreateApplication" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I51" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ACreateApplication" target="initpend_ACreateApplication1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A52" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ACreateApplication" target="initpend_ACreateApplication1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A53" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="event_WHandleleads1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A54" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_WHandleleads1" target="included_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A55" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_WHandleleads1" target="executed_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A56" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_WHandleleads" target="event_WHandleleads1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I57" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_WHandleleads_by_ASubmitted" target="event_WHandleleads1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A58" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ASubmitted" target="init_ASubmitted3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A59" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ASubmitted3" target="executed_ASubmitted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I60" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ASubmitted" target="init_ASubmitted3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A61" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ASubmitted" target="init_ASubmitted5" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I62" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_excluded_WHandleleads_by_ASubmitted" target="init_ASubmitted5" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A63" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ASubmitted5" target="pending_excluded_WHandleleads_by_ASubmitted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I64" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="init_ASubmitted5" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I65" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="init_ASubmitted5" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A66" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_ACreateApplication1" target="pending_AConcept_by_ACreateApplication" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A67" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_ACreateApplication1" target="included_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I68" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_ACreateApplication" target="initpend_ACreateApplication1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I69" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_WHandleleads" target="initpend_ACreateApplication1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I70" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ASubmitted" target="event_WHandleleads1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A71" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WAssesspotentialfraud" target="init_WAssesspotentialfraud3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A72" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_WAssesspotentialfraud3" target="included_WAssesspotentialfraud" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A73" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_WAssesspotentialfraud3" target="executed_WAssesspotentialfraud" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I74" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_WAssesspotentialfraud" target="init_WAssesspotentialfraud3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I75" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="init_WAssesspotentialfraud3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A76" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WShortenedcompletion" target="init_WAssesspotentialfraud3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I77" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WShortenedcompletion" target="event_WAssesspotentialfraud1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A78" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AConcept" target="initpend_WHandleleads_by_ASubmitted11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A79" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_WHandleleads_by_ASubmitted11" target="pending_AConcept_by_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A80" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_WHandleleads_by_ASubmitted11" target="included_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I81" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_WHandleleads" target="initpend_WHandleleads_by_ASubmitted11" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A82" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_ACreateApplication" target="initpend_WHandleleads_by_ASubmitted11" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A83" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_WHandleleads1" target="included_AConcept" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A84" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AConcept" target="event_WHandleleads1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A85" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_WHandleleads1" target="pending_AConcept_by_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A86" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_AConcept_by_WHandleleads" target="event_WHandleleads1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A87" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ASubmitted3" target="pending_WHandleleads_by_ASubmitted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A88" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_WHandleleads" target="init_ASubmitted3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I89" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ACreateApplication" target="init_ASubmitted3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A90" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ASubmitted3" target="included_WHandleleads" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I91" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_WHandleleads_by_ASubmitted" target="init_ASubmitted3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A92" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ASubmitted5" target="executed_ASubmitted" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I93" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ASubmitted" target="init_ASubmitted5" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+  </net>
+  <k-bound bound="3"/>
+  <feature isGame="false" isTimed="true"/>
+</pnml>

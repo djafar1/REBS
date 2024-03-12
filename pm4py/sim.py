@@ -49,7 +49,7 @@ def play_out(*args: Union[Tuple[PetriNet, Marking, Marking], dict, Counter, Proc
         if isinstance(args[0], PetriNet):
             from pm4py.objects.petri_net.obj import ResetNet, InhibitorNet
             from pm4py.algo.simulation.playout.petri_net import algorithm
-            from pm4py.objects.petri_net.semantics import ClassicSemantics
+            from pm4py.objects.petri_net.timed_arc_net.semantics import TimedArcSemantics
             from pm4py.objects.petri_net.inhibitor_reset.semantics import InhibitorResetSemantics
             net = args[0]
             im = args[1]
@@ -57,7 +57,7 @@ def play_out(*args: Union[Tuple[PetriNet, Marking, Marking], dict, Counter, Proc
             parameters = kwargs["parameters"] if "parameters" in kwargs else None
             if parameters is None:
                 parameters = {}
-            semantics = ClassicSemantics()
+            semantics = TimedArcSemantics()
             if isinstance(net, ResetNet) or isinstance(net, InhibitorNet):
                 semantics = InhibitorResetSemantics()
             parameters["petri_semantics"] = semantics

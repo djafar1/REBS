@@ -1,3 +1,5 @@
+from collections import Counter
+
 from pm4py.objects.petri_net.obj import InhibitorNet, Marking, PetriNet
 from pm4py.objects.petri_net.properties import AGE_INVARIANT
 
@@ -7,16 +9,23 @@ class TimedMarking(Marking):
     def __init__(self, marking=None):
         Marking.__init__(self, marking)
         self.timed_dict = {}  # place and age of token (the net is 1-safe or 1-bounded)
+        self.global_time = 0
+
+    def get_token_counter(self):
+        return Counter(self)
 
     def time_step(self, tics):
-        for k in self.keys():
-            if k not in self.timed_dict:
-                self.timed_dict[k] = tics
-            else:
-                self.timed_dict[k] += tics
+        if tics > 0:
+            self.global_time += tics
+            for k in self.keys():
+                if k not in self.timed_dict:
+                    self.timed_dict[k] = tics
+                else:
+                    self.timed_dict[k] += tics
 
     def __repr__(self):
-        return str([str(p.name) + ":" + str(self.get(p)) for p in sorted(list(self.keys()), key=lambda x: x.name)]) + " " + str(self.timed_dict)
+        return (str([str(p.name) + ":" + str(self.get(p)) for p in sorted(list(self.keys()), key=lambda x: x.name)]) +
+                "\n Time dict: \n" + str([str(p.name) + ":" + str(self.timed_dict[p]) for p in sorted(list(self.timed_dict.keys()), key=lambda x: x.name)]))
 
 
 class TimedArcNet(InhibitorNet):
@@ -41,3 +50,18 @@ class TimedArcNet(InhibitorNet):
 
         age_invariant = property(__get_age_invariant, __set_age_invariant)
 
+
+class NewTimeMarking(Marking):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.age = Counter()
+
+    def increase_age(self, place, increment=1):
+        self.age[place] += increment
+
+    def add_new_token(self, place):
+        self[place] += 1
+        self.age[place] = 0
+
+    def get_token_counter(self):
+        return Counter(self)

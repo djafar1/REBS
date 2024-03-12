@@ -47,7 +47,7 @@ def apply_playout(net, initial_marking, no_traces=100, max_trace_length=100,
                   initial_timestamp=10000000, initial_case_id=0,
                   case_id_key=xes_constants.DEFAULT_TRACEID_KEY,
                   activity_key=xes_constants.DEFAULT_NAME_KEY, timestamp_key=xes_constants.DEFAULT_TIMESTAMP_KEY,
-                  final_marking=None, return_visited_elements=False, semantics=petri_net.semantics.ClassicSemantics(),
+                  final_marking=None, return_visited_elements=False, semantics=None,
                   add_only_if_fm_is_reached=False, fm_leq_accepted=False):
     """
     Do the playout of a Petrinet generating a log
@@ -185,7 +185,7 @@ def apply(net: PetriNet, initial_marking: Marking, final_marking: Marking = None
     initial_timestamp = exec_utils.get_param_value(Parameters.INITIAL_TIMESTAMP, parameters, 10000000)
     initial_case_id = exec_utils.get_param_value(Parameters.INITIAL_CASE_ID, parameters, 0)
     return_visited_elements = exec_utils.get_param_value(Parameters.RETURN_VISITED_ELEMENTS, parameters, False)
-    semantics = exec_utils.get_param_value(Parameters.PETRI_SEMANTICS, parameters, petri_net.semantics.ClassicSemantics())
+    semantics = exec_utils.get_param_value(Parameters.PETRI_SEMANTICS, parameters, None)
     add_only_if_fm_is_reached = exec_utils.get_param_value(Parameters.ADD_ONLY_IF_FM_IS_REACHED, parameters, False)
     fm_leq_accepted = exec_utils.get_param_value(Parameters.FM_LEQ_ACCEPTED, parameters, False)
 

@@ -24,7 +24,6 @@ from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.petri_net import semantics, properties
 from pm4py.objects.petri_net.obj import PetriNet, Marking, ResetNet, InhibitorNet, ResetInhibitorNet
 from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet
-from pm4py.objects.petri_net.saw_net.obj import StochasticArcWeightNet
 from pm4py.util import xes_constants as xes_util
 
 
@@ -360,6 +359,27 @@ def acyclic_net_variants(net, initial_marking, final_marking, activity_key=xes_u
     return trace_variants
 
 
+def get_place_by_name(net: PetriNet, place_name) -> Optional[PetriNet.Place]:
+    """
+    Get a transition by its name
+
+    Parameters
+    ------------
+    net
+        Petri net
+    transition_name
+        Transition name
+
+    Returns
+    ------------
+    transition
+        Transition object
+    """
+    for p in net.places:
+        if p.name == place_name:
+            return p
+    return None
+
 def get_transition_by_name(net: PetriNet, transition_name) -> Optional[PetriNet.Transition]:
     """
     Get a transition by its name
@@ -380,6 +400,39 @@ def get_transition_by_name(net: PetriNet, transition_name) -> Optional[PetriNet.
         if t.name == transition_name:
             return t
     return None
+
+def get_transition_by_label(net: PetriNet, label: str, all=True) -> Optional[PetriNet.Transition]:
+    """
+    Get a transition by a labelling function.
+    The labelling function maps one label to multiple transitions.
+    Parameters
+    ------------
+    net
+        Petri net
+    transition_name
+        Transition name
+
+    Returns
+    ------------
+    transition
+        Transition object
+    """
+    label = label.lower().replace(' ','')
+    import re
+    label = re.sub('[^0-9a-zA-Z]+', '', label)
+    res = set()
+    for t in net.transitions:
+        if label in re.sub('[^0-9a-zA-Z]+', '', t.name.lower().replace(' ','')):
+            if all:
+                res.add(t)
+            else:
+                # just return the first match found
+                return t
+
+    if not all or len(res) == 0:
+        return None
+    else:
+        return res
 
 
 def decorate_places_preset_trans(net: PetriNet):

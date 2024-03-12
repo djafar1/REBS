@@ -73,7 +73,7 @@ def apply(net: PetriNet, initial_marking: Marking, final_marking: Marking = None
     max_trace_length = exec_utils.get_param_value(Parameters.MAX_TRACE_LENGTH, parameters, 10)
     return_elements = exec_utils.get_param_value(Parameters.RETURN_ELEMENTS, parameters, False)
     max_marking_occ = exec_utils.get_param_value(Parameters.MAX_MARKING_OCC, parameters, sys.maxsize)
-    semantics = exec_utils.get_param_value(Parameters.PETRI_SEMANTICS, parameters, petri_net.semantics.ClassicSemantics())
+    semantics = exec_utils.get_param_value(Parameters.PETRI_SEMANTICS, parameters, None)
 
     # assigns to each event an increased timestamp from 1970
     curr_timestamp = 10000000

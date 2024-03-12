@@ -35,19 +35,24 @@ def reduce_single_entry_transitions(net):
     cont = True
     while cont:
         cont = False
-        single_entry_transitions = [t for t in net.transitions if t.label is None and len(t.in_arcs) == 1]
+        single_entry_transitions = [t for t in net.transitions if len(t.in_arcs) == 1]
         for i in range(len(single_entry_transitions)):
             t = single_entry_transitions[i]
             source_place = list(t.in_arcs)[0].source
             target_places = [a.target for a in t.out_arcs]
             if len(source_place.in_arcs) == 1 and len(source_place.out_arcs) == 1:
-                source_transition = list(source_place.in_arcs)[0].source
-                remove_transition(net, t)
-                remove_place(net, source_place)
-                for p in target_places:
-                    add_arc_from_to(source_transition, p, net)
-                cont = True
-                break
+                is_same = properties.ARCTYPE in list(source_place.in_arcs)[0].properties == properties.ARCTYPE in list(source_place.out_arcs)[0].properties
+                if is_same and properties.ARCTYPE in list(source_place.in_arcs)[0].properties:
+                    is_same = list(source_place.in_arcs)[0].properties[properties.ARCTYPE] == list(source_place.out_arcs)[0].properties[properties.ARCTYPE]
+                if is_same:
+                    print(f'[!] Removed place: {source_place.name} and transition {t.name}')
+                    source_transition = list(source_place.in_arcs)[0].source
+                    remove_transition(net, t)
+                    remove_place(net, source_place)
+                    for p in target_places:
+                        add_arc_from_to(source_transition, p, net)
+                    cont = True
+                    break
     return net
 
 
@@ -63,19 +68,24 @@ def reduce_single_exit_transitions(net):
     cont = True
     while cont:
         cont = False
-        single_exit_transitions = [t for t in net.transitions if t.label is None and len(t.out_arcs) == 1]
+        single_exit_transitions = [t for t in net.transitions if len(t.out_arcs) == 1]
         for i in range(len(single_exit_transitions)):
             t = single_exit_transitions[i]
             target_place = list(t.out_arcs)[0].target
             source_places = [a.source for a in t.in_arcs]
             if len(target_place.in_arcs) == 1 and len(target_place.out_arcs) == 1:
-                target_transition = list(target_place.out_arcs)[0].target
-                remove_transition(net, t)
-                remove_place(net, target_place)
-                for p in source_places:
-                    add_arc_from_to(p, target_transition, net)
-                cont = True
-                break
+                is_same = properties.ARCTYPE in list(target_place.in_arcs)[0].properties == properties.ARCTYPE in list(target_place.out_arcs)[0].properties
+                if is_same and properties.ARCTYPE in list(target_place.in_arcs)[0].properties:
+                    is_same = list(target_place.in_arcs)[0].properties[properties.ARCTYPE] == list(target_place.out_arcs)[0].properties[properties.ARCTYPE]
+                if is_same:
+                    target_transition = list(target_place.out_arcs)[0].target
+                    print(f'[!] Removed place: {target_place.name} and transition {t.name}')
+                    remove_transition(net, t)
+                    remove_place(net, target_place)
+                    for p in source_places:
+                        add_arc_from_to(p, target_transition, net)
+                    cont = True
+                    break
     return net
 
 
@@ -111,17 +121,17 @@ def apply_fst_rule(net):
                     (len(list(u.in_arcs)) == 1 and list(u.in_arcs)[0].source == p) and \
                     (len(post_set(t).intersection(post_set(u))) == 0) and \
                     (set().union(*[post_set(place, properties.INHIBITOR_ARC) for place in post_set(u)]) == post_set(p,
-                                                                                                                      properties.INHIBITOR_ARC)) and \
-                    (set().union(*[post_set(place, properties.RESET_ARC) for place in post_set(u)]) == post_set(p,
-                                                                                                                  properties.RESET_ARC)) and \
-                    (len(pre_set(u, properties.RESET_ARC)) == 0 and len(pre_set(u, properties.INHIBITOR_ARC)) == 0):
-                if u.label == None:
-                    remove_place(net, p)
-                    for target in post_set(u):
-                        add_arc_from_to(t, target, net)
-                    remove_transition(net, u)
-                    cont = True
-                    break
+                                                                                                                    properties.INHIBITOR_ARC)) and \
+                    (set().union(*[post_set(place, properties.TRANSPORT_ARC) for place in post_set(u)]) == post_set(p,
+                                                                                                                properties.TRANSPORT_ARC)) and \
+                    (len(pre_set(u, properties.TRANSPORT_ARC)) == 0 and len(pre_set(u, properties.INHIBITOR_ARC)) == 0):
+                print(f'[!] Removed place: {p.name} and transition {u.name}')
+                remove_place(net, p)
+                for target in post_set(u):
+                    add_arc_from_to(t, target, net)
+                remove_transition(net, u)
+                cont = True
+                break
 
     return net
 
@@ -143,25 +153,25 @@ def apply_fsp_rule(net, im=None, fm=None):
     while cont:
         cont = False
         for p, q, t in itertools.product(net.places, net.places, net.transitions):
-            if t.label == None:  # only silent transitions may be removed either way
-                if (len(t.in_arcs) == 1 and list(t.in_arcs)[0].source == p) and \
-                        (len(t.out_arcs) == 1 and list(t.out_arcs)[0].target == q) and \
-                        (len(post_set(p)) == 1 and list(post_set(p))[0] == t) and \
-                        (len(pre_set(p).intersection(pre_set(q))) == 0) and \
-                        (post_set(p, properties.RESET_ARC) == post_set(q, properties.RESET_ARC)) and \
-                        (post_set(p, properties.INHIBITOR_ARC) == post_set(q, properties.INHIBITOR_ARC)) and \
-                        (len(pre_set(t, properties.RESET_ARC)) == 0 and len(
-                            pre_set(t, properties.INHIBITOR_ARC)) == 0):
-                    # remove place p and transition t
-                    remove_transition(net, t)
-                    for source in pre_set(p):
-                        add_arc_from_to(source, q, net)
-                    remove_place(net, p)
-                    if p in im:
-                        del im[p]
-                        im[q] = 1
-                    cont = True
-                    break
+            if (len(t.in_arcs) == 1 and list(t.in_arcs)[0].source == p) and \
+                    (len(t.out_arcs) == 1 and list(t.out_arcs)[0].target == q) and \
+                    (len(post_set(p)) == 1 and list(post_set(p))[0] == t) and \
+                    (len(pre_set(p).intersection(pre_set(q))) == 0) and \
+                    (post_set(p, properties.TRANSPORT_ARC) == post_set(q, properties.TRANSPORT_ARC)) and \
+                    (post_set(p, properties.INHIBITOR_ARC) == post_set(q, properties.INHIBITOR_ARC)) and \
+                    (len(pre_set(t, properties.TRANSPORT_ARC)) == 0 and len(
+                        pre_set(t, properties.INHIBITOR_ARC)) == 0):
+                # remove place p and transition t
+                print(f'[!] Removed place: {p.name} and transition {t.name}')
+                remove_transition(net, t)
+                for source in pre_set(p):
+                    add_arc_from_to(source, q, net)
+                remove_place(net, p)
+                if p in im:
+                    del im[p]
+                    im[q] = 1
+                cont = True
+                break
 
     return net, im, fm
 
@@ -178,13 +188,13 @@ def apply_fpt_rule(net):
     cont = True
     while cont:
         cont = False
-        for V in power_set([transition for transition in net.transitions if transition.label == None], 2):
+        for V in power_set([transition for transition in net.transitions], 2):
             condition = True
             for x, y in itertools.product(V, V):
                 if x != y:
                     if not ((pre_set(x) == pre_set(y)) and \
                             (post_set(x) == post_set(y)) and \
-                            (pre_set(x, properties.RESET_ARC) == pre_set(y, properties.RESET_ARC)) and \
+                            (pre_set(x, properties.TRANSPORT_ARC) == pre_set(y, properties.TRANSPORT_ARC)) and \
                             (pre_set(x, properties.INHIBITOR_ARC) == pre_set(y, properties.INHIBITOR_ARC))):
                         condition = False
                         break
@@ -192,6 +202,7 @@ def apply_fpt_rule(net):
             if condition:
                 # remove transitions except the first one
                 for t in V[1:]:
+                    print(f'[!] Removed transition {t.name}')
                     remove_transition(net, t)
                 cont = True
                 break
@@ -218,7 +229,7 @@ def apply_fpp_rule(net, im=None):
                 if x != y:
                     if not ((pre_set(x) == pre_set(y)) and \
                             (post_set(x) == post_set(y)) and \
-                            (post_set(x, properties.RESET_ARC) == post_set(y, properties.RESET_ARC)) and \
+                            (post_set(x, properties.TRANSPORT_ARC) == post_set(y, properties.TRANSPORT_ARC)) and \
                             (post_set(x, properties.INHIBITOR_ARC) == post_set(y, properties.INHIBITOR_ARC))):
                         condition = False
                         break
@@ -237,6 +248,7 @@ def apply_fpp_rule(net, im=None):
             if condition:
                 # remove places except the first one
                 for p in Q[1:]:
+                    print(f'[!] Removed place: {p.name}')
                     remove_place(net, p)
                 cont = True
                 break
@@ -255,11 +267,12 @@ def apply_elt_rule(net):
     cont = True
     while cont:
         cont = False
-        for p, t in itertools.product(net.places, [t for t in net.transitions if t.label == None]):
+        for p, t in itertools.product(net.places, [t for t in net.transitions]):
             if (len(list(t.in_arcs)) == 1 and list(t.in_arcs)[0].source == p) and \
                     (len(list(t.out_arcs)) == 1 and list(t.out_arcs)[0].target == p) and \
                     (len(list(p.in_arcs)) >= 2) and \
-                    (len(pre_set(t, properties.RESET_ARC)) == 0 and len(pre_set(t, properties.INHIBITOR_ARC)) == 0):
+                    (len(pre_set(t, properties.TRANSPORT_ARC)) == 0 and len(pre_set(t, properties.INHIBITOR_ARC)) == 0):
+                print(f'[!] Removed transition {t.name}')
                 remove_transition(net, t)
                 cont = True
                 break
@@ -284,7 +297,7 @@ def apply_elp_rule(net, im=None):
         for p in [place for place in net.places]:
             if (set([arc.target for arc in p.out_arcs]).issubset(set([arc.source for arc in p.in_arcs]))) and \
                     (p in im and im[p] >= 1) and \
-                    (post_set(p, properties.RESET_ARC).union(set([arc.target for arc in p.out_arcs])) == set(
+                    (post_set(p, properties.TRANSPORT_ARC).union(set([arc.target for arc in p.out_arcs])) == set(
                         [arc.source for arc in p.in_arcs])) and \
                     (len(post_set(p, properties.INHIBITOR_ARC)) == 0):
                 remove_place(net, p)
@@ -316,13 +329,13 @@ def apply_a_rule(net):
                     (len(set(itertools.product(pre_set(s), post_set(t))).intersection(
                         set([(arc.source, arc.target) for arc in net.arcs if
                              get_arc_type(arc) is None])))) == 0) and \
-                        (len(pre_set(t, properties.RESET_ARC)) == 0) and \
+                        (len(pre_set(t, properties.TRANSPORT_ARC)) == 0) and \
                         (len(pre_set(t, properties.INHIBITOR_ARC)) == 0):
 
                     # check conditions on Q
                     condition = True
                     for q in Q:
-                        if not ((post_set(s, properties.RESET_ARC) == post_set(q, properties.RESET_ARC)) and \
+                        if not ((post_set(s, properties.TRANSPORT_ARC) == post_set(q, properties.TRANSPORT_ARC)) and \
                                 (post_set(s, properties.INHIBITOR_ARC) == post_set(q, properties.INHIBITOR_ARC))):
                             condition = False
                             break
@@ -351,14 +364,15 @@ def apply_r_rule(net):
     while cont:
         cont = False
         for p, t in itertools.product(net.places, net.transitions):
-            if p in pre_set(t, properties.RESET_ARC).intersection(pre_set(t, properties.INHIBITOR_ARC)):
+            if p in pre_set(t, properties.TRANSPORT_ARC).intersection(pre_set(t, properties.INHIBITOR_ARC)):
                 for arc in [arc for arc in net.arcs]:
-                    if arc.source == p and arc.target == t and arc.arc_type == properties.RESET_ARC:
+                    if arc.source == p and arc.target == t and arc.arc_type == properties.TRANSPORT_ARC:
                         remove_arc(net, arc)
                 cont = True
                 break
 
     return net
+
 
 def apply_bounded_net_inhibitor_removal_rule(net, im):
     """
@@ -369,13 +383,15 @@ def apply_bounded_net_inhibitor_removal_rule(net, im):
 
     Returns
     -------
-    net with no inhibitor arcs and new initial marking
+    net with no inhibitor arcs and a new initial marking
     """
     inhibitor_arcs = [arc for arc in net.arcs if 'arctype' in arc.properties and arc.properties['arctype'] == properties.INHIBITOR_ARC]
     for arc in inhibitor_arcs:
         p = arc.source
-        co_p = PetriNet.Place(name=f'co_{p.name}')
-        net.places.add(co_p)
+        co_p = pn_utils.get_place_by_name(net,f'co_{p.name}')
+        if co_p is None:
+            co_p = PetriNet.Place(name=f'co_{p.name}')
+            net.places.add(co_p)
         t = arc.target
         has_reverse = False
         remove_arc(net, arc)

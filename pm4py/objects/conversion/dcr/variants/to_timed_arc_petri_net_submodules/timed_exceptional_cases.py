@@ -198,8 +198,17 @@ class TimedExceptionalCases(object):
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 2
-            if len(pend_excluded_places_e_prime)>0:
+            if len(pend_excluded_places_e_prime) > 0:
                 for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                     for delta in range(len_delta):
                         tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self)
@@ -211,6 +220,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(t, own_pend_excl_place_e_prime, tapn)
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -261,6 +279,15 @@ class TimedExceptionalCases(object):
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 2
             if len(pend_excluded_places_e_prime) > 0:
                 for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
@@ -272,6 +299,15 @@ class TimedExceptionalCases(object):
 
                             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -325,6 +361,15 @@ class TimedExceptionalCases(object):
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 2
             if len(pend_excluded_places_e_prime) > 0:
                 for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
@@ -338,6 +383,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
                             pn_utils.add_arc_from_to(t, own_pend_place_e_prime, tapn)
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -390,6 +444,15 @@ class TimedExceptionalCases(object):
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 2
             if len(pend_excluded_places_e_prime)>0:
                 for pend_excl_place_e_prime,_ in pend_excluded_places_e_prime:
@@ -403,6 +466,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -456,6 +528,15 @@ class TimedExceptionalCases(object):
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 2
             if len(pend_excluded_places_e_prime) > 0:
                 for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
@@ -469,6 +550,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(t, own_pend_excl_place_e_prime, tapn)
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
             # copy 0
             for t in copy_0:
                 pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
@@ -519,6 +609,15 @@ class TimedExceptionalCases(object):
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 2
             if len(pend_excluded_places_e_prime) > 0:
                 for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
@@ -531,6 +630,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -580,6 +688,15 @@ class TimedExceptionalCases(object):
                     pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
                     for pend_excl_place_e_prime, _ in pend_excluded_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
 
             # copy 2
             for _, (pend_place_e_prime, pend_excl_place_e_prime) in self.helper_struct[event_prime]['pending_pairs'].items():
@@ -644,6 +761,15 @@ class TimedExceptionalCases(object):
                         tapn, t = utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
 
                         pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -940,6 +1066,15 @@ class TimedExceptionalCases(object):
                         for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
+
             # copy 3
             if inc_place_e_prime and len(pend_excl_places_e_prime)>0:
                 for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
@@ -952,6 +1087,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
 
             # copy 0
             if len(pend_places_e_prime) > 0:
@@ -1021,6 +1165,15 @@ class TimedExceptionalCases(object):
                         for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
+
             # copy 3
             if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
                 for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
@@ -1032,6 +1185,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             if len(pend_places_e_prime)>0:
@@ -1110,6 +1272,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(t, own_pend_place_e_prime, tapn)
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
 
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
+
             # copy 3
             for delta in range(len_delta):
                 tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self)
@@ -1124,6 +1295,15 @@ class TimedExceptionalCases(object):
 
                     for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
 
             # copy 0
             if len(pend_places_e_prime) > 0:
@@ -1203,6 +1383,15 @@ class TimedExceptionalCases(object):
                     for pend_excl_e_prime, _ in pend_excl_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_e_prime, t, type='inhibitor')
 
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
+
             # copy 3
             for delta in range(len_delta):
                 tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self)
@@ -1213,6 +1402,15 @@ class TimedExceptionalCases(object):
 
                     pn_utils.add_arc_from_to(t, own_pend_excl_place_e_prime, tapn)
                     pn_utils.add_arc_from_to(own_pend_excl_place_e_prime, t, tapn)
+
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
             # copy 3X
             for pend_excl_other in pending_exc_others:
                 for delta in range(len_delta):
@@ -1224,6 +1422,15 @@ class TimedExceptionalCases(object):
 
                         pn_utils.add_arc_from_to(t, own_pend_excl_place_e_prime, tapn)
                         pn_utils.add_arc_from_to(pend_excl_other, t, tapn)
+
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
             # copy 0
             for t in copy_0:
                 pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
@@ -1282,6 +1489,15 @@ class TimedExceptionalCases(object):
 
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
+
             # copy 2
             if inc_place_e_prime:# and len(pend_places_e_prime) > 0:
                 for delta in range(len_delta):
@@ -1295,6 +1511,15 @@ class TimedExceptionalCases(object):
 
                         for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
                             pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -1363,6 +1588,15 @@ class TimedExceptionalCases(object):
                 for t in ts:
                     tapn, t = utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
                     pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+
+                    # this handles condition delays when the event is self excluding
+                    if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                        t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                        p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                        p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -1461,6 +1695,16 @@ class TimedExceptionalCases(object):
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
                         for pend_exc_other in pending_exc_others:
                             pn_utils.add_arc_from_to(pend_exc_other, t, tapn, type='inhibitor')
+
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
+
                 for pend_exc_other in pending_exc_others:
                     for delta in range(len_delta):
                         tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self)
@@ -1471,6 +1715,15 @@ class TimedExceptionalCases(object):
 
                             pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
                             pn_utils.add_arc_from_to(pend_exc_other, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 3
             if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
@@ -1483,6 +1736,15 @@ class TimedExceptionalCases(object):
 
                         pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
+
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -1747,6 +2009,15 @@ class TimedExceptionalCases(object):
                         for pend_excluded_place_e_prime, _ in pend_excluded_places_e_prime:
                             pn_utils.add_arc_from_to(pend_excluded_place_e_prime, t, tapn, type='inhibitor')
 
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
+
             # copy 3
             if inc_place_e_prime and len(pend_excluded_places_e_prime) > 0:
                 for pend_excluded_place_e_prime, _ in pend_excluded_places_e_prime:
@@ -1758,6 +2029,15 @@ class TimedExceptionalCases(object):
                             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
 
                             pn_utils.add_arc_from_to(pend_excluded_place_e_prime, t, tapn)
+
+                            # this handles condition delays when the event is self excluding
+                            if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                                p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:
@@ -1976,6 +2256,14 @@ class TimedExceptionalCases(object):
                         tapn, t = utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
 
                         pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+                        # this handles condition delays when the event is self excluding
+                        if event in self.self_exceptions[Relations.E.value] and delay and delay > 0:
+                            t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
+                            p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
+                            t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
+                            p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
+                            self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+                            p_to_t.properties['agemin'] = delay
 
             # copy 0
             for t in copy_0:

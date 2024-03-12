@@ -1,3 +1,5 @@
+import re
+
 from pm4py.objects.dcr.obj import Relations
 from copy import deepcopy
 
@@ -17,32 +19,32 @@ def clean_input(dcr, white_space_replacement=None):
         if k in [I, E, C, R, M, N]:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = set(
-                    [v3.strip().replace(' ', white_space_replacement) for v3 in v2])
+                v_new[re.sub('[^0-9a-zA-Z]+', '', k2.strip()).replace(' ', white_space_replacement)] = set(
+                    [re.sub('[^0-9a-zA-Z]+', '',v3.strip()).replace(' ', white_space_replacement) for v3 in v2])
             dcr[k] = v_new
         elif k in ['conditionsForDelays', 'responseToDeadlines']:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = {
-                    v3.strip().replace(' ', white_space_replacement): d for v3, d in v2.items()}
+                v_new[re.sub('[^0-9a-zA-Z]+', '',k2.strip()).replace(' ', white_space_replacement)] = {
+                    re.sub('[^0-9a-zA-Z]+', '',v3.strip()).replace(' ', white_space_replacement): d for v3, d in v2.items()}
             dcr[k] = v_new
         elif k == 'marking':
             for k2 in ['executed', 'included', 'pending']:
-                new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
+                new_v = set([re.sub('[^0-9a-zA-Z]+', '',v2.strip()).replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
                 dcr[k][k2] = new_v
         elif k in ['subprocesses', 'nestings', 'roleAssignments', 'readRoleAssignments']:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = set(
-                    [v3.strip().replace(' ', white_space_replacement) for v3 in v2])
+                v_new[re.sub('[^0-9a-zA-Z]+', '',k2.strip()).replace(' ', white_space_replacement)] = set(
+                    [re.sub('[^0-9a-zA-Z]+', '',v3.strip()).replace(' ', white_space_replacement) for v3 in v2])
             dcr[k] = v_new
         elif k in ['labelMapping']:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', white_space_replacement)] = v2.strip().replace(' ', white_space_replacement)
+                v_new[re.sub('[^0-9a-zA-Z]+', '',k2.strip()).replace(' ', white_space_replacement)] = v2.strip().replace(' ', white_space_replacement)
             dcr[k] = v_new
         else:
-            new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k]])
+            new_v = set([re.sub('[^0-9a-zA-Z]+', '',v2.strip()).replace(' ', white_space_replacement) for v2 in dcr[k]])
             dcr[k] = new_v
     return dcr
 
@@ -60,7 +62,10 @@ def time_to_int(graph, precision='days', inplace=False):
                     hours = days * 24 + seconds // 3600
                     minutes = (seconds % 3600) // 60
                     seconds = seconds % 60
-                    v_new[k2][v3] = days
+                    if precision == 'hours':
+                        v_new[k2][v3] = hours
+                    else:
+                        v_new[k2][v3] = days
             graph[k] = v_new
     if not inplace:
         return graph

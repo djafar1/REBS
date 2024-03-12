@@ -23,7 +23,7 @@ from lxml import etree, objectify
 
 from pm4py.meta import VERSION
 from pm4py.objects.petri_net.utils import final_marking
-from pm4py.objects.petri_net.obj import PetriNet, Marking
+from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet, TimedMarking
 from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
 from pm4py.objects.petri_net import properties as petri_properties
 from pm4py.objects.random_variables.random_variable import RandomVariable
@@ -138,9 +138,9 @@ def import_net_from_xml_object(root, parameters=None):
     if parameters is None:
         parameters = {}
 
-    net = PetriNet('imported_' + str(time.time()))
-    marking = Marking()
-    fmarking = Marking()
+    net = TimedArcNet('imported_' + str(time.time()))
+    marking = TimedMarking()
+    fmarking = None  # TimedMarking()
 
     nett = root[0]
     # page = None
@@ -177,6 +177,8 @@ def import_net_from_xml_object(root, parameters=None):
                 place_id = child.get("id")
                 place_name = child.get("name")
                 number = int(child.get("initialMarking"))
+                invariant = str(child.get("invariant"))
+                inv_min, inv_max = invariant.split(' ')
                 # for child2 in child:
                 #     if child2.tag.endswith('name'):
                 #         for child3 in child2:
@@ -194,14 +196,17 @@ def import_net_from_xml_object(root, parameters=None):
                 #             elif child3.tag.endswith("dimension"):
                 #                 dimension_X = float(child3.get("x"))
                 #                 dimension_Y = float(child3.get("y"))
-                places_dict[place_id] = PetriNet.Place(place_id)
+                places_dict[place_id] = TimedArcNet.Place(place_id)
                 places_dict[place_id].properties[constants.PLACE_NAME_TAG] = place_name
+                if inv_max != "inf":
+                    places_dict[place_id].properties[petri_properties.AGE_INVARIANT] = int(inv_max)
                 net.places.add(places_dict[place_id])
                 if position_X is not None and position_Y is not None and dimension_X is not None and dimension_Y is not None:
                     places_dict[place_id].properties[constants.LAYOUT_INFORMATION_PETRI] = (
                         (position_X, position_Y), (dimension_X, dimension_Y))
                 if number > 0:
                     marking[places_dict[place_id]] = number
+                    marking.timed_dict[places_dict[place_id]] = 0
                 del place_name
 
             if child.tag.endswith("transition"):
@@ -279,8 +284,9 @@ def import_net_from_xml_object(root, parameters=None):
                     trans_label = trans_name
                 else:
                     trans_label = None
+                trans_label = child.get("name")
 
-                trans_dict[trans_id] = PetriNet.Transition(trans_id, trans_label)
+                trans_dict[trans_id] = TimedArcNet.Transition(trans_id, trans_label)
                 trans_dict[trans_id].properties[constants.TRANS_NAME_TAG] = trans_name
                 for prop in trans_properties:
                     trans_dict[trans_id].properties[prop] = trans_properties[prop]
@@ -297,7 +303,20 @@ def import_net_from_xml_object(root, parameters=None):
                 arc_target = child.get("target")
                 arc_weight = int(child.get("weight"))
                 arc_type = child.get("type")
+
                 arc_properties = {}
+                if arc_type == "transport":
+                    inscription = str(child.get("inscription"))
+                    interval, tid = inscription.split(':')
+                    arc_properties[petri_properties.TRANSPORT_INDEX] = int(tid)
+                    age_min, age_max = interval.split(',')
+                    arc_properties[petri_properties.AGE_MIN] = int(age_min[1:])
+                    arc_properties[petri_properties.ARCTYPE] = petri_properties.TRANSPORT_ARC
+                elif arc_type == "tapnInhibitor":
+                    arc_properties[petri_properties.ARCTYPE] = petri_properties.INHIBITOR_ARC
+                    arc_type = "inhibitor"
+
+
 
                 # for arc_child in child:
                 #     if arc_child.tag.endswith("inscription"):
@@ -311,12 +330,12 @@ def import_net_from_xml_object(root, parameters=None):
 
                 if arc_source in places_dict and arc_target in trans_dict:
                     a = add_arc_from_to(places_dict[arc_source], trans_dict[arc_target], net, weight=arc_weight, type=arc_type)
-                    # for prop in arc_properties:
-                    #     a.properties[prop] = arc_properties[prop]
+                    for prop in arc_properties:
+                        a.properties[prop] = arc_properties[prop]
                 elif arc_target in places_dict and arc_source in trans_dict:
                     a = add_arc_from_to(trans_dict[arc_source], places_dict[arc_target], net, weight=arc_weight, type=arc_type)
-                    # for prop in arc_properties:
-                    #     a.properties[prop] = arc_properties[prop]
+                    for prop in arc_properties:
+                        a.properties[prop] = arc_properties[prop]
 
     # if finalmarkings is not None:
     #     for child in finalmarkings:

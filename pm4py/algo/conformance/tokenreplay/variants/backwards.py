@@ -15,7 +15,7 @@
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
 from pm4py.statistics.variants.log import get as variants_filter
-from pm4py.objects.petri_net.semantics import is_enabled, weak_execute
+from pm4py.objects.petri_net.timed_arc_net.semantics import is_enabled, weak_execute
 from pm4py.objects.petri_net.utils.align_utils import get_visible_transitions_eventually_enabled_by_marking
 from copy import copy
 from pm4py.objects.petri_net.obj import Marking

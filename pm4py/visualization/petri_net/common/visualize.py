@@ -224,7 +224,7 @@ def graphviz_visualization(net, image_format="png", initial_marking=None, final_
             elif a.properties[petri_properties.ARCTYPE] == petri_properties.TRANSPORT_ARC:
                 arrowhead = "diamond"
                 min = '0'
-                max = '<&#221E;>'
+                max = '&#221E;'
                 if petri_properties.AGE_MIN in a.properties:
                     min = f'{a.properties[petri_properties.AGE_MIN]}'
                 if petri_properties.AGE_MAX in a.properties:

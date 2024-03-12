@@ -60,7 +60,9 @@ def search_path_among_sol(sync_net: PetriNet, ini: Marking, fin: Marking,
     explained_events
         Number of explained events
     """
-    from pm4py.objects.petri_net import semantics
+    # from pm4py.objects.petri_net import semantics
+    from pm4py.objects.petri_net.timed_arc_net import semantics
+
 
     reach_fm = False
     trans_empty_preset = set(t for t in sync_net.transitions if len(t.in_arcs) == 0)

@@ -45,7 +45,7 @@ def apply_playout(net, initial_marking, no_traces=100, max_trace_length=100,
                   case_id_key=xes_constants.DEFAULT_TRACEID_KEY,
                   activity_key=xes_constants.DEFAULT_NAME_KEY, timestamp_key=xes_constants.DEFAULT_TIMESTAMP_KEY,
                   final_marking=None, smap=None, log=None, return_visited_elements=False,
-                  semantics=petri_net.semantics.ClassicSemantics(), parameters=None):
+                  semantics=None, parameters=None):
     """
     Do the playout of a Petrinet generating a log
 
@@ -175,7 +175,7 @@ def apply(net: PetriNet, initial_marking: Marking, final_marking: Marking = None
     smap = exec_utils.get_param_value(Parameters.STOCHASTIC_MAP, parameters, None)
     log = exec_utils.get_param_value(Parameters.LOG, parameters, None)
     return_visited_elements = exec_utils.get_param_value(Parameters.RETURN_VISITED_ELEMENTS, parameters, False)
-    semantics = exec_utils.get_param_value(Parameters.PETRI_SEMANTICS, parameters, petri_net.semantics.ClassicSemantics())
+    semantics = exec_utils.get_param_value(Parameters.PETRI_SEMANTICS, parameters, None)
 
     return apply_playout(net, initial_marking, max_trace_length=max_trace_length, no_traces=no_traces,
                          case_id_key=case_id_key, activity_key=activity_key, timestamp_key=timestamp_key,

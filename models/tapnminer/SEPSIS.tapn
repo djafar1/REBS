@@ -1,0 +1,1247 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
+  <net id="netFromDCR" type="P/T net" active="true">
+    <place id="executed_AdmissionNC" displayName="true" name="executed_AdmissionNC" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_ERRegistration" displayName="true" name="pending_ERRegistration" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_AdmissionIC" displayName="true" name="executed_AdmissionIC" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ReturnER" displayName="true" name="included_ReturnER" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_Leucocytes" displayName="true" name="included_Leucocytes" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ReleaseC" displayName="true" name="executed_ReleaseC" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ReleaseB" displayName="true" name="included_ReleaseB" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="pending_ERTriage" displayName="true" name="pending_ERTriage" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ERSepsisTriage" displayName="true" name="included_ERSepsisTriage" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ERSepsisTriage" displayName="true" name="executed_ERSepsisTriage" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AdmissionIC" displayName="true" name="included_AdmissionIC" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ReleaseC" displayName="true" name="included_ReleaseC" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_IVLiquid" displayName="true" name="included_IVLiquid" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ReleaseE" displayName="true" name="included_ReleaseE" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ReleaseA" displayName="true" name="included_ReleaseA" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ReleaseA" displayName="true" name="executed_ReleaseA" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_Leucocytes" displayName="true" name="executed_Leucocytes" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_AdmissionNC" displayName="true" name="included_AdmissionNC" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_CRP" displayName="true" name="included_CRP" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ReleaseD" displayName="true" name="included_ReleaseD" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ReleaseD" displayName="true" name="executed_ReleaseD" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ERRegistration" displayName="true" name="included_ERRegistration" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ERRegistration" displayName="true" name="executed_ERRegistration" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_CRP" displayName="true" name="executed_CRP" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_IVAntibiotics" displayName="true" name="included_IVAntibiotics" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_LacticAcid" displayName="true" name="included_LacticAcid" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ReleaseE" displayName="true" name="executed_ReleaseE" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="included_ERTriage" displayName="true" name="included_ERTriage" invariant="&lt; inf" initialMarking="1" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <place id="executed_ERTriage" displayName="true" name="executed_ERTriage" invariant="&lt; inf" initialMarking="0" positionX="0" positionY="0" nameOffsetX="0" nameOffsetY="0"/>
+    <transition angle="0" displayName="true" id="event_Leucocytes0" infiniteServer="false" name="event_Leucocytes0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_CRP0" infiniteServer="false" name="init_CRP0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_AdmissionNC2" infiniteServer="false" name="init_AdmissionNC2" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_Leucocytes0" infiniteServer="false" name="init_Leucocytes0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_CRP0" infiniteServer="false" name="event_CRP0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseE239" infiniteServer="false" name="init_ReleaseE239" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_AdmissionNC3" infiniteServer="false" name="event_AdmissionNC3" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseA127" infiniteServer="false" name="init_ReleaseA127" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_AdmissionNC2" infiniteServer="false" name="event_AdmissionNC2" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_ERTriage0" infiniteServer="false" name="event_ERTriage0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_ERRegistration0" infiniteServer="false" name="initpend_ERRegistration0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_AdmissionNC3" infiniteServer="false" name="init_AdmissionNC3" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseD247" infiniteServer="false" name="init_ReleaseD247" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseE255" infiniteServer="false" name="init_ReleaseE255" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ERSepsisTriage0" infiniteServer="false" name="init_ERSepsisTriage0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_AdmissionIC3" infiniteServer="false" name="event_AdmissionIC3" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseA255" infiniteServer="false" name="init_ReleaseA255" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseC255" infiniteServer="false" name="init_ReleaseC255" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseC247" infiniteServer="false" name="init_ReleaseC247" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_LacticAcid0" infiniteServer="false" name="event_LacticAcid0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="initpend_ERTriage0" infiniteServer="false" name="initpend_ERTriage0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_AdmissionIC1" infiniteServer="false" name="init_AdmissionIC1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_IVAntibiotics1" infiniteServer="false" name="event_IVAntibiotics1" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_IVLiquid0" infiniteServer="false" name="event_IVLiquid0" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_ReleaseB1023" infiniteServer="false" name="event_ReleaseB1023" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="init_ReleaseD255" infiniteServer="false" name="init_ReleaseD255" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <transition angle="0" displayName="true" id="event_ReleaseB511" infiniteServer="false" name="event_ReleaseB511" nameOffsetX="0" nameOffsetY="0" player="0" positionX="0" positionY="0" priority="0" urgent="false"/>
+    <arc id="A0" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A1" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A2" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE255" target="executed_ReleaseE" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I3" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseE" target="init_ReleaseE255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A4" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A5" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I6" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="init_ReleaseE255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A7" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A8" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I9" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ReleaseE255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A10" inscription="[47,inf):12" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ReleaseE255" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A11" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A12" inscription="[0,inf):12" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE255" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I13" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="init_AdmissionIC1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A14" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A15" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A16" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE239" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A17" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A18" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I19" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="event_AdmissionIC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A20" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_AdmissionIC1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I21" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="event_AdmissionIC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A22" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionIC" target="event_AdmissionIC3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A23" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionIC3" target="executed_AdmissionIC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A24" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionIC3" target="included_AdmissionIC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A25" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="event_AdmissionIC3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I26" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="event_ReleaseB511" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A27" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A28" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A29" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I30" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="init_ReleaseA255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A31" inscription="[0,inf):26" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseA255" target="executed_ERRegistration" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A32" inscription="[15,inf):21055" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="init_ReleaseA255" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A33" inscription="[0,inf):21055" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseA255" target="executed_ERTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A34" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A35" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A36" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A37" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A38" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A39" inscription="[16,inf):26" nameOffsetX="0" nameOffsetY="0" source="executed_ERRegistration" target="init_ReleaseA255" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I40" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseA" target="init_ReleaseA255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A41" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseA255" target="executed_ReleaseA" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A42" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseA255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I43" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseA255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A44" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A45" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A46" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB1023" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A47" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A48" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="initpend_ERRegistration0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A49" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I50" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERRegistration" target="initpend_ERRegistration0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A51" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A52" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE255" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A53" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A54" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A55" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE255" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A56" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A57" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_IVLiquid" target="event_IVLiquid0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A58" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERRegistration" target="initpend_ERRegistration0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A59" inscription="[0,inf):20" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB511" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A60" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_ERRegistration0" target="executed_ERRegistration" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A61" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReturnER" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A62" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A63" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A64" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A65" inscription="[0,inf):23" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB1023" target="executed_ERRegistration" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A66" inscription="[0,inf):23" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB511" target="executed_ERRegistration" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A67" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I68" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="event_ReleaseB1023" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A69" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A70" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I71" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="event_ReleaseB1023" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A72" inscription="[2,inf):23" nameOffsetX="0" nameOffsetY="0" source="executed_ERRegistration" target="event_ReleaseB1023" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I73" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="event_ReleaseB1023" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A74" inscription="[1,inf):20" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="event_ReleaseB1023" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A75" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A76" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A77" inscription="[0,inf):20" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB1023" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A78" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A79" inscription="[0,inf):1596" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB1023" target="executed_ERTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A80" inscription="[2,inf):1596" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="event_ReleaseB1023" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A81" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE239" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A82" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A83" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_CRP0" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A84" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC247" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A85" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A86" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_CRP0" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A87" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I88" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_Leucocytes0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A89" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ERTriage0" target="executed_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A90" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A91" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="event_Leucocytes0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A92" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A93" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A94" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A95" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="event_ERTriage0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A96" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_CRP0" target="included_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A97" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A98" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="event_Leucocytes0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A99" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="event_CRP0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I100" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_CRP0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I101" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ReleaseE239" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A102" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="event_CRP0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I103" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseE239" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A104" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="event_ERTriage0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A105" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A106" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Leucocytes0" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A107" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="init_AdmissionIC1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A108" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionIC1" target="executed_AdmissionIC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A109" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionIC1" target="executed_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I110" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="event_ERTriage0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A111" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ERTriage0" target="included_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A112" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ERSepsisTriage0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A113" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_LacticAcid0" target="included_LacticAcid" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A114" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Leucocytes0" target="included_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A115" inscription="[47,inf):12" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ReleaseE239" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A116" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_Leucocytes0" target="included_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A117" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ERSepsisTriage0" target="executed_ERSepsisTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A118" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A119" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_ERTriage0" target="executed_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A120" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_CRP0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A121" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A122" inscription="1" nameOffsetX="0" nameOffsetY="0" source="initpend_ERTriage0" target="included_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A123" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_Leucocytes0" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A124" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_Leucocytes0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A125" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="event_LacticAcid0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A126" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_CRP0" target="included_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A127" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_AdmissionIC1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I128" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="initpend_ERTriage0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I129" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ERSepsisTriage0" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A130" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionIC1" target="included_AdmissionIC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A131" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="initpend_ERTriage0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A132" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="initpend_ERTriage0" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I133" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="init_AdmissionIC1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A134" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A135" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB511" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A136" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A137" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A138" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB1023" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A139" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="event_ReleaseB1023" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A140" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I141" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="init_ReleaseC255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A142" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A143" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A144" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I145" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ReleaseC255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A146" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A147" inscription="[0,inf):0" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC255" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I148" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionIC" target="init_AdmissionIC1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A149" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC255" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A150" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A151" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD255" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A152" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A153" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I154" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseC247" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A155" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A156" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseA127" target="executed_ReleaseA" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A157" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A158" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I159" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseA" target="init_ReleaseA127" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A160" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A161" inscription="[16,inf):26" nameOffsetX="0" nameOffsetY="0" source="executed_ERRegistration" target="init_ReleaseA127" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I162" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="init_ReleaseA127" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A163" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A164" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A165" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A166" inscription="[135,inf):0" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ReleaseC247" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I167" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ReleaseC247" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A168" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I169" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseC" target="init_ReleaseC247" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A170" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A171" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A172" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC247" target="executed_ReleaseC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A173" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A174" inscription="[0,inf):0" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC247" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A175" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A176" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A177" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC255" target="executed_ReleaseC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I178" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseC" target="init_ReleaseC255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A179" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A180" inscription="[135,inf):0" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ReleaseC255" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A181" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE239" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A182" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_Leucocytes" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A183" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A184" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A185" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB511" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A186" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A187" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A188" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE239" target="executed_ReleaseE" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I189" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseE" target="init_ReleaseE239" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A190" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseE239" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A191" inscription="[0,inf):12" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE239" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A192" inscription="[56,inf):16" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ReleaseD247" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A193" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A194" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I195" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseD" target="init_ReleaseD247" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A196" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD247" target="executed_ReleaseD" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I197" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseD247" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A198" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A199" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A200" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A201" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A202" inscription="[0,inf):16" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD247" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I203" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ReleaseD247" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A204" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A205" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC247" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A206" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_ReleaseB511" target="executed_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A207" inscription="[0,inf):16" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD255" target="executed_ERSepsisTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A208" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A209" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A210" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC255" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A211" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_ReleaseC255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A212" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC247" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A213" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A214" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_ReleaseC247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A215" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A216" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseA127" target="executed_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A217" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I218" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="init_ReleaseA127" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A219" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A220" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD255" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A221" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I222" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="event_IVAntibiotics1" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A223" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="event_AdmissionNC2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A224" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="event_AdmissionNC3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A225" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A226" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionNC3" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A227" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="event_AdmissionNC2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I228" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="event_AdmissionNC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I229" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="event_AdmissionNC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A230" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionNC3" target="included_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A231" inscription="[0,inf):6" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="init_AdmissionNC2" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I232" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_AdmissionNC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A233" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_IVAntibiotics" target="event_IVAntibiotics1" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A234" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionNC2" target="included_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I235" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="init_AdmissionNC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A236" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseC255" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A237" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionNC2" target="included_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A238" inscription="[0,inf):6" nameOffsetX="0" nameOffsetY="0" source="executed_ERTriage" target="event_AdmissionNC2" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A239" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionNC3" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A240" inscription="[0,inf):6" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionNC2" target="executed_ERTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I241" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="init_AdmissionNC2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A242" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="event_AdmissionNC3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A243" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionNC2" target="included_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I244" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_AdmissionNC2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A245" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_AdmissionNC3" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I246" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="event_AdmissionNC2" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A247" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_AdmissionNC2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A248" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionNC2" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A249" inscription="[0,inf):6" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionNC2" target="executed_ERTriage" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A250" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_Leucocytes" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A251" inscription="1" nameOffsetX="0" nameOffsetY="0" source="event_AdmissionNC2" target="included_ERTriage" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A252" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD247" target="executed_Leucocytes" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I253" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_AdmissionNC3" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A254" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A255" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD255" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A256" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A257" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD255" target="executed_ReleaseD" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A258" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseA" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A259" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="event_AdmissionNC2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I260" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_ReleaseD" target="init_ReleaseD255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A261" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A262" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionNC2" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A263" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_AdmissionNC3" target="included_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A264" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERTriage" target="init_AdmissionNC2" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A265" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A266" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD247" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A267" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I268" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="pending_ERTriage" target="init_ReleaseD255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A269" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I270" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="init_ReleaseD255" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A271" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A272" inscription="[56,inf):16" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="init_ReleaseD255" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A273" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseD255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A274" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A275" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseE" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A276" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReturnER" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A277" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I278" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERSepsisTriage" target="event_ReleaseB511" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A279" inscription="[2,inf):23" nameOffsetX="0" nameOffsetY="0" source="executed_ERRegistration" target="event_ReleaseB511" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="I280" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ERRegistration" target="event_ReleaseB511" type="tapnInhibitor" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A281" inscription="[1,inf):20" nameOffsetX="0" nameOffsetY="0" source="executed_ERSepsisTriage" target="event_ReleaseB511" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A282" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_LacticAcid" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A283" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseC" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A284" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="event_ReleaseB511" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A285" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseD247" target="executed_CRP" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A286" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_CRP" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A287" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_CRP" target="init_ReleaseD247" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A288" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A289" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseB" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A290" inscription="[0,inf):26" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseA127" target="executed_ERRegistration" type="transport" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A291" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionIC" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A292" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="executed_AdmissionNC" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A293" inscription="1" nameOffsetX="0" nameOffsetY="0" source="init_ReleaseE255" target="executed_AdmissionNC" type="normal" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A294" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_AdmissionNC" target="init_ReleaseE255" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+    <arc id="A295" inscription="[0,inf)" nameOffsetX="0" nameOffsetY="0" source="included_ReleaseD" target="init_ReleaseA127" type="timed" weight="1">
+      <arcpath arcPointType="false" id="0" xCoord="0" yCoord="0"/>
+      <arcpath arcPointType="false" id="1" xCoord="0" yCoord="0"/>
+    </arc>
+  </net>
+  <k-bound bound="3"/>
+  <feature isGame="false" isTimed="true"/>
+</pnml>

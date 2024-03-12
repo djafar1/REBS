@@ -16,7 +16,8 @@
 '''
 from pm4py.util import variants_util
 from pm4py.util import xes_constants as xes_util
-from pm4py.objects.petri_net import semantics
+# from pm4py.objects.petri_net import semantics
+from pm4py.objects.petri_net.timed_arc_net import semantics
 from pm4py.objects.petri_net.obj import Marking
 from pm4py.objects.petri_net.utils.petri_utils import get_places_shortest_path_by_hidden, get_s_components_from_petri
 from pm4py.objects.log import obj as log_implementation
@@ -742,7 +743,7 @@ def apply_trace(trace, net, initial_marking, final_marking, trans_map, enable_pl
                             "previousActivity": previous_activity}
 
     return [is_fit, trace_fitness, act_trans, transitions_with_problems, marking_before_cleaning,
-            align_utils.get_visible_transitions_eventually_enabled_by_marking(net, marking_before_cleaning), missing,
+            align_utils.get_visible_transitions_eventually_enabled_by_marking(net, marking_before_cleaning, semantics), missing,
             consumed,
             remaining, produced]
 

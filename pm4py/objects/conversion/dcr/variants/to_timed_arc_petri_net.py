@@ -79,7 +79,15 @@ class Dcr2TimedArcPetri(object):
         if default_make_pend:
             if event in G['marking']['pendingDeadline']:
                 init_pend_place = TimedArcNet.Place(f'init_pending_{event}')
-                init_pend_place.properties['ageinvariant'] = G['marking']['pendingDeadline'][event]
+                init_pend_place.properties[pn_props.AGE_INVARIANT] = G['marking']['pendingDeadline'][event]
+                tapn.places.add(init_pend_place)
+                self.helper_struct[event]['places']['pending'].add((init_pend_place, event))
+                self.helper_struct['pend_matrix'][event][event] = init_pend_place
+                self.helper_struct[event]['pending_pairs'][event] = init_pend_place
+                if event in G['marking']['pending'] and event in G['marking']['included']:
+                    m[init_pend_place] = 1
+            elif event in G['marking']['pending']:
+                init_pend_place = TimedArcNet.Place(f'init_pending_{event}')
                 tapn.places.add(init_pend_place)
                 self.helper_struct[event]['places']['pending'].add((init_pend_place, event))
                 self.helper_struct['pend_matrix'][event][event] = init_pend_place
@@ -89,6 +97,15 @@ class Dcr2TimedArcPetri(object):
 
         if default_make_pend_ex:
             if event in G['marking']['pendingDeadline']:
+                init_pend_excl_place = TimedArcNet.Place(f'init_pending_excluded_{event}')
+                tapn.places.add(init_pend_excl_place)
+                self.helper_struct[event]['places']['pending_excluded'].add((init_pend_excl_place, event))
+                self.helper_struct['pend_exc_matrix'][event][event] = init_pend_excl_place
+                self.helper_struct[event]['pending_pairs'][event] = (
+                    self.helper_struct[event]['pending_pairs'][event], init_pend_excl_place)
+                if event in G['marking']['pending'] and event not in G['marking']['included']:
+                    m[init_pend_excl_place] = 1
+            elif event in G['marking']['pending']:
                 init_pend_excl_place = TimedArcNet.Place(f'init_pending_excluded_{event}')
                 tapn.places.add(init_pend_excl_place)
                 self.helper_struct[event]['places']['pending_excluded'].add((init_pend_excl_place, event))
