@@ -27,6 +27,7 @@ from pm4py.algo.discovery.powl.inductive.utils.filtering import FILTERING_THRESH
 from pm4py.algo.discovery.powl.inductive.variants.dynamic_clustering_frequency.dynamic_clustering_frequency_partial_order_cut import \
     ORDER_FREQUENCY_RATIO
 from pm4py.algo.discovery.powl.inductive.variants.powl_discovery_varaints import POWLDiscoveryVariant
+from pm4py.algo.discovery.dcr_discover.algorithm import ExtensionVariants
 from pm4py.objects.bpmn.obj import BPMN
 from pm4py.objects.dfg.obj import DFG
 from pm4py.objects.powl.obj import POWL
@@ -37,7 +38,6 @@ from pm4py.objects.log.obj import EventLog
 from pm4py.objects.log.obj import EventStream
 from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.objects.process_tree.obj import ProcessTree
-from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
 from pm4py.utils import get_properties, __event_log_deprecation_warning
 from pm4py.util import constants, pandas_utils
@@ -868,7 +868,7 @@ def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 1
     return batches_discovery.apply(log, parameters=properties)
 
 
-def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = None, activity_key: str = "concept:name",
+def discover_dcr(log: Union[EventLog, pd.DataFrame], extension_type: Set[ExtensionVariants] = None, activity_key: str = "concept:name",
                  timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name",
                  resource_key: str = "org:resource", group_key: str = "org:group",
                  finaAdditionalConditions: bool = True) -> Tuple[Any, Dict[str, Any]]:
@@ -880,8 +880,8 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
     ----------
     log : Union[EventLog, pd.DataFrame]
         The event log or Pandas dataframe containing the event data.
-    process_type : Optional[str]
-        Specifies the type of post-processing for the event log, currently supports Roles.
+    extension_type : Optional[str]
+        Specifies the type of post-processing for the event log, currently supports ROLES, TIMED and NESTINGS.
     activity_key : str, optional
         The attribute to be used for the activity, defaults to "concept:name".
     timestamp_key : str, optional
@@ -889,9 +889,9 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
     case_id_key : str, optional
         The attribute to be used as the case identifier, defaults to "case:concept:name".
     group_key : str, optional
-        The attribute to be used as a role identifier, defaults to None.
+        The attribute to be used as a role identifier, defaults to "org:group".
     resource_key : str, optional
-        The attribute to be used as a resource identifier, defaults to None.
+        The attribute to be used as a resource identifier, defaults to "org:resource".
     findAdditionalConditions : bool, optional
         A boolean value specifying whether additional conditions should be found, defaults to True.
     Returns
@@ -917,5 +917,5 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
 
     from pm4py.algo.discovery.dcr_discover import algorithm as dcr_alg
     from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
-    return dcr_alg.apply(log, dcr_discover, post_process=process_type,
+    return dcr_alg.apply(log, dcr_discover, post_process=extension_type,
                          findAdditionalConditions=finaAdditionalConditions, parameters=properties)

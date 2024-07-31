@@ -2,11 +2,11 @@ import pandas as pd
 from typing import Optional, Any, Union, Dict
 import pm4py
 from pm4py.util import exec_utils, constants, xes_constants
-from pm4py.objects.dcr.roles.obj import RoledcrGraph
+from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 from pm4py.objects.log.obj import EventLog
 
 
-def apply(log, graph, parameters) -> RoledcrGraph:
+def apply(log, graph, parameters) -> RoleDcrGraph:
     """
     this method calls the role miner
 
@@ -55,8 +55,8 @@ class RoleMining:
     def __init__(self):
         self.graph = {"roles": set(), "principals": set(), "roleAssignments": {}, "principalsAssignments": {}}
 
-    def __role_assignment_role_to_acitivity(self, log: pd.DataFrame, activity_key: str,
-                                          group_key: str, resource_key: str) -> None:
+    def __role_assignment_role_to_activity(self, log: pd.DataFrame, activity_key: str,
+                                           group_key: str, resource_key: str) -> None:
         """
         If log has defined roles, mine for role assignment using a role identifier,
         such as a Group key or possible optional parameter.
@@ -129,5 +129,5 @@ class RoleMining:
             self.graph['roleAssignments'][i] = set()
             self.graph['principalsAssignments'][i] = set()
 
-        self.__role_assignment_role_to_acitivity(log, activity_key, group_key, resource_key)
-        return RoledcrGraph(graph, self.graph)
+        self.__role_assignment_role_to_activity(log, activity_key, group_key, resource_key)
+        return RoleDcrGraph(graph, self.graph)

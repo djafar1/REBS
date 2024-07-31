@@ -34,7 +34,7 @@ from heapq import heappop, heappush
 from enum import Enum
 
 from pm4py.objects.dcr.obj import DcrGraph
-from pm4py.objects.dcr.semantics import DCRSemantics
+from pm4py.objects.dcr.semantics import DcrSemantics
 from pm4py.util import constants, xes_constants, exec_utils
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.conversion.log import converter as log_converter
@@ -389,16 +389,16 @@ class DCRGraphHandler:
         self.graph = graph
 
     def is_enabled(self, event: Any) -> bool:
-        return DCRSemantics.is_enabled(event, self.graph)
+        return DcrSemantics.is_enabled(event, self.graph)
 
     def enabled(self):
-        return DCRSemantics.enabled(self.graph)
+        return DcrSemantics.enabled(self.graph)
 
     def is_accepting(self) -> bool:
-        return DCRSemantics.is_accepting(self.graph)
+        return DcrSemantics.is_accepting(self.graph)
 
     def execute(self, event: Any, curr_graph) -> Any:
-        new_graph = DCRSemantics.execute(curr_graph, event)
+        new_graph = DcrSemantics.execute(curr_graph, event)
         if not new_graph:
             return curr_graph
         return new_graph

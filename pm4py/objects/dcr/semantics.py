@@ -1,8 +1,4 @@
 from typing import Set
-from pm4py.objects.dcr.obj import Marking
-
-
-rels = ['conditionsFor', 'responseTo', 'includesTo', 'excludesTo', 'milestonesFor']
 
 """
 We will implement the semantics according to the papers given in:
@@ -12,7 +8,7 @@ Following the schematic as the pm4py, by using definition function and no class 
 """
 
 
-class DCRSemantics(object):
+class DcrSemantics(object):
     """
         the semantics functions implemented is based on the paper by:
 
@@ -50,7 +46,7 @@ class DCRSemantics(object):
         -------
         :param res: set of enabled activities
         """
-        #can be extended to check for milestones
+        # can be extended to check for milestones
         res = set(graph.marking.included)
         for e in set(graph.conditions.keys()).intersection(res):
             if len(graph.conditions[e].intersection(graph.marking.included.difference(
@@ -75,12 +71,12 @@ class DCRSemantics(object):
         ---------
         :return: DCR graph with updated marking
         """
-        #each event is called for execution is called
+        # each event is called for execution is called
         if event in graph.marking.pending:
             graph.marking.pending.discard(event)
         graph.marking.executed.add(event)
 
-        #the following if statements are used to provide to update DCR graph
+        # the following if statements are used to provide to update DCR graph
         # depeding on prime event structure within conditions relations
         if event in graph.excludes:
             for e_prime in graph.excludes[event]:

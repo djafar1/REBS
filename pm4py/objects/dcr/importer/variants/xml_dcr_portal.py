@@ -4,8 +4,8 @@ import isodate
 
 from pm4py.util import constants
 from copy import deepcopy
-from pm4py.objects.dcr.obj import Relations, dcr_template, DcrGraph
-from pm4py.objects.dcr.roles.obj import RoledcrGraph
+from pm4py.objects.dcr.obj import Relations, dcr_template
+from pm4py.objects.dcr.utils.utils import cast_to_dcr_object, clean_input, clean_input_as_dict
 
 I = Relations.I.value
 E = Relations.E.value
@@ -13,6 +13,7 @@ R = Relations.R.value
 N = Relations.N.value
 C = Relations.C.value
 M = Relations.M.value
+
 
 def parse_element(curr_el, parent, dcr):
     # Create the DCR graph
@@ -165,54 +166,22 @@ def parse_element(curr_el, parent, dcr):
 
     return dcr
 
-def import_xml_tree_from_root(root, white_space_replacement=None):
+
+def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=False, labels_as_ids=True):
     dcr = copy.deepcopy(dcr_template)
     dcr = parse_element(root, None, dcr)
-    dcr = clean_input(dcr, white_space_replacement=' ')
+    dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
+
+    if labels_as_ids:
+        from pm4py.objects.dcr.utils.utils import map_labels_to_events
+        dcr = map_labels_to_events(dcr)
     '''
     Transform the dictionary into a DCR_Graph object
     '''
-    graph = DcrGraph(dcr)
-    if hasattr(graph,'roles'):
-        graph = RoledcrGraph(graph,dcr)
-    return graph
-
-
-def clean_input(dcr, white_space_replacement=None):
-    if white_space_replacement is None:
-        white_space_replacement = ' '
-    # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
-    for k, v in deepcopy(dcr).items():
-        if k in [I, E, C, R, M, N]:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [v3.strip().replace('_', white_space_replacement) for v3 in v2])
-            dcr[k] = v_new
-        elif k in ['conditionsForDelays', 'responseToDeadlines']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [(v3.strip().replace('_', white_space_replacement), d) for (v3, d) in v2])
-            dcr[k] = v_new
-        elif k == 'marking':
-            for k2 in ['executed', 'included', 'pending']:
-                new_v = set([v2.strip().replace('_', white_space_replacement) for v2 in dcr[k][k2]])
-                dcr[k][k2] = new_v
-        elif k in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [v3.strip().replace('_', white_space_replacement) for v3 in v2])
-            dcr[k] = v_new
-        else:
-            new_v = set([v2.strip().replace('_', white_space_replacement) for v2 in dcr[k]])
-            dcr[k] = new_v
-    return dcr
-
-
-def map_labels_to_ids(dcr):
-    pass
+    if as_dcr_object:
+        return cast_to_dcr_object(dcr)
+    else:
+        return dcr
 
 
 def apply(path, parameters=None):

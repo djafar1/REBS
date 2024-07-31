@@ -1,7 +1,8 @@
 from typing import Set
+from pm4py.objects.dcr.obj import DcrGraph
 
 
-class RoledcrGraph(object):
+class RoleDcrGraph(DcrGraph):
     """
     A class representing a Role-based DCR graph.
 
@@ -61,12 +62,19 @@ class RoledcrGraph(object):
     total_constraints = role_graph.getConstraints()\n
 
     """
-    def __init__(self, graph, template=None):
-        self.__graph = graph
-        self.__principals = set() if None else template.pop("principals", set())
-        self.__roles = set() if None else template.pop("roles", set())
-        self.__roleAssignments = {} if None else template.pop("roleAssignments", set())
-        self.__principalsAssignments = {} if None else template.pop("principalsAssignments", set())
+    def __init__(self, template=None):
+        super().__init__(template)
+        self.__principals = set() if template is None else template.pop("principals", set())
+        self.__roles = set() if template is None else template.pop("roles", set())
+        self.__roleAssignments = {} if template is None else template.pop("roleAssignments", set())
+        self.__principalsAssignments = {} if template is None else template.pop("principalsAssignments", set())
+
+    def obj_to_template(self):
+        res = super().obj_to_template()
+        res['roles'] = self.__roles
+        res['roleAssignments'] = self.__roleAssignments
+        res['principalsAssignment'] = self.__principalsAssignments
+        return res
 
     @property
     def principals(self) -> Set[str]:
