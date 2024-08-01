@@ -60,9 +60,6 @@ def discover_dfg(log: Union[EventLog, pd.DataFrame], activity_key: str = "concep
 
         dfg, start_activities, end_activities = pm4py.discover_dfg(dataframe, case_id_key='case:concept:name', activity_key='concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     properties = get_properties(
@@ -95,10 +92,6 @@ def discover_dfg(log: Union[EventLog, pd.DataFrame], activity_key: str = "concep
 
 
 def discover_directly_follows_graph(log: Union[EventLog, pd.DataFrame], activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Tuple[dict, dict, dict]:
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
-
     return discover_dfg(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
 
@@ -164,9 +157,6 @@ def discover_performance_dfg(log: Union[EventLog, pd.DataFrame], business_hours:
 
         performance_dfg, start_activities, end_activities = pm4py.discover_performance_dfg(dataframe, case_id_key='case:concept:name', activity_key='concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     properties = get_properties(
@@ -217,9 +207,6 @@ def discover_petri_net_alpha(log: Union[EventLog, pd.DataFrame], activity_key: s
 
         net, im, fm = pm4py.discover_petri_net_alpha(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -247,9 +234,6 @@ def discover_petri_net_ilp(log: Union[EventLog, pd.DataFrame], alpha: float = 1.
 
         net, im, fm = pm4py.discover_petri_net_ilp(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -280,9 +264,6 @@ def discover_petri_net_alpha_plus(log: Union[EventLog, pd.DataFrame], activity_k
 
         net, im, fm = pm4py.discover_petri_net_alpha_plus(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -317,9 +298,6 @@ def discover_petri_net_inductive(log: Union[EventLog, pd.DataFrame, DFG], multi_
 
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream, DFG]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -355,9 +333,6 @@ def discover_petri_net_heuristics(log: Union[EventLog, pd.DataFrame], dependency
 
         net, im, fm = pm4py.discover_petri_net_heuristics(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     from pm4py.algo.discovery.heuristics.variants import classic as heuristics_miner
@@ -399,9 +374,6 @@ def discover_process_tree_inductive(log: Union[EventLog, pd.DataFrame, DFG], noi
 
         process_tree = pm4py.discover_process_tree_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream, DFG]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -449,9 +421,6 @@ def discover_heuristics_net(log: Union[EventLog, pd.DataFrame], dependency_thres
 
         heu_net = pm4py.discover_heuristics_net(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     from pm4py.algo.discovery.heuristics.variants import classic as heuristics_miner
@@ -491,9 +460,6 @@ def derive_minimum_self_distance(log: Union[DataFrame, EventLog, EventStream], a
 
         msd = pm4py.derive_minimum_self_distance(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -542,9 +508,6 @@ def discover_eventually_follows_graph(log: Union[EventLog, pd.DataFrame], activi
 
         efg = pm4py.discover_eventually_follows_graph(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     properties = get_properties(
@@ -583,9 +546,6 @@ def discover_bpmn_inductive(log: Union[EventLog, pd.DataFrame, DFG], noise_thres
 
         bpmn_graph = pm4py.discover_bpmn_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream, DFG]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -618,9 +578,6 @@ def discover_transition_system(log: Union[EventLog, pd.DataFrame], direction: st
 
         transition_system = pm4py.discover_transition_system(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -653,9 +610,6 @@ def discover_prefix_tree(log: Union[EventLog, pd.DataFrame], activity_key: str =
 
         prefix_tree = pm4py.discover_prefix_tree(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -699,9 +653,6 @@ def discover_temporal_profile(log: Union[EventLog, pd.DataFrame], activity_key: 
 
         temporal_profile = pm4py.discover_temporal_profile(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -752,9 +703,6 @@ def discover_log_skeleton(log: Union[EventLog, pd.DataFrame], noise_threshold: f
 
         log_skeleton = pm4py.discover_log_skeleton(dataframe, noise_threshold=0.1, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -792,9 +740,6 @@ def discover_declare(log: Union[EventLog, pd.DataFrame], allowed_templates: Opti
 
         declare_model = pm4py.discover_declare(log)
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -833,9 +778,6 @@ def discover_powl(log: Union[EventLog, pd.DataFrame], activity_key: str = "conce
         powl_model = pm4py.discover_powl(log, activity_key='concept:name')
         print(powl_model)
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -893,9 +835,6 @@ def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 1
 
         batches = pm4py.discover_log_skeleton(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp', resource_key='org:resource')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]:
-        raise Exception(
-            "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -917,10 +856,8 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
                  finaAdditionalConditions: bool = True) -> Tuple[Any, Dict[str, Any]]:
     """
     Discovers a DCR graph from an event log based on the DisCoveR algorithm.
-
     This method implements the DCR discovery algorithm as described in:
     C. O. Back, T. Slaats, T. T. Hildebrandt, M. Marquard, "DisCoveR: accurate and efficient discovery of declarative process models".
-
     Parameters
     ----------
     log : Union[EventLog, pd.DataFrame]
@@ -939,19 +876,15 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
         The attribute to be used as a resource identifier, defaults to None.
     findAdditionalConditions : bool, optional
         A boolean value specifying whether additional conditions should be found, defaults to True.
-
     Returns
     -------
     Tuple[Any, dict]
         A tuple containing the discovered DCR graph and a dictionary with additional information.
-
     Examples
     --------
     .. code-block:: python3
-
         import pm4py
         graph, la = pm4py.discover_DCR(log)
-
     """
     if type(log) not in [pd.DataFrame, EventLog, EventStream]:
         raise Exception(

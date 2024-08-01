@@ -195,7 +195,6 @@ class TraceAlignment:
         self.result[Outputs.BEST_WORST_COST.value] = fitness_bwc[1]
 
 
-
 class Parameters(Enum):
     """
     Enumeration that defines keys and constants for various parameters used in the alignment process.
@@ -483,7 +482,7 @@ class Alignment:
         if state_representation not in self.visited_states:
             self.visited_states.add(state_representation)
             new_moves = moves + [new_move]
-            heappush(self.open_set,(new_cost, new_graph, new_trace, str(new_graph), new_moves))
+            heappush(self.open_set, (new_cost, new_graph, new_trace, str(new_graph), new_moves))
 
     def get_new_state(self, curr_cost, curr_marking, curr_trace, event, move_type):
         """
@@ -584,7 +583,6 @@ class Alignment:
 
         return self.global_min
 
-
     def apply_trace(self, parameters=None):
         """
         Applies the alignment algorithm to a trace in order to find an optimal alignment
@@ -619,18 +617,19 @@ class Alignment:
 
         visited, closed, cost, self.final_alignment, final_cost = 0, 0, 0, None, float('inf')
         self.open_set.append(
-            (cost, deepcopy(self.graph_handler.graph.marking), self.trace_handler.trace, str(self.graph_handler.graph.marking), []))
+            (cost, deepcopy(self.graph_handler.graph.marking), self.trace_handler.trace,
+             str(self.graph_handler.graph.marking), []))
 
         # perform while loop to iterate through all states
         while self.open_set:
             current = heappop(self.open_set)
             visited += 1
             result = self.process_current_state(current)
-            #if the state has already been visited, and associated cost with the state is lower than skip
+            # if the state has already been visited, and associated cost with the state is lower than skip
             if self.skip_current(result) and result is not None:
                 continue
             curr_cost, curr_trace, state_repr, moves = result[0], result[2], result[3], result[4]
-            #if curr_cost is greater than final cost, no reason to explore this branch
+            # if curr_cost is greater than final cost, no reason to explore this branch
             if curr_cost > final_cost:
                 continue
             self.update_closed_and_visited_sets(curr_cost, state_repr)
@@ -646,9 +645,9 @@ class Alignment:
         return self.construct_results(visited, closed, final_cost)
 
     def skip_current(self, result):
-        #if state is visited, and cost is the same skip
+        # if state is visited, and cost is the same skip
         curr_cost, state_repr = result[0], result[3]
-        visitCost = self.closed_set.get(state_repr,float("inf"))
+        visitCost = self.closed_set.get(state_repr, float("inf"))
         return visitCost <= curr_cost and visitCost is not float("inf")
 
     def perform_moves(self, curr_cost, current, moves):
@@ -775,11 +774,12 @@ def get_diagnostics_dataframe(log: EventLog, conf_result: List[Dict[str, Any]], 
     case_id_key = exec_utils.get_param_value(Parameters.CASE_ID_KEY, parameters,
                                              xes_constants.DEFAULT_TRACEID_KEY)
 
-    import pandas as pd
     diagn_stream = []
     for index in range(len(log)):
         case_id = log[index].attributes[case_id_key]
+        cost = conf_result[index][Outputs.COST.value]
         align_fitness = conf_result[index][Outputs.ALIGN_FITNESS.value]
-        diagn_stream.append({"case_id": case_id, "align_fitness": align_fitness})
+        is_fit = align_fitness == 1.0
+        diagn_stream.append({"case_id": case_id, "cost": cost, "fitness": align_fitness, "is_fit": is_fit})
 
     return pd.DataFrame(diagn_stream)

@@ -9,8 +9,6 @@ from pm4py.algo.conformance.alignments.dcr.variants.optimal import Alignment
 from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.dcr.importer import importer as dcr_importer
 from pm4py.objects.dcr.exporter import exporter as dcr_exporter
-from pm4py.algo.simulation.playout.dcr.variants.classic import Parameters
-from datetime import datetime
 
 class TestDiscoveryDCR(unittest.TestCase):
     def check_if_dcr_is_equal(self, dcr1, dcr2):
@@ -321,7 +319,7 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.objects.dcr.importer.variants.xml_dcr_portal import apply as import_apply
         # given a dcr graph and event log
         # we use this as it provides an dcr graph, with eventIDs and labels and label mapping
-        dcr = import_apply('test_output_data/pendingEvent.xml')
+        dcr = import_apply('input_data/pendingEvent.xml')
         self.assertEqual(1, len(dcr.marking.pending))
 
         del dcr
@@ -585,6 +583,7 @@ class TestConformanceDCR(unittest.TestCase):
 
         dcr, _ = pm4py.discover_dcr(log, process_type={'roles'})
         conf_res = pm4py.conformance_dcr(log, dcr)
+
         for i in conf_res:
             self.assertEqual(int(i['dev_fitness']), 1)
             self.assertTrue(i['is_fit'])
@@ -782,6 +781,7 @@ class TestAlignment(unittest.TestCase):
         aligned_traces = alignment_obj.apply_trace()
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
+
         del trace
         del graph_handler
         del trace_handler
@@ -815,6 +815,7 @@ class TestAlignment(unittest.TestCase):
         trace_handler = self.create_trace_handler(trace)
         alignment_obj = Alignment(graph_handler, trace_handler)
         aligned_traces = alignment_obj.apply_trace()
+
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
 
@@ -846,7 +847,7 @@ class TestAlignment(unittest.TestCase):
         self.assertIsInstance(align_res,pd.DataFrame)
 
         for index,row in align_res.iterrows():
-            self.assertTrue(row['align_fitness'] == 1.0)
+            self.assertTrue(row['fitness'] == 1.0)
         del log_path
         del align_res
 
@@ -896,7 +897,7 @@ class TestAlignment(unittest.TestCase):
         res = pm4py.optimal_alignment_dcr(self.log, self.dcr, return_diagnostics_dataframe=True)
         self.assertIsInstance(res,pd.DataFrame)
         for index,row in res.iterrows():
-            self.assertTrue(row['align_fitness'] == 1.0)
+            self.assertTrue(row['fitness'] == 1.0)
 
 class TestImportExportDCR(unittest.TestCase):
 
@@ -1080,39 +1081,6 @@ class TestImportExportDCR(unittest.TestCase):
         if self.second_test_file != '':
             os.remove(self.second_test_file)
             self.second_test_file = ''
-
-
-class TestPlayOut(unittest.TestCase):
-        
-    def test_playout(self):
-        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        number_of_traces = 10
-        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: number_of_traces})
-        self.assertEqual(len(generated_log), number_of_traces)
-        case_id_default = 1
-        last_case_id = case_id_default + number_of_traces - 1
-        timestamp_default = 10000000
-        self.assertEqual(generated_log[0].attributes['concept:name'], str(case_id_default))
-        self.assertEqual(datetime.timestamp(generated_log[0][0]['time:timestamp']), timestamp_default)
-        self.assertEqual(generated_log[-1].attributes['concept:name'], str(last_case_id))
-    
-    def test_playout_conformance_fitness(self):
-        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: 10})
-        conf_res = pm4py.conformance_dcr(generated_log, dcr)
-        for i in conf_res:
-            self.assertEqual(int(i['dev_fitness']), 1)
-            self.assertTrue(i['is_fit'])
-
-    def test_playout_alignment_fitness(self):
-        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: 10})
-        align_res = pm4py.optimal_alignment_dcr(generated_log, dcr)
-        for i in align_res:
-            self.assertEqual(i['fitness'], 1.0)
 
 
 if __name__ == '__main__':

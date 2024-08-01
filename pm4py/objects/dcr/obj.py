@@ -44,7 +44,6 @@ dcr_template = {
     'responseToDeadlines': {},
     'subprocesses': {},
     'nestings': {},
-    'nestingsMap': {},
     'labels': set(),
     'labelMapping': {},
     'roles': set(),

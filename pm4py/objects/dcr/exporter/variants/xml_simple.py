@@ -9,7 +9,7 @@ def export_dcr_graph(dcr, root, parents_dict=None):
     for event in list(dcr['labelMapping'].values()):
         for event_id in event:
             event_ids.append(event_id)
-    
+
     for event in dcr['events']:
         xml_event = etree.SubElement(root, "events")
         xml_event_id = etree.SubElement(xml_event, "id")

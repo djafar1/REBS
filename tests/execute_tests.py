@@ -21,8 +21,8 @@ enabled_tests = ["SimplifiedInterfaceTest", "SimplifiedInterface2Test", "DocTest
                  "DiagnDfConfChecking", "ProcessModelEvaluationTests", "DecisionTreeTest", "GraphsForming",
                  "HeuMinerTest", "MainFactoriesTest", "AlgorithmTest", "LogFilteringTest",
                  "DataframePrefilteringTest", "StatisticsLogTest", "StatisticsDfTest", "TransitionSystemTest",
-                 "ImpExpFromString", "WoflanTest", "OcelFilteringTest", "OcelDiscoveryTest",
-                 "DcrImportExportTest", "DcrSemanticsTest", "DcrDiscoveryTest", "DcrConformanceTest", "DcrAlignmentTest"]
+                 "ImpExpFromString", "WoflanTest", "OcelFilteringTest", "OcelDiscoveryTest", "DcrImportExportTest",
+                 "DcrSemanticsTest", "DcrDiscoveryTest", "DcrConformanceTest", "DcrAlignmentTest"]
 
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
@@ -219,9 +219,8 @@ if "DcrConformanceTest" in enabled_tests:
 
 if "DcrAlignmentTest" in enabled_tests:
     from tests.dcr_test import TestAlignment
-
     suite.addTests(loader.loadTestsFromTestCase(TestAlignment))
-    suite.addTest(unittest.makeSuite(OcelDiscoveryTest))
+
 
 def main():
     runner = unittest.TextTestRunner()
