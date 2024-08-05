@@ -15,7 +15,64 @@ C = Relations.C.value
 M = Relations.M.value
 
 
-def parse_element(curr_el, parent, dcr):
+def apply(path, parameters=None):
+    '''
+    Reads a DCR graph from an XML file
+
+    Parameters
+    ----------
+    path
+        Path to the XML file
+
+    Returns
+    -------
+    dcr
+        DCR graph object
+    '''
+    if parameters is None:
+        parameters = {}
+
+    from lxml import etree, objectify
+
+    parser = etree.XMLParser(remove_comments=True)
+    xml_tree = objectify.parse(path, parser=parser)
+
+    return import_xml_tree_from_root(xml_tree.getroot())
+
+
+def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=False, labels_as_ids=True):
+    dcr = copy.deepcopy(dcr_template)
+    dcr = __parse_element__(root, None, dcr)
+    dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
+
+    if labels_as_ids:
+        from pm4py.objects.dcr.utils.utils import map_labels_to_events
+        dcr = map_labels_to_events(dcr)
+    '''
+    Transform the dictionary into a DCRGraph object
+    '''
+    if as_dcr_object:
+        return cast_to_dcr_object(dcr)
+    else:
+        return dcr
+
+
+def import_from_string(dcr_string, parameters=None):
+    if parameters is None:
+        parameters = {}
+
+    if type(dcr_string) is str:
+        dcr_string = dcr_string.encode(constants.DEFAULT_ENCODING)
+
+    from lxml import etree, objectify
+
+    parser = etree.XMLParser(remove_comments=True)
+    root = objectify.fromstring(dcr_string, parser=parser)
+
+    return import_xml_tree_from_root(root)
+
+
+def __parse_element__(curr_el, parent, dcr):
     # Create the DCR graph
     tag = curr_el.tag.lower()
     match tag:
@@ -65,9 +122,10 @@ def parse_element(curr_el, parent, dcr):
         case 'labelmapping':
             eventId = curr_el.get('eventId')
             labelId = curr_el.get('labelId')
-            if labelId not in dcr['labelMapping']:
-                dcr['labelMapping'][labelId] = set()
-            dcr['labelMapping'][labelId].add(eventId)
+            if eventId not in dcr['labelMapping']:
+                dcr['labelMapping'][eventId] = labelId
+                # dcr['labelMapping'][eventId] = set()
+            # dcr['labelMapping'][eventId].add(labelId)
         case 'condition':
             event = curr_el.get('sourceId')
             event_prime = curr_el.get('targetId')
@@ -162,63 +220,6 @@ def parse_element(curr_el, parent, dcr):
         case _:
             pass
     for child in curr_el:
-        dcr = parse_element(child, curr_el, dcr)
+        dcr = __parse_element__(child, curr_el, dcr)
 
     return dcr
-
-
-def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=False, labels_as_ids=True):
-    dcr = copy.deepcopy(dcr_template)
-    dcr = parse_element(root, None, dcr)
-    dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
-
-    if labels_as_ids:
-        from pm4py.objects.dcr.utils.utils import map_labels_to_events
-        dcr = map_labels_to_events(dcr)
-    '''
-    Transform the dictionary into a DCR_Graph object
-    '''
-    if as_dcr_object:
-        return cast_to_dcr_object(dcr)
-    else:
-        return dcr
-
-
-def apply(path, parameters=None):
-    '''
-    Reads a DCR graph from an XML file
-
-    Parameters
-    ----------
-    path
-        Path to the XML file
-
-    Returns
-    -------
-    dcr
-        DCR graph object
-    '''
-    if parameters is None:
-        parameters = {}
-
-    from lxml import etree, objectify
-
-    parser = etree.XMLParser(remove_comments=True)
-    xml_tree = objectify.parse(path, parser=parser)
-
-    return import_xml_tree_from_root(xml_tree.getroot())
-
-
-def import_from_string(dcr_string, parameters=None):
-    if parameters is None:
-        parameters = {}
-
-    if type(dcr_string) is str:
-        dcr_string = dcr_string.encode(constants.DEFAULT_ENCODING)
-
-    from lxml import etree, objectify
-
-    parser = etree.XMLParser(remove_comments=True)
-    root = objectify.fromstring(dcr_string, parser=parser)
-
-    return import_xml_tree_from_root(root)

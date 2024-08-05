@@ -1,16 +1,9 @@
 import re
 
-from pm4py.objects.dcr.obj import DcrGraph, Relations, dcr_template
+from pm4py.objects.dcr.obj import DcrGraph, TemplateRelations, Relations, dcr_template
 from copy import deepcopy
 
 from pm4py.objects.dcr.timed.obj import TimedDcrGraph
-
-I = Relations.I.value
-E = Relations.E.value
-R = Relations.R.value
-N = Relations.N.value
-C = Relations.C.value
-M = Relations.M.value
 
 
 def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
@@ -19,7 +12,7 @@ def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
         white_space_replacement = ' '
     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
     # for k, v in deepcopy(dcr).items():
-    for k in [I, E, C, R, M, N]:
+    for k in [r.value for r in Relations]:
         if hasattr(graph, k):
             v_new = {}
             for k2, v2 in graph.__getattribute__(k).items():
@@ -55,7 +48,7 @@ def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
             v_new[re.sub(pattern, '', k2.strip()).replace(' ', white_space_replacement)] = v2.strip().replace(' ', white_space_replacement)
         graph.__setattr__(k, v_new)
 
-    k  = 'label_map'
+    k = 'label_map'
     if hasattr(graph, k):
         v_new = {}
         for k2, v2 in graph.__getattribute__(k).items():
@@ -69,8 +62,9 @@ def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
     if all:
         remaining_k.append('labels')
     for k in remaining_k:
-        new_v = set([re.sub(pattern, '', v2.strip()).replace(' ', white_space_replacement) for v2 in graph.__getattribute__(k)])
-        graph.__setattr__(k, new_v)
+        if hasattr(graph, k):
+            new_v = set([re.sub(pattern, '', v2.strip()).replace(' ', white_space_replacement) for v2 in graph.__getattribute__(k)])
+            graph.__setattr__(k, new_v)
     #TODO for any other k
     # new_v = set([re.sub(pattern, '', v2.strip()).replace(' ', white_space_replacement) for v2 in graph.__getattribute__(k)])
     # graph.__setattr__(k, new_v)
@@ -83,7 +77,7 @@ def clean_input_as_dict(dcr, white_space_replacement=None):
         white_space_replacement = ' '
     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
     for k, v in deepcopy(dcr).items():
-        if k in [I, E, C, R, M, N]:
+        if k in [tr.value for tr in TemplateRelations]:
             v_new = {}
             for k2, v2 in v.items():
                 v_new[k2.strip().replace(' ', white_space_replacement)] = set(
@@ -99,7 +93,7 @@ def clean_input_as_dict(dcr, white_space_replacement=None):
             for k2 in ['executed', 'included', 'pending']:
                 new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
                 dcr[k][k2] = new_v
-        elif k in ['subprocesses', 'nestings', 'roleAssignments', 'readRoleAssignments']:
+        elif k in ['subprocesses', 'nestedgroups', 'roleAssignments', 'readRoleAssignments', 'principalsAssignments']:
             v_new = {}
             for k2, v2 in v.items():
                 v_new[k2.strip().replace(' ', white_space_replacement)] = set(
@@ -116,14 +110,17 @@ def clean_input_as_dict(dcr, white_space_replacement=None):
     return dcr
 
 
-def map_labels_to_events(graph: DcrGraph):
+def map_labels_to_events(graph):
     '''
     Events, ids are unique (and are often derived from the concept:name attribute)
     Labels or activities are not unique (in general do not have an equivalent in event log nomenclature). Many events or ids can map to an activity or label.
     At most one label/activity for an event/id.
     In Dcr Discovery algorithms usually 1 event/id = 1 label/activity. So we can simplify the mapping.
     '''
-    dcr = graph.obj_to_template()
+    if isinstance(graph, DcrGraph):
+        dcr = graph.obj_to_template()
+    else:
+        dcr = graph
     id_to_label = dcr['labelMapping']
     dcr_res = deepcopy(dcr_template)
     for k, v in dcr.items():
@@ -153,14 +150,14 @@ def map_labels_to_events(graph: DcrGraph):
         else:
             if k not in ['labels', 'roles']:
                 dcr_res[k] = set([id_to_label[i] for i in v])
-        return cast_to_dcr_object(dcr_res)
+    return cast_to_dcr_object(dcr_res)
 
 
 def cast_to_dcr_object(dcr):
     if len(dcr['conditionsForDelays']) > 0 or len(dcr['responseToDeadlines']) > 0:
         from pm4py.objects.dcr.timed.obj import TimedDcrGraph
         return TimedDcrGraph(dcr)
-    elif len(dcr['subprocesses']) > 0 or len(dcr['nestings']) > 0:
+    elif len(dcr['subprocesses']) > 0 or len(dcr['nestedgroups']) > 0:
         from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
         return GroupSubprocessDcrGraph(dcr)
     elif len(dcr['noResponseTo']) > 0 or len(dcr['milestonesFor']):

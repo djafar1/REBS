@@ -71,6 +71,7 @@ class RoleDcrGraph(DcrGraph):
 
     def obj_to_template(self):
         res = super().obj_to_template()
+        res['principals'] = self.__principals
         res['roles'] = self.__roles
         res['roleAssignments'] = self.__roleAssignments
         res['principalsAssignment'] = self.__principalsAssignments
@@ -102,7 +103,7 @@ class RoleDcrGraph(DcrGraph):
         int
             number of constraints in dcr graph
         """
-        no = self.__graph.get_constraints()
+        no = super().get_constraints()
         for i in self.__roleAssignments.values():
             no += len(i)
         return no

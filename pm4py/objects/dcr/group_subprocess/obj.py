@@ -6,9 +6,9 @@ class GroupSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
 
     def __init__(self, template=None):
         super().__init__(template)
-        self.__nestedgroups = {} if template is None else template['nestings']
+        self.__nestedgroups = {} if template is None else template['nestedgroups']
         self.__subprocesses = {} if template is None else template['subprocesses']
-        self.__nestedgroupsMap = {}
+        self.__nestedgroupsMap = {} if template is None else template['nestedgroupsMap']
         if len(self.__nestedgroupsMap) == 0 and len(self.__nestedgroups) > 0:
             for group, events in self.__nestedgroups.items():
                 for e in events:
@@ -16,9 +16,9 @@ class GroupSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
 
     def obj_to_template(self):
         res = super().obj_to_template()
-        res['nestings'] = self.__nestedgroups
+        res['nestedgroups'] = self.__nestedgroups
         res['subprocesses'] = self.__subprocesses
-        res['nestingsMap'] = self.__nestedgroupsMap
+        res['nestedgroupsMap'] = self.__nestedgroupsMap
         return res
 
     @property

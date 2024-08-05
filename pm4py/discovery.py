@@ -868,7 +868,7 @@ def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 1
     return batches_discovery.apply(log, parameters=properties)
 
 
-def discover_dcr(log: Union[EventLog, pd.DataFrame], extension_type: Set[ExtensionVariants] = None, activity_key: str = "concept:name",
+def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[ExtensionVariants] = None, activity_key: str = "concept:name",
                  timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name",
                  resource_key: str = "org:resource", group_key: str = "org:group",
                  finaAdditionalConditions: bool = True) -> Tuple[Any, Dict[str, Any]]:
@@ -880,7 +880,7 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], extension_type: Set[Extensi
     ----------
     log : Union[EventLog, pd.DataFrame]
         The event log or Pandas dataframe containing the event data.
-    extension_type : Optional[str]
+    post_process : Optional[str]
         Specifies the type of post-processing for the event log, currently supports ROLES, TIMED and NESTINGS.
     activity_key : str, optional
         The attribute to be used for the activity, defaults to "concept:name".
@@ -917,5 +917,5 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], extension_type: Set[Extensi
 
     from pm4py.algo.discovery.dcr_discover import algorithm as dcr_alg
     from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
-    return dcr_alg.apply(log, dcr_discover, post_process=extension_type,
+    return dcr_alg.apply(log, dcr_discover, post_process=post_process,
                          findAdditionalConditions=finaAdditionalConditions, parameters=properties)

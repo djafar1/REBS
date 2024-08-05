@@ -15,6 +15,31 @@ C = Relations.C.value
 M = Relations.M.value
 
 
+def apply(path, parameters=None):
+    '''
+    Reads a DCR Graph from an XML file
+
+    Parameters
+    ----------
+    path
+        Path to the XML file
+
+    Returns
+    -------
+    DCR_Graph
+        DCR Graph object
+    '''
+    if parameters is None:
+        parameters = {}
+
+    from lxml import etree, objectify
+
+    parser = etree.XMLParser(remove_comments=True)
+    xml_tree = objectify.parse(path, parser=parser)
+
+    return import_xml_tree_from_root(xml_tree.getroot())
+
+
 def import_xml_tree_from_root(root, replace_whitespace=' ', **kwargs):
     '''
     Transform the dictionary into a DCR_Graph object
@@ -95,31 +120,6 @@ def import_xml_tree_from_root(root, replace_whitespace=' ', **kwargs):
 
     graph = DcrGraph(dcr)
     return graph
-
-
-def apply(path, parameters=None):
-    '''
-    Reads a DCR Graph from an XML file
-
-    Parameters
-    ----------
-    path
-        Path to the XML file
-
-    Returns
-    -------
-    DCR_Graph
-        DCR Graph object
-    '''
-    if parameters is None:
-        parameters = {}
-
-    from lxml import etree, objectify
-
-    parser = etree.XMLParser(remove_comments=True)
-    xml_tree = objectify.parse(path, parser=parser)
-
-    return import_xml_tree_from_root(xml_tree.getroot())
 
 
 def import_from_string(dcr_string, parameters=None):

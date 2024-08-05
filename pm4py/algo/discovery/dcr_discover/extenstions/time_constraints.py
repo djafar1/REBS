@@ -3,12 +3,13 @@ from copy import deepcopy
 import pandas as pd
 from typing import Optional, Any, Union, Dict
 import pm4py
+from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.util import exec_utils, constants, xes_constants
-from pm4py.objects.dcr.timed.obj import TimeDcrGraph
+from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 from pm4py.objects.log.obj import EventLog
 
 
-def apply(log, graph, parameters) -> TimeDcrGraph:
+def apply(log, graph: DcrGraph, parameters) -> TimedDcrGraph:
     """
     this method calls the time miner
 
@@ -25,7 +26,7 @@ def apply(log, graph, parameters) -> TimeDcrGraph:
     Returns
     -------
     :class:´TimedDcrGraph`
-        return a DCR graph, that contains organizational attributes
+        return a DCR graph
     """
     time_mine = TimeMining()
     return time_mine.mine(log, graph, parameters)
@@ -40,20 +41,17 @@ class TimeMining:
     Attributes
     ----------
     graph: Dict[str,Any]
-        A template that will be used collecting organizational data
 
     Methods
     -------
     mine(log, G, parameters)
-        calls the main mining function, extract roles and principals from the log and perform rol
 
     Notes
     ------
-    * NaN values are disregarded, if event in log has event with both, it will not store NaN as a role assignment
-    * Currently no useful implementation for analysis of principalsAssignments, but is included for future improvement
+    *
     """
     def __init__(self):
-        self.graph = {"conditionsForDelays": {}, "responseToDeadlines": {}}
+        self.timing_dict = {"conditionsForDelays": {}, "responseToDeadlines": {}}
 
     def get_log_with_pair(self, event_log, e1, e2):
         '''
@@ -108,24 +106,8 @@ class TimeMining:
             deltas.extend(res)
         return deltas
 
-    def mine(self, log: Union[pd.DataFrame, EventLog], graph, parameters: Optional[Dict[str, Any]]):
+    def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
         """
-        Main role mine algorithm, will mine for principals and roles in a DCR graphs, and associated role assignment.
-        determine principals, roles and roleAssignment through unique occurrences in log.
-
-        Parameters
-        ----------
-        log: pandas.DataFrame | EventLog
-            Event log used for mining
-        graph: DCR_Graph
-            DCR graph to append additional attributes
-        parameters: Optional[Dict[str, Any]]
-            optional parameters used for role mining
-        Returns
-        -------
-        RoleDCR_Graph(G, dcr)
-            returns a DCR graph with organizational attributes, store in a variant of DCR
-            :class:`pm4py.objects.dcr.roles.obj.RoleDCR_Graph`
         """
 
         activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, parameters,
@@ -137,12 +119,12 @@ class TimeMining:
         activities = log[activity_key].unique()
 
         timing_input_dict = {'CONDITION': set(), 'RESPONSE': set()}
-        for e1 in graph['conditionsFor'].keys():
-            for e2 in graph['conditionsFor'][e1]:
+        for e1 in graph.conditions.keys():
+            for e2 in graph.conditions[e1]:
                 timing_input_dict['CONDITION'].add((e1, e2))
 
-        for e1 in graph['responseTo'].keys():
-            for e2 in graph['responseTo'][e1]:
+        for e1 in graph.responses.keys():
+            for e2 in graph.responses[e1]:
                 timing_input_dict['RESPONSE'].add((e1, e2))
 
         timings = {}
@@ -158,14 +140,14 @@ class TimeMining:
             if timing[0] == 'CONDITION':
                 e1 = timing[2]
                 e2 = timing[1]
-                if e1 not in self.graph['conditionsForDelays']:
-                    self.graph['conditionsForDelays'][e1] = {}
-                self.graph['conditionsForDelays'][e1][e2] = value
+                if e1 not in self.timing_dict['conditionsForDelays']:
+                    self.timing_dict['conditionsForDelays'][e1] = {}
+                self.timing_dict['conditionsForDelays'][e1][e2] = value
             elif timing[0] == 'RESPONSE':
                 e1 = timing[1]
                 e2 = timing[2]
-                if e1 not in self.graph['responseToDeadlines']:
-                    self.graph['responseToDeadlines'][e1] = {}
-                self.graph['responseToDeadlines'][e1][e2] = value
+                if e1 not in self.timing_dict['responseToDeadlines']:
+                    self.timing_dict['responseToDeadlines'][e1] = {}
+                self.timing_dict['responseToDeadlines'][e1][e2] = value
 
-        return TimeDcrGraph(graph, self.graph)
+        return TimedDcrGraph(graph.obj_to_template(), self.timing_dict)

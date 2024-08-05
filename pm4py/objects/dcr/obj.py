@@ -17,6 +17,7 @@ from copy import deepcopy
 from enum import Enum
 from typing import Set, Dict
 
+
 class Relations(Enum):
     I = 'includes'
     E = 'excludes'
@@ -24,7 +25,9 @@ class Relations(Enum):
     N = 'noresponses'
     C = 'conditions'
     M = 'milestones'
-class OldRelations(Enum):
+
+
+class TemplateRelations(Enum):
     I = 'includesTo'
     E = 'excludesTo'
     R = 'responseTo'
@@ -50,14 +53,15 @@ dcr_template = {
     'conditionsForDelays': {},
     'responseToDeadlines': {},
     'subprocesses': {},
-    'nestings': {},
-    'nestingsMap': {},
+    'nestedgroups': {},
+    'nestedgroupsMap': {},
     'labels': set(),
     'labelMapping': {},
     'roles': set(),
     'principals': set(),
     'roleAssignments': {},
-    'readRoleAssignments': {}
+    'readRoleAssignments': {},
+    'principalsAssignments': {}
 }
 
 class Marking:
@@ -205,6 +209,7 @@ class DcrGraph(object):
     # initiate the objects: contains events ID, activity, the 4 relations, markings, roles and principals
     def __init__(self, template=None):
         # DisCoveR uses bijective labelling, each event has one label
+        #
         self.__events = set() if template is None else template['events']
         self.__marking = Marking(set(), set(), set()) if template is None else (
             Marking(template['marking']['executed'],template['marking']['included'], template['marking']['pending']))
@@ -284,11 +289,13 @@ class DcrGraph(object):
     def excludes(self, value: Dict[str, Set[str]]):
         self.__excludesTo = value
     @property
-    def label_map(self) -> Dict[str, Set[str]]:
+    # def label_map(self) -> Dict[str, Set[str]]:
+    def label_map(self) -> Dict[str, str]:
         return self.__labelMap
 
     @label_map.setter
-    def label_map(self, value: Dict[str, Set[str]]):
+    # def label_map(self, value: Dict[str, Set[str]]):
+    def label_map(self, value: Dict[str, str]):
         self.__labelMap = value
 
     def get_event(self, activity: str) -> str:
@@ -305,12 +312,17 @@ class DcrGraph(object):
         event
             the event ID of activity
         """
-        event = self.__labelMap.get(activity, None)
-        if event is None:
-            return activity
-        event = event.pop()
-        self.__labelMap[activity].add(event)
-        return event
+        for event, label in self.label_map.items():
+            if activity == label:
+                # returns only the first event matched
+                # if the intention is to return all events matched then it needs to return a list of strings
+                return event
+        # event = self.__labelMap.get(activity, None)
+        # if event is None:
+        #     return activity
+        # event = event.pop()
+        # self.__labelMap[activity].add(event)
+        # return event
 
     def get_activity(self, event: str) -> str:
         """
@@ -326,13 +338,14 @@ class DcrGraph(object):
         activity
             the activity of the event
         """
-        for activity in self.__labelMap:
-            event_prime = self.__labelMap[activity]
-            event_prime = event_prime.pop()
-            self.__labelMap[activity].add(event_prime)
-            if event == event_prime:
-                return activity
-        return event
+        return self.label_map[event]
+        # for activity in self.__labelMap:
+        #     event_prime = self.__labelMap[activity]
+        #     event_prime = event_prime.pop()
+        #     self.__labelMap[activity].add(event_prime)
+        #     if event == event_prime:
+        #         return activity
+        # return event
 
     def get_constraints(self) -> int:
         """

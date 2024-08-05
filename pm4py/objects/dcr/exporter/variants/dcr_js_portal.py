@@ -1,9 +1,9 @@
 from lxml import etree
-from pm4py.objects.dcr.obj import Relations, dcr_template
-from copy import deepcopy
+
+from pm4py.objects.dcr.utils.utils import clean_input
 
 
-def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
+def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py'):
     '''
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
     The file is to be visualised using the following link: https://hugoalopez-dtu.github.io/dcr-js/
@@ -18,12 +18,12 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
         title of the DCR graph
     '''
 
-    dcr = clean_output(dcr)
-    event_labels = list(dcr['labelMapping'].keys())
-    event_ids = []
-    for event in list(dcr['labelMapping'].values()):
-        for event_id in event:
-            event_ids.append(event_id)
+    graph = clean_input(graph, white_space_replacement='', all=True)
+    # event_labels = list(graph.label_map.keys())
+    # event_ids = []
+    # for event in list(graph.label_map.values()):
+    #     for event_id in event:
+    #         event_ids.append(event_id)
 
     root = etree.Element("dcrgraph")
     if dcr_title:
@@ -52,7 +52,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
     ycoord = {}
     x = 0
     y = 0
-    for event in dcr['events']:
+    for event in graph.events:
         xcoord[event] = x
         ycoord[event] = y
         x += 300
@@ -61,7 +61,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
             x = 0
             y += 300
 
-    for event in dcr['events']:
+    for event in graph.events:
         xml_event = etree.SubElement(events, "event")
         xml_event.set("id", event)
         xml_event_custom = etree.SubElement(xml_event, "custom")
@@ -76,11 +76,12 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
         xml_label.set("id", event)
         xml_labelMapping = etree.SubElement(labelMappings, "labelMapping")
         xml_labelMapping.set("eventId", event)
-        label_id = event_labels[event_ids.index(event)]
+        # label_id = event_labels[event_ids.index(event)]
+        label_id = graph.label_map[event] if event in graph.label_map else event
         xml_labelMapping.set("labelId", label_id)
 
-        for event_prime in dcr['events']:
-            if event_prime in dcr["conditionsFor"] and event in dcr["conditionsFor"][event_prime]:
+        for event_prime in graph.events:
+            if event_prime in graph.conditions and event in graph.conditions[event_prime]:
                 xml_condition = etree.SubElement(conditions, "condition")
                 xml_condition.set("sourceId", event)
                 xml_condition.set("targetId", event_prime)
@@ -89,7 +90,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
                 create_arrows(xml_waypoints, xcoord,ycoord, event, event_prime)
                 xml_custom_id = etree.SubElement(xml_condition_custom, "id")
                 xml_custom_id.set("id", "Relation_" + event + "_" + event_prime + "_condition")
-            if event in dcr["responseTo"] and event_prime in dcr["responseTo"][event]:
+            if event in graph.responses and event_prime in graph.responses[event]:
                 xml_response = etree.SubElement(responses, "response")
                 xml_response.set("sourceId", event)
                 xml_response.set("targetId", event_prime)
@@ -98,7 +99,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
                 create_arrows(xml_waypoints, xcoord, ycoord, event, event_prime)
                 xml_custom_id = etree.SubElement(xml_response_custom, "id")
                 xml_custom_id.set("id", "Relation_" + event + "_" + event_prime + "_response")
-            if event in dcr["includesTo"] and event_prime in dcr["includesTo"][event]:
+            if event in graph.includes and event_prime in graph.includes[event]:
                 xml_include = etree.SubElement(includes, "include")
                 xml_include.set("sourceId", event)
                 xml_include.set("targetId", event_prime)
@@ -107,7 +108,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
                 create_arrows(xml_waypoints, xcoord, ycoord, event, event_prime)
                 xml_custom_id = etree.SubElement(xml_include_custom, "id")
                 xml_custom_id.set("id", "Relation_" + event + "_" + event_prime + "_include")
-            if event in dcr["excludesTo"] and event_prime in dcr["excludesTo"][event]:
+            if event in graph.excludes and event_prime in graph.excludes[event]:
                 xml_exclude = etree.SubElement(excludes, "exclude")
                 xml_exclude.set("sourceId", event)
                 xml_exclude.set("targetId", event_prime)
@@ -136,13 +137,13 @@ def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
                 xml_custom_id = etree.SubElement(xml_exclude_custom, "id")
                 xml_custom_id.set("id", "Relation_" + event + "_" + event_prime + "_exclude")
 
-        if event in dcr['marking']['executed']:
+        if event in graph.marking.executed:
             marking_exec = etree.SubElement(executed, "event")
             marking_exec.set("id", event)
-        if event in dcr['marking']['included']:
+        if event in graph.marking.included:
             marking_incl = etree.SubElement(included, "event")
             marking_incl.set("id", event)
-        if event in dcr['marking']['pending']:
+        if event in graph.marking.pending:
             marking_pend = etree.SubElement(pendingResponse, "event")
             marking_pend.set("id", event)
 
@@ -205,34 +206,3 @@ def create_arrows(xml_waypoints, xcoord, ycoord, event, event_prime):
     xml_waypoint = etree.SubElement(xml_waypoints, "waypoint")
     xml_waypoint.set("x", str(xcoord[event_prime]+xprimeoffset))
     xml_waypoint.set("y", str(ycoord[event_prime]+yprimeoffset))
-
-
-def clean_output(dcr):
-    # Helper function that removes spaces to satisfy the dcr-js portal
-    graph = deepcopy(dcr_template)
-    for k, v in dcr.__dict__.items():
-        item = list(k.split('_'))
-        K = item[len(item)-1]
-        if K in (relation.value for relation in Relations):
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', '_')] = set([v3.strip().replace(' ', '_') for v3 in v2])
-            graph[K] = v_new
-        elif K in ['conditionsForDelays', 'responseToDeadlines']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', '_')] = set([(v3.strip().replace(' ', '_'), d) for (v3, d) in v2])
-            graph[K] = v_new
-        elif K == 'marking':
-            for k2 in ['executed', 'included', 'pending']:
-                new_v = set([v2.strip().replace(' ', '_') for v2 in dcr.__dict__[k][k2]])
-                graph[K][k2] = new_v
-        elif K in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace(' ', '_')] = set([v3.strip().replace(' ', '_') for v3 in v2])
-            graph[K] = v_new
-        else:
-            new_v = set([v2.strip().replace(' ', '_') for v2 in dcr.__dict__[k]])
-            graph[K] = set(new_v)
-    return graph
