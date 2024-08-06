@@ -23,7 +23,8 @@ def apply(path, parameters=None):
     ----------
     path
         Path to the XML file
-
+    parameters
+        Params
     Returns
     -------
     dcr
@@ -37,10 +38,10 @@ def apply(path, parameters=None):
     parser = etree.XMLParser(remove_comments=True)
     xml_tree = objectify.parse(path, parser=parser)
 
-    return import_xml_tree_from_root(xml_tree.getroot())
+    return import_xml_tree_from_root(xml_tree.getroot(), **parameters)
 
 
-def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=False, labels_as_ids=True):
+def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=True, labels_as_ids=True):
     dcr = copy.deepcopy(dcr_template)
     dcr = __parse_element__(root, None, dcr)
     dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)

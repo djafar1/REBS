@@ -117,7 +117,8 @@ def map_labels_to_events(graph):
     At most one label/activity for an event/id.
     In Dcr Discovery algorithms usually 1 event/id = 1 label/activity. So we can simplify the mapping.
     '''
-    if isinstance(graph, DcrGraph):
+    is_dcr_object = isinstance(graph, DcrGraph)
+    if is_dcr_object:
         dcr = graph.obj_to_template()
     else:
         dcr = graph
@@ -150,7 +151,10 @@ def map_labels_to_events(graph):
         else:
             if k not in ['labels', 'roles']:
                 dcr_res[k] = set([id_to_label[i] for i in v])
-    return cast_to_dcr_object(dcr_res)
+    if is_dcr_object:
+        return cast_to_dcr_object(dcr_res)
+    else:
+        return dcr_res
 
 
 def cast_to_dcr_object(dcr):
