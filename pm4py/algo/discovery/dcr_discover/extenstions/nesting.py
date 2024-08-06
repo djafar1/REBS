@@ -104,7 +104,6 @@ class Choice(object):
         self.nesting_template = {"nestedgroups": {}, "nestedgroupsMap": {}, "subprocesses": {}}
 
     def apply_choice(self, core_dcr: DcrGraph) -> GroupSubprocessDcrGraph:
-        self.nesting_template = {"nestedgroups": {}, "nestedgroupsMap": {}, "subprocesses": {}}
         self.get_mutual_exclusions(core_dcr)
         for name, me_events in self.nesting_template['nestedgroups'].items():
             core_dcr.events.add(name)
