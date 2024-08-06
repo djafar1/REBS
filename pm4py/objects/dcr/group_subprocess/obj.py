@@ -10,6 +10,7 @@ class GroupSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
         self.__subprocesses = {} if template is None else template['subprocesses']
         self.__nestedgroups_map = {} if template is None else template['nestedgroupsMap']
         if len(self.__nestedgroups_map) == 0 and len(self.__nestedgroups) > 0:
+            self.__nestedgroups_map = {}
             for group, events in self.__nestedgroups.items():
                 for e in events:
                     self.__nestedgroups_map[e] = group
