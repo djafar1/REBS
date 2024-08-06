@@ -85,7 +85,7 @@ def __parse_element__(curr_el, parent, dcr):
                     case 'subprocess':
                         dcr['subprocesses'][id] = set()
                     case 'nesting':
-                        dcr['nestings'][id] = set()
+                        dcr['nestedgroups'][id] = set()
                         pass
                     case _:
                         pass
@@ -93,7 +93,7 @@ def __parse_element__(curr_el, parent, dcr):
                     case 'subprocess':
                         dcr['subprocesses'][parent.get('id')].add(id)
                     case 'nesting':
-                        dcr['nestings'][parent.get('id')].add(id)
+                        dcr['nestedgroups'][parent.get('id')].add(id)
                         pass
                     case _:
                         pass
