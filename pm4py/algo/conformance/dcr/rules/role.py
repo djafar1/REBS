@@ -2,7 +2,6 @@ from pm4py.algo.conformance.dcr.rules.abc import CheckFrame
 from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 from typing import List, Tuple, Any
 
-
 class CheckRole(CheckFrame):
     @classmethod
     def check_rule(cls, event: str, graph: RoleDcrGraph, role: str, deviations: List[Tuple[str, Any]]):
@@ -47,3 +46,4 @@ class CheckRole(CheckFrame):
                 if ('roleViolation', (role, event)) not in deviations:
                     deviations.append(('roleViolation', (role, event)))
             return deviations
+

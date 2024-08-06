@@ -33,10 +33,8 @@ from typing import Optional, Dict, Any, Union, List, Tuple
 from heapq import heappop, heappush
 from enum import Enum
 
-# from pm4py.objects.dcr.milestone_noresponse.obj import DcrGraph
-# from pm4py.objects.dcr.milestone_noresponse.semantics import DcrSemantics
-from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph as DcrGraph
-from pm4py.objects.dcr.milestone_noresponse.semantics import MilestoneNoResponseSemantics as DcrSemantics
+from pm4py.objects.dcr.obj import DcrGraph
+from pm4py.objects.dcr.semantics import DcrSemantics
 from pm4py.util import constants, xes_constants, exec_utils
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.conversion.log import converter as log_converter
@@ -111,7 +109,6 @@ class LogAlignment:
             trace_alignment = TraceAlignment(graph, trace, parameters=parameters)
             aligned_traces = aligned_traces + trace_alignment.perform_alignment()
         return aligned_traces
-
 
 class TraceAlignment:
     """
@@ -238,7 +235,6 @@ class Outputs(Enum):
     ALIGN_FITNESS = 'fitness'
     BEST_WORST_COST = "bwc"
 
-
 class Performance:
     def __init__(self, alignment, graph_handler, trace_handler):
         self.alignment = alignment
@@ -266,12 +262,11 @@ class Performance:
         # run model with empty trace
         worst_case_trace = len(self.trace_handler.trace)
         self.trace_handler.trace = ()
-
         # compute worst_best_alignment
         best_worst_alignment = Alignment(self.graph_hanlder, self.trace_handler)
         best_worst_result = best_worst_alignment.apply_trace()
         bwc = (worst_case_trace + best_worst_result[Outputs.COST.value])
-        fitness = 1 - (self.alignment.global_min / (worst_case_trace + bwc) if bwc > 0 else 0)
+        fitness = 1 - (self.alignment.global_min / (bwc) if bwc > 0 else 0)
         return fitness, bwc
 
 
@@ -389,10 +384,8 @@ class DCRGraphHandler:
         """
 
     def __init__(self, graph: DcrGraph):
-        #TODO: make the specific dcr graph class and semantics be loadable dynamically
-
-        # if not isinstance(graph, DcrGraph):
-        #     raise TypeError(f"Expected a DCRGraph object, got {type(graph)} instead")
+        if not isinstance(graph, DcrGraph):
+            raise TypeError(f"Expected a DCR_Graph object, got {type(graph)} instead")
         self.graph = graph
 
     def is_enabled(self, event: Any) -> bool:
@@ -405,11 +398,10 @@ class DCRGraphHandler:
         return DcrSemantics.is_accepting(self.graph)
 
     def execute(self, event: Any, curr_graph) -> Any:
-        new_graph = DcrSemantics.execute(event, curr_graph)
+        new_graph = DcrSemantics.execute(curr_graph, event)
         if not new_graph:
             return curr_graph
         return new_graph
-
 
 class Alignment:
     def __init__(self, graph_handler: DCRGraphHandler, trace_handler: TraceHandler, parameters: Optional[Dict] = None):
@@ -730,8 +722,7 @@ class Alignment:
             Outputs.GLOBAL_MIN.value: self.global_min,
         }
 
-
-def apply(trace_or_log: Union[pd.DataFrame, EventLog, Trace], graph: DcrGraph, parameters=None):
+def apply(trace_or_log: Union[pd.DataFrame,EventLog,Trace], graph: DcrGraph, parameters=None):
     """
     Applies an alignment operation on a given trace or log against a specified DCR graph.
 
@@ -786,7 +777,6 @@ def get_diagnostics_dataframe(log: EventLog, conf_result: List[Dict[str, Any]], 
     diagn_stream = []
     for index in range(len(log)):
         case_id = log[index].attributes[case_id_key]
-
         cost = conf_result[index][Outputs.COST.value]
         align_fitness = conf_result[index][Outputs.ALIGN_FITNESS.value]
         is_fit = align_fitness == 1.0

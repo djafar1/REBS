@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Optional, Any, Union, Dict
 import pm4py
+from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.util import exec_utils, constants, xes_constants
 from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 from pm4py.objects.log.obj import EventLog
@@ -14,7 +15,7 @@ def apply(log, graph, parameters) -> RoleDcrGraph:
     ----------
     log: EventLog | pandas.Dataframe
         Event log to use in the role miner
-    graph: DCR_Graph
+    graph: DCRGraph
         Dcr graph to apply additional attributes to
     parameters
         Parameters of the algorithm, including:
@@ -53,10 +54,10 @@ class RoleMining:
     * Currently no useful implementation for analysis of principalsAssignments, but is included for future improvement
     """
     def __init__(self):
-        self.graph = {"roles": set(), "principals": set(), "roleAssignments": {}, "principalsAssignments": {}}
+        self.role_template = {"roles": set(), "principals": set(), "roleAssignments": {}, "principalsAssignments": {}}
 
-    def __role_assignment_role_to_acitivity(self, log: pd.DataFrame, activity_key: str,
-                                          group_key: str, resource_key: str) -> None:
+    def __role_assignment_role_to_activity(self, log: pd.DataFrame, activity_key: str,
+                                           group_key: str, resource_key: str) -> None:
         """
         If log has defined roles, mine for role assignment using a role identifier,
         such as a Group key or possible optional parameter.
@@ -75,13 +76,13 @@ class RoleMining:
         # turn this into a dict that can iterated over
         act_roles_couple = dict(log.groupby([group_key, activity_key]).size())
         for couple in act_roles_couple:
-            self.graph['roleAssignments'][couple[0]] = self.graph['roleAssignments'][couple[0]].union({couple[1]})
+            self.role_template['roleAssignments'][couple[0]] = self.role_template['roleAssignments'][couple[0]].union({couple[1]})
         act_roles_couple = dict(log.groupby([group_key, resource_key]).size())
         for couple in act_roles_couple:
-            self.graph['principalsAssignments'][couple[0]] = self.graph['principalsAssignments'][couple[0]].union({couple[1]})
+            self.role_template['principalsAssignments'][couple[0]] = self.role_template['principalsAssignments'][couple[0]].union({couple[1]})
 
 
-    def mine(self, log: Union[pd.DataFrame, EventLog], graph, parameters: Optional[Dict[str, Any]]):
+    def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
         """
         Main role mine algorithm, will mine for principals and roles in a DCR graphs, and associated role assignment.
         determine principals, roles and roleAssignment through unique occurrences in log.
@@ -90,7 +91,7 @@ class RoleMining:
         ----------
         log: pandas.DataFrame | EventLog
             Event log used for mining
-        graph: DCR_Graph
+        graph: DCRGraph
             DCR graph to append additional attributes
         parameters: Optional[Dict[str, Any]]
             optional parameters used for role mining
@@ -119,15 +120,15 @@ class RoleMining:
         # load resources if provided
         principals = set(log[resource_key].values)
         principals = set(filter(lambda x: x == x, principals))
-        self.graph['principals'] = principals
+        self.role_template['principals'] = principals
 
         # if no resources are provided, map roles to activities
         roles = set(log[group_key].values)
         roles = set(filter(lambda x: x == x, roles))
-        self.graph['roles'] = roles
-        for i in self.graph['roles']:
-            self.graph['roleAssignments'][i] = set()
-            self.graph['principalsAssignments'][i] = set()
+        self.role_template['roles'] = roles
+        for i in self.role_template['roles']:
+            self.role_template['roleAssignments'][i] = set()
+            self.role_template['principalsAssignments'][i] = set()
 
-        self.__role_assignment_role_to_acitivity(log, activity_key, group_key, resource_key)
-        return RoleDcrGraph(graph, self.graph)
+        self.__role_assignment_role_to_activity(log, activity_key, group_key, resource_key)
+        return RoleDcrGraph({**graph.obj_to_template(), **self.role_template})

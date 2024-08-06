@@ -1,9 +1,9 @@
 from typing import Dict, Set
 
-from pm4py.objects.dcr.obj import DcrGraph
+from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 
 
-class MilestoneNoResponseDcrGraph(DcrGraph):
+class MilestoneNoResponseDcrGraph(RoleDcrGraph):
 
     def __init__(self, template=None):
         super().__init__(template)

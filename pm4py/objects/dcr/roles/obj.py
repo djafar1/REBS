@@ -64,13 +64,14 @@ class RoleDcrGraph(DcrGraph):
     """
     def __init__(self, template=None):
         super().__init__(template)
-        self.__principals = set() if None else template.pop("principals", set())
-        self.__roles = set() if None else template.pop("roles", set())
-        self.__roleAssignments = {} if None else template.pop("roleAssignments", set())
-        self.__principalsAssignments = {} if None else template.pop("principalsAssignments", set())
+        self.__principals = set() if template is None else template.pop("principals", set())
+        self.__roles = set() if template is None else template.pop("roles", set())
+        self.__roleAssignments = {} if template is None else template.pop("roleAssignments", set())
+        self.__principalsAssignments = {} if template is None else template.pop("principalsAssignments", set())
 
     def obj_to_template(self):
         res = super().obj_to_template()
+        res['principals'] = self.__principals
         res['roles'] = self.__roles
         res['roleAssignments'] = self.__roleAssignments
         res['principalsAssignment'] = self.__principalsAssignments
@@ -102,7 +103,7 @@ class RoleDcrGraph(DcrGraph):
         int
             number of constraints in dcr graph
         """
-        no = self.__graph.get_constraints()
+        no = super().get_constraints()
         for i in self.__roleAssignments.values():
             no += len(i)
         return no

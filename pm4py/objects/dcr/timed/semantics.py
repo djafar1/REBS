@@ -24,8 +24,8 @@ class TimedSemantics(MilestoneNoResponseSemantics):
     def enabled(cls, graph) -> Set[str]:
         res = super().enabled(graph)
         for e in res:
-            if e in graph.timed_conditions:
-                for (e_prime, k) in graph.timed_conditions[e]:
+            if e in graph.timedconditions:
+                for (e_prime, k) in graph.timedconditions[e].items():
                     if (e_prime in graph.marking.included.intersection(graph.marking.executed) and
                             graph.marking.executed_time[e_prime] < k):
                         res.discard(e)
@@ -35,8 +35,8 @@ class TimedSemantics(MilestoneNoResponseSemantics):
     def weak_execute(cls, event, graph):
         graph.marking.executed_time[event] = 0
 
-        if event in graph.timed_responses:
-            for (e_prime, k) in graph.timed_responses[event]:
+        if event in graph.timedresponses:
+            for (e_prime, k) in graph.timedresponses[event].items():
                 graph.marking.pending_deadline[e_prime] = k
 
         return super().weak_execute(event, graph)
@@ -69,8 +69,8 @@ class TimedSemantics(MilestoneNoResponseSemantics):
     @staticmethod
     def next_delay(graph):
         next_delay = None
-        for e in graph.timed_conditions:
-            for (e_prime, k) in graph.timed_conditions[e]:
+        for e in graph.timedconditions:
+            for (e_prime, k) in graph.timedconditions[e].items():
                 if e_prime in graph.marking.included and e_prime in graph.marking.executed:
                     delay = k - graph.marking.executed_time[e_prime]
                     if delay > timedelta(0) and (next_delay is None or delay < next_delay):
@@ -82,8 +82,8 @@ class TimedSemantics(MilestoneNoResponseSemantics):
         d = {}
         for e in graph.events:
             d[e] = timedelta(0)
-        for e in graph.timed_conditions:
-            for (e_prime, k) in graph.timed_conditions[e]:
+        for e in graph.timedconditions:
+            for (e_prime, k) in graph.timedconditions[e].items():
                 if k > d[e_prime]:
                     d[e_prime] = k
         return d
