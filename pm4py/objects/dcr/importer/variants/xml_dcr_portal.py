@@ -144,10 +144,10 @@ def __parse_element__(curr_el, parent, dcr):
                 if not dcr['conditionsForDelays'].__contains__(event_prime):
                     dcr['conditionsForDelays'][event_prime] = set()
                 if delay.isdecimal():
-                    delay_days = int(delay)
+                    delay = int(delay)
                 else:
-                    delay_days = isodate.parse_duration(delay)#.days
-                dcr['conditionsForDelays'][event_prime].add((event, delay_days))
+                    delay = isodate.parse_duration(delay)
+                dcr['conditionsForDelays'][event_prime].add({event: delay})
 
         case 'response':
             event = curr_el.get('sourceId')
@@ -167,10 +167,10 @@ def __parse_element__(curr_el, parent, dcr):
                 if not dcr['responseToDeadlines'].__contains__(event):
                     dcr['responseToDeadlines'][event] = set()
                 if deadline.isdecimal():
-                    deadline_days = int(deadline)
+                    deadline = int(deadline)
                 else:
-                    deadline_days = isodate.parse_duration(deadline).days
-                dcr['responseToDeadlines'][event].add((event_prime, deadline_days))
+                    deadline = isodate.parse_duration(deadline)
+                dcr['responseToDeadlines'][event].add({event_prime: deadline})
         case 'role':
             if curr_el.text:
                 dcr['roles'].add(curr_el.text)
