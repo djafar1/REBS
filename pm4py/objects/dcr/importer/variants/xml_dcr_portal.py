@@ -23,7 +23,8 @@ def apply(path, parameters=None):
     ----------
     path
         Path to the XML file
-
+    parameters
+        Params
     Returns
     -------
     dcr
@@ -37,10 +38,10 @@ def apply(path, parameters=None):
     parser = etree.XMLParser(remove_comments=True)
     xml_tree = objectify.parse(path, parser=parser)
 
-    return import_xml_tree_from_root(xml_tree.getroot())
+    return import_xml_tree_from_root(xml_tree.getroot(), **parameters)
 
 
-def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=False, labels_as_ids=True):
+def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=True, labels_as_ids=True):
     dcr = copy.deepcopy(dcr_template)
     dcr = __parse_element__(root, None, dcr)
     dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
@@ -85,7 +86,7 @@ def __parse_element__(curr_el, parent, dcr):
                     case 'subprocess':
                         dcr['subprocesses'][id] = set()
                     case 'nesting':
-                        dcr['nestings'][id] = set()
+                        dcr['nestedgroups'][id] = set()
                         pass
                     case _:
                         pass
@@ -93,7 +94,7 @@ def __parse_element__(curr_el, parent, dcr):
                     case 'subprocess':
                         dcr['subprocesses'][parent.get('id')].add(id)
                     case 'nesting':
-                        dcr['nestings'][parent.get('id')].add(id)
+                        dcr['nestedgroups'][parent.get('id')].add(id)
                         pass
                     case _:
                         pass
@@ -142,12 +143,12 @@ def __parse_element__(curr_el, parent, dcr):
 
             if delay:
                 if not dcr['conditionsForDelays'].__contains__(event_prime):
-                    dcr['conditionsForDelays'][event_prime] = set()
+                    dcr['conditionsForDelays'][event_prime] = {}
                 if delay.isdecimal():
-                    delay_days = int(delay)
+                    delay = int(delay)
                 else:
-                    delay_days = isodate.parse_duration(delay)#.days
-                dcr['conditionsForDelays'][event_prime].add((event, delay_days))
+                    delay = isodate.parse_duration(delay)
+                dcr['conditionsForDelays'][event_prime][event] = delay
 
         case 'response':
             event = curr_el.get('sourceId')
@@ -165,12 +166,12 @@ def __parse_element__(curr_el, parent, dcr):
 
             if deadline:
                 if not dcr['responseToDeadlines'].__contains__(event):
-                    dcr['responseToDeadlines'][event] = set()
+                    dcr['responseToDeadlines'][event] = {}
                 if deadline.isdecimal():
-                    deadline_days = int(deadline)
+                    deadline = int(deadline)
                 else:
-                    deadline_days = isodate.parse_duration(deadline).days
-                dcr['responseToDeadlines'][event].add((event_prime, deadline_days))
+                    deadline = isodate.parse_duration(deadline)
+                dcr['responseToDeadlines'][event][event_prime] = deadline
         case 'role':
             if curr_el.text:
                 dcr['roles'].add(curr_el.text)

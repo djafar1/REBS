@@ -212,7 +212,7 @@ class DcrGraph(object):
         #
         self.__events = set() if template is None else template['events']
         self.__marking = Marking(set(), set(), set()) if template is None else (
-            Marking(template['marking']['executed'],template['marking']['included'], template['marking']['pending']))
+            Marking(template['marking']['executed'], template['marking']['included'], template['marking']['pending']))
         self.__labels = set() if template is None else template['labels']
         self.__conditionsFor = {} if template is None else template['conditionsFor']
         self.__responseTo = {} if template is None else template['responseTo']

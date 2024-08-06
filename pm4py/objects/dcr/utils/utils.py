@@ -1,5 +1,6 @@
 import re
 
+from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
 from pm4py.objects.dcr.obj import DcrGraph, TemplateRelations, Relations, dcr_template
 from copy import deepcopy
 
@@ -117,7 +118,8 @@ def map_labels_to_events(graph):
     At most one label/activity for an event/id.
     In Dcr Discovery algorithms usually 1 event/id = 1 label/activity. So we can simplify the mapping.
     '''
-    if isinstance(graph, DcrGraph):
+    is_dcr_object = isinstance(graph, DcrGraph)
+    if is_dcr_object:
         dcr = graph.obj_to_template()
     else:
         dcr = graph
@@ -150,7 +152,10 @@ def map_labels_to_events(graph):
         else:
             if k not in ['labels', 'roles']:
                 dcr_res[k] = set([id_to_label[i] for i in v])
-    return cast_to_dcr_object(dcr_res)
+    if is_dcr_object:
+        return cast_to_dcr_object(dcr_res)
+    else:
+        return dcr_res
 
 
 def cast_to_dcr_object(dcr):
@@ -200,16 +205,16 @@ def time_to_int(graph: TimedDcrGraph, precision='days', inplace=False):
         return graph
 
 
-def get_reverse_nesting(graph):
+def get_reverse_nesting(graph: GroupSubprocessDcrGraph):
     reverse_nesting = {}
-    for k, v in graph.nestedgroupsmap.items():
+    for k, v in graph.nestedgroups_map.items():
         if v not in reverse_nesting:
             reverse_nesting[v] = set()
         reverse_nesting[v].add(k)
     return reverse_nesting
 
 
-def nested_groups_and_sps_to_flat_dcr(graph):
+def nested_groups_and_sps_to_flat_dcr(graph: GroupSubprocessDcrGraph) -> DcrGraph:
     graph.nestedgroups = {**graph.nestedgroups, **graph.subprocesses}
     for group, events in graph.subprocesses.items():
         for e in events:
@@ -217,7 +222,7 @@ def nested_groups_and_sps_to_flat_dcr(graph):
     graph.subprocesses = {}
 
     if len(graph.nestedgroups) == 0:
-        return
+        return graph
 
     reverse_nesting = get_reverse_nesting(graph)
     all_atomic_events = set()
