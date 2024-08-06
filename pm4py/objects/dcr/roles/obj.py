@@ -109,19 +109,19 @@ class RoleDcrGraph(DcrGraph):
         return no
 
     def __repr__(self):
-        string = str(self.__graph)
+        string = str(super())
         for key, value in vars(self).items():
-            if value is self.__graph:
+            if value is super():
                 continue
             string += str(key.split("_")[-1])+": "+str(value)+"\n"
         return string
 
     def __getattr__(self, name):
-        return getattr(self.__graph, name)
+        return getattr(super(), name)
 
     def __getitem__(self, item):
-        if hasattr(self.__graph, item):
-            return self.__graph[item]
+        if hasattr(super(), item):
+            return super()[item]
         for key, value in vars(self).items():
             if item == key.split("_")[-1]:
                 return value
