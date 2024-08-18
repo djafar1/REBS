@@ -218,7 +218,7 @@ class TimedExceptionalCases(object):
                 for pend_place_e_prime, _ in pend_places_e_prime:
                     pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
-                pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
+                pn_utils.add_arc_from_to(t, own_pend_place_e_prime, tapn)
 
                 t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
                 p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
