@@ -9,13 +9,10 @@ class Preoptimizer(object):
     un_executable_events = set()
 
     def pre_optimize_based_on_dcr_behaviour(self, G):
-        need_pending_excluded_place = set()
 
         inclusion_events = set()
         exclusion_events = set()
-
         condition_events = set()
-
         response_events = set()
         no_response_events = set()
         milestone_events = set()

@@ -143,6 +143,8 @@ def map_labels_to_events(graph):
                                 dcr_res[k][k2][k3] = v3
                         elif k in ['conditionsForDelays', 'responseToDeadlines']:
                             dcr_res[k][k2] = {id_to_label[i0]: i1 for i0, i1 in v2.items()}
+                        elif k2 == 'pendingDeadline':
+                            dcr_res[k][k2][k22] = v22
                         else:
                             dcr_res[k][k2][k22] = set([id_to_label[i] for i in v22])
 

@@ -1,18 +1,20 @@
 import os
+from copy import deepcopy
 
-from pm4py.objects.petri_net.obj import *
+import pandas as pd
+
+from pm4py.objects.dcr.obj import TemplateRelations as Relations
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
+# from pm4py.objects.petri_net.utils import reduction
+from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
-from pm4py.objects.petri_net.utils import reduction
 
-from pm4py.objects.conversion.dcr.variants.to_petri_net_submodules import exceptional_cases, single_relations, preoptimizer, utils
+from pm4py.objects.conversion.dcr_apt.variants.to_petri_net_submodules import exceptional_cases, preoptimizer
 
 
 class Dcr2PetriNet(object):
 
-    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False, **kwargs)  -> None:
-        self.in_t_types = ['event', 'init', 'initpend', 'pend']
-        self.helper_struct = {}
+    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False, **kwargs) -> None:
         self.preoptimize = preoptimize
         self.postoptimize = postoptimize
         self.map_unexecutable_events = map_unexecutable_events
@@ -21,87 +23,85 @@ class Dcr2PetriNet(object):
         self.mapping_exceptions = None
         self.reachability_timeout = None
         self.print_steps = debug
-        self.debug = debug
+        self.p_dict = {}
+        # self.debug = debug
+        self.base_case = pd.DataFrame([[3, 3, 4, 0],
+                                       [3, 5, 4, 0],
+                                       [3, 5, 2, 0],
+                                       [3, 3, 2, 0]], columns=['In', 'Ex', 'Re', 'Rex'])
 
-    def initialize_helper_struct(self, G) -> None:
+    def create_event_pattern(self, event, G):
+        event_base_case = deepcopy(self.base_case)
 
-        for event in G['events']:
-            self.helper_struct[event] = {}
-            self.helper_struct[event]['places'] = {}
-            self.helper_struct[event]['places']['included'] = None
-            self.helper_struct[event]['places']['pending'] = None
-            self.helper_struct[event]['places']['pending_excluded'] = None
-            self.helper_struct[event]['places']['executed'] = None
-            self.helper_struct[event]['transitions'] = []
-            self.helper_struct[event]['trans_group_index'] = 0
-            self.helper_struct[event]['t_types'] = self.in_t_types
+        # this if statement handles self response exclude
+        if event in self.mapping_exceptions.self_exceptions[frozenset([Relations.R.value, Relations.E.value])]:
+            # change the base case to the exception case
+            event_base_case['In'] = event_base_case['In'] - 1
+            event_base_case['Rex'] = event_base_case['Rex'] + 1
+        # this if statement handles self exclude
+        if event in self.mapping_exceptions.self_exceptions[Relations.E.value]:
+            event_base_case['In'] = event_base_case['In'] - 1
+        # this if statement handles self response
+        if event in self.mapping_exceptions.self_exceptions[Relations.R.value]:
+            event_base_case['Re'] = event_base_case['Re'] + 1
 
-            self.transitions[event] = {}
-            for event_prime in G['events']:
-                self.transitions[event][event_prime] = []
+        default_make_included = event in self.preoptimizer.need_included_place if self.preoptimize else True
+        default_make_pend = event in self.preoptimizer.need_pending_place if self.preoptimize else True
+        default_make_pend_ex = event in self.preoptimizer.need_pending_excluded_place if self.preoptimize else True
+        default_make_exec = event in self.preoptimizer.need_executed_place if self.preoptimize else True
 
-    def create_event_pattern_places(self, event, G, tapn, m) -> (PetriNet, Marking):
-        default_make_included = True
-        default_make_pend = True
-        default_make_pend_ex = True
-        default_make_exec = True
-        if self.preoptimize:
-            default_make_included = event in self.preoptimizer.need_included_place
-            default_make_pend = event in self.preoptimizer.need_pending_place
-            default_make_pend_ex = event in self.preoptimizer.need_pending_excluded_place
-            default_make_exec = event in self.preoptimizer.need_executed_place
-
+        event_columns = []
         if default_make_included:
-            inc_place = PetriNet.Place(f'included_{event}')
-            tapn.places.add(inc_place)
-            self.helper_struct[event]['places']['included'] = inc_place
-            # fill the marking
-            if event in G['marking']['included']:
-                m[inc_place] = 1
+            event_columns.append('In')
 
         if default_make_pend:
-            pend_place = PetriNet.Place(f'pending_{event}')
-            tapn.places.add(pend_place)
-            self.helper_struct[event]['places']['pending'] = pend_place
-            # fill the marking
-            if event in G['marking']['pending'] and event in G['marking']['included']:
-                m[pend_place] = 1
+            event_columns.append('Re')
 
         if default_make_pend_ex:
-            pend_excl_place = PetriNet.Place(f'pending_excluded_{event}')
-            tapn.places.add(pend_excl_place)
-            self.helper_struct[event]['places']['pending_excluded'] = pend_excl_place
-            # fill the marking
-            if event in G['marking']['pending'] and not event in G['marking']['included']:
-                m[pend_excl_place] = 1
+            event_columns.append('Rex')
 
         if default_make_exec:
-            exec_place = PetriNet.Place(f'executed_{event}')
-            tapn.places.add(exec_place)
-            self.helper_struct[event]['places']['executed'] = exec_place
-            # fill the marking
-            if event in G['marking']['executed']:
-                m[exec_place] = 1
+            event_columns.append('Ex')
+        base_case_rows = {0, 1, 2, 3}
         if self.preoptimize:
-            ts = ['event']
-            if default_make_exec and not event in G['marking']['executed'] and not event in self.preoptimizer.no_init_t:
-                ts.append('init')
-            if default_make_exec and default_make_pend and not event in self.preoptimizer.no_initpend_t:
-                ts.append('initpend')
+            # this tells which rows to create in the base case: 0 = event, 1 = init, 2 = initpend, 3 = pend
+            base_case_rows = {0}
+            if default_make_exec and event not in G['marking']['executed'] and event not in self.preoptimizer.no_init_t:
+                base_case_rows.add(1)
+            if default_make_exec and default_make_pend and event not in self.preoptimizer.no_initpend_t:
+                base_case_rows.add(2)
             if default_make_pend:
-                ts.append('pend')
-            self.helper_struct[event]['t_types'] = ts
+                base_case_rows.add(3)
 
-        return tapn, m
+        # this if statement handles self condition
+        if event in self.mapping_exceptions.self_exceptions[Relations.C.value]:
+            base_case_rows = base_case_rows.difference({1, 2})
+        res_base_case = event_base_case[event_columns].loc[list(base_case_rows)]
+        if len(event_columns) == 0 and len(base_case_rows) == 1:
+            res_base_case = pd.DataFrame(columns=['No'])#'In', 'Re', 'Rex', 'Ex'])
+            res_base_case.loc[0] = [0]#, 0, 0, 0]
+        res_base_case = res_base_case.astype(int)
 
-    def create_event_pattern(self, event, G, tapn, m) -> (PetriNet, Marking):
-        tapn, m = self.create_event_pattern_places(event, G, tapn, m)
-        tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct,
-                                                                   self.mapping_exceptions)
-        self.helper_struct[event]['transitions'].extend(ts)
-        return tapn, m
+        # fill the marking
+        m = {}
+        if event in G['marking']['included']:
+            m['In'] = 1
+        if event in G['marking']['pending'] and event in G['marking']['included']:
+            m['Re'] = 1
+        if event in G['marking']['pending'] and not event in G['marking']['included']:
+            m['Rex'] = 1
+        if event in G['marking']['executed']:
+            m['Ex'] = 1
 
-    def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None, merge_parallel_places=True) -> PetriNet:
+        return res_base_case, m
+
+    # def create_event_pattern(self, event, G):
+    #     event_base_case, m = self.create_event_base_case(event, G)
+    #     # if event_base_case.shape[1] == 0 then it is a single transition without any places
+    #     # TODO: double check that whenever event_base_case.shape[1] == 0 that event_base_case.shape[0] == 1
+    #     return event_base_case, m
+
+    def post_optimize_petri_net_reachability_graph(self, tapn, m, merge_parallel_places=True):
         from pm4py.objects.petri_net.utils import reachability_graph
         from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
         max_elab_time = 2 * 60 * 60  # 2 hours
@@ -112,10 +112,10 @@ class Dcr2PetriNet(object):
                                                                         'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
                                                                         'max_elab_time': max_elab_time
                                                                     })
-        if self.debug:
-            from pm4py.visualization.transition_system import visualizer as ts_visualizer
-            gviz = ts_visualizer.apply(trans_sys, parameters={ts_visualizer.Variants.VIEW_BASED.value.Parameters.FORMAT: "png"})
-            ts_visualizer.view(gviz)
+        # if self.debug:
+        #     from pm4py.visualization.transition_system import visualizer as ts_visualizer
+        #     gviz = ts_visualizer.apply(trans_sys, parameters={ts_visualizer.Variants.VIEW_BASED.value.Parameters.FORMAT: "png"})
+        #     ts_visualizer.view(gviz)
         fired_transitions = set()
 
         for transition in trans_sys.transitions:
@@ -133,66 +133,53 @@ class Dcr2PetriNet(object):
             for state in state_list.name:
                 changed_places.add(state)
 
-        parallel_places = set()
-        places_to_rename = {}
         ps_to_remove = set(tapn.places).difference(changed_places)
 
-        if G and merge_parallel_places:
-            for event in G['events']:
-                for type, event_place in self.helper_struct[event]['places'].items():
-                    for type_prime, event_place_prime in self.helper_struct[event]['places'].items():
-                        if event_place and event_place_prime and event_place.name != event_place_prime.name and \
-                                event_place not in parallel_places:
-                            is_parallel = False
-                            ep_ins = event_place.in_arcs
-                            epp_ins = event_place_prime.in_arcs
-                            ep_outs = event_place.out_arcs
-                            epp_outs = event_place_prime.out_arcs
-                            if len(ep_ins) == len(epp_ins) and len(ep_outs) == len(epp_outs):
-                                ep_sources = set()
-                                epp_sources = set()
-                                for ep_in in ep_ins:
-                                    ep_sources.add(ep_in.source)
-                                for epp_in in epp_ins:
-                                    epp_sources.add(epp_in.source)
-                                ep_targets = set()
-                                epp_targets = set()
-                                for ep_out in ep_outs:
-                                    ep_targets.add(ep_out.target)
-                                for epp_out in epp_outs:
-                                    epp_targets.add(epp_out.target)
-                                if ep_sources == epp_sources and ep_targets == epp_targets:
-                                    is_parallel = True
-                            if is_parallel and m[event_place] == m[event_place_prime]:
-                                parallel_places.add(event_place_prime)
-                                places_to_rename[event_place] = f'{type_prime}_{event_place.name}'
+        parallel_places = set()
+        places_to_rename = {}
+        if merge_parallel_places:
+            for (e, type), event_place in self.p_dict.items():
+                for (e_prime, type_prime), event_place_prime in self.p_dict.items():
+                    if event_place and event_place_prime and event_place.name != event_place_prime.name and \
+                            event_place not in parallel_places:
+                        is_parallel = False
+                        ep_ins = event_place.in_arcs
+                        epp_ins = event_place_prime.in_arcs
+                        ep_outs = event_place.out_arcs
+                        epp_outs = event_place_prime.out_arcs
+                        if len(ep_ins) == len(epp_ins) and len(ep_outs) == len(epp_outs):
+                            ep_sources = set()
+                            epp_sources = set()
+                            for ep_in in ep_ins:
+                                ep_sources.add(ep_in.source)
+                            for epp_in in epp_ins:
+                                epp_sources.add(epp_in.source)
+                            ep_targets = set()
+                            epp_targets = set()
+                            for ep_out in ep_outs:
+                                ep_targets.add(ep_out.target)
+                            for epp_out in epp_outs:
+                                epp_targets.add(epp_out.target)
+                            if ep_sources == epp_sources and ep_targets == epp_targets:
+                                is_parallel = True
+                        if is_parallel and m[event_place] == m[event_place_prime]:
+                            parallel_places.add(event_place_prime)
+                            places_to_rename[event_place] = f'{type_prime}_{event_place.name}'
         ps_to_remove = ps_to_remove.union(parallel_places)
+        for p, name in places_to_rename.items():
+            p.name = name
 
         for p in ps_to_remove:
             tapn = pn_utils.remove_place(tapn, p)
 
-        for p, name in places_to_rename.items():
-            p.name = name
         return tapn
 
-    def export_debug_net(self, tapn, m, path, step, pn_export_format):
-        path_without_extension, extens = os.path.splitext(path)
-        debug_save_path = f'{path_without_extension}_{step}{extens}'
-        pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
-
-    def apply(self, G, tapn_path=None, **kwargs) -> (InhibitorNet, Marking):
-        self.basic = True  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
+    def apply(self, G, tapn_path=None, **kwargs):
+        # self.basic = False  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
         self.timed = False  # False = untimed | True = timed cond (delay) and resp (deadline)
-        self.initialize_helper_struct(G)
-        self.mapping_exceptions = exceptional_cases.ExceptionalCases(self.helper_struct)
+        self.mapping_exceptions = exceptional_cases.ExceptionalCases()
         self.preoptimizer = preoptimizer.Preoptimizer()
-        induction_step = 0
-        pn_export_format = pnml_exporter.TAPN
-        if tapn_path and tapn_path.endswith("pnml"):
-            pn_export_format = pnml_exporter.PNML
 
-        tapn = InhibitorNet("Dcr2Tapn")
-        m = Marking()
         # pre-optimize mapping based on DCR graph behaviour
         if self.preoptimize:
             if self.print_steps:
@@ -202,80 +189,51 @@ class Dcr2PetriNet(object):
                 G = self.preoptimizer.remove_un_executable_events_from_dcr(G)
 
         # including the handling of exception cases from the induction step
-        G_old = deepcopy(G)
-        G = self.mapping_exceptions.filter_exceptional_cases(G)
+        # G_old = deepcopy(G)
+        G, transition_types = self.mapping_exceptions.filter_exceptional_cases(G)
+        events = G['events']
         if self.preoptimize:
             if self.print_steps:
                 print('[i] finding exceptional behaviour')
             self.preoptimizer.preoptimize_based_on_exceptional_cases(G, self.mapping_exceptions)
 
         # map events
+        base_case_dict = {}
+        marking = {}
         if self.print_steps:
             print('[i] mapping events')
-        for event in G['events']:
-            tapn, m = self.create_event_pattern(event, G, tapn, m)
+        for event in events:
+            event_base_case, m = self.create_event_pattern(event, G)
+            base_case_dict[event] = event_base_case
+            marking[event] = m
+            # if self.print_steps:
+            #     print(f'{event} ---------------------------')
+            #     print(event_base_case)
 
-        if self.debug:
-            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}event', pn_export_format)
-            induction_step += 1
-        # all self exceptions have been mapped at this point
+        row_tuples = []
+        # Step 3: Create a multilevel column index for each dataframe
+        for event in base_case_dict:
+            base_case_dict[event] = base_case_dict[event].reset_index(drop=True)
+            row_tuples.extend([(event, idx) for idx in range(base_case_dict[event].shape[0])])
+            base_case_dict[event].columns = pd.MultiIndex.from_product([[event], base_case_dict[event].columns])
 
-        sr = single_relations.SingleRelations(self.helper_struct, self.mapping_exceptions)
-        # map constraining relations
+        master_df = pd.concat(base_case_dict, ignore_index=True)
+        master_df = master_df.fillna(0)
+        master_df = master_df.astype(int)
+        multi_index = pd.MultiIndex.from_tuples(row_tuples, names=["Event", "Index"])
+        master_df.index = multi_index
+
+        # handle all relations
         if self.print_steps:
-            print('[i] map constraining relations')
-        for event in G['conditionsFor']:
-            for event_prime in G['conditionsFor'][event]:
-                tapn = sr.create_condition_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}conditionsFor', pn_export_format)
-                    induction_step += 1
-        if not self.basic:
-            for event in G['milestonesFor']:
-                for event_prime in G['milestonesFor'][event]:
-                    tapn = sr.create_milestone_pattern(event, event_prime, tapn)
-                    if self.debug:
-                        self.export_debug_net(tapn, m, tapn_path, f'{induction_step}milestonesFor', pn_export_format)
-                        induction_step += 1
+            print('[i] handle all relations')
+        master_df = self.mapping_exceptions.map_exceptional_cases_between_events(master_df)
+        # return master_df, marking
 
-        # map effect relations
-        if self.print_steps:
-            print('[i] map effect relations')
-        for event in G['includesTo']:
-            for event_prime in G['includesTo'][event]:
-                tapn = sr.create_include_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}includesTo', pn_export_format)
-                    induction_step += 1
-        for event in G['excludesTo']:
-            for event_prime in G['excludesTo'][event]:
-                tapn = sr.create_exclude_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}{event}excludesTo{event_prime}', pn_export_format)
-                    induction_step += 1
-        for event in G['responseTo']:
-            for event_prime in G['responseTo'][event]:
-                tapn = sr.create_response_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}responseTo', pn_export_format)
-                    induction_step += 1
-        if not self.basic:
-            for event in G['noResponseTo']:
-                for event_prime in G['noResponseTo'][event]:
-                    tapn = sr.create_no_response_pattern(event, event_prime, tapn)
-                    if self.debug:
-                        self.export_debug_net(tapn, m, tapn_path, f'{induction_step}noResponseTo', pn_export_format)
-                        induction_step += 1
-
-        # handle all relation exceptions
-        if self.print_steps:
-            print('[i] handle all relation exceptions')
-        tapn = self.mapping_exceptions.map_exceptional_cases_between_events(tapn, m)
-
-        if self.debug:
-            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions', pn_export_format)
-            induction_step += 1
-
+        # Part 2 make the net based on the petri net matrix representation
+        tapn, m = self.arc_pattern_table_to_petri(master_df, marking)
+        pn_export_format = pnml_exporter.TAPN
+        if tapn_path and tapn_path.endswith("pnml"):
+            pn_export_format = pnml_exporter.PNML
         # post-optimize based on the petri net reachability graph
         if self.postoptimize:
             if self.print_steps:
@@ -290,7 +248,38 @@ class Dcr2PetriNet(object):
 
             pnml_exporter.apply(tapn, m, tapn_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
-        return tapn, m
+        return tapn, m, master_df
+
+
+    def arc_pattern_table_to_petri(self, master_df, marking):
+        res_pn = PetriNet(name='PetriNetfromDcr')
+        res_m = Marking()
+        for event, place_type in master_df.columns:
+            if place_type != 'No':
+                p = PetriNet.Place(name=f'{event}_{place_type}')
+                self.p_dict[(event, place_type)] = p
+                res_pn.places.add(p)
+                if place_type in marking[event]:
+                    res_m[p] = marking[event][place_type]
+        for event, idx in master_df.index:
+            t = PetriNet.Transition(name=f'{event}_{idx}', label=f'{event}_{idx}_label')
+            res_pn.transitions.add(t)
+            for (event_prime, place_type), arc_type in dict(master_df.loc[(event, idx)]).items():
+                if arc_type > 0:
+                    match arc_type:
+                        case 1:  # TtoP -->
+                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                        case 2:  # PtoT <--
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
+                        case 3:  # Read Both <-->
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
+                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                        case 4:  # Inhib o--
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                        case 5:  # TtoPandInhib o-->
+                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+        return res_pn, res_m
 
 
 def apply(dcr, parameters):

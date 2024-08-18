@@ -29,7 +29,7 @@ class TimedSingleRelations(object):
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
                         pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+                        # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
 
                         pex_to_t = pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='transport')
                         t_to_p = pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn, type='transport')
@@ -44,7 +44,7 @@ class TimedSingleRelations(object):
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
                     pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+                    # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
                     # (for all) inhibitor arcs to all pending excluded places
                     for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
                         pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
@@ -201,7 +201,8 @@ class TimedSingleRelations(object):
                         pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
 
                         pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
+                        # TODO: check if I was right in removing this
+                        # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
                         pn_utils.add_arc_from_to(pend_other, t, tapn)
             for t in copy_0:

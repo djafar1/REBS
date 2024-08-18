@@ -1,175 +1,174 @@
-import os
+import numpy as np
+import pandas as pd
 from copy import deepcopy
+
+from pm4py.objects.dcr.obj import TemplateRelations as Relations
 
 from pm4py.objects.petri_net.timed_arc_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 from pm4py.objects.petri_net import properties as pn_props
 
-from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules import (timed_exceptional_cases,
-                                                                                     timed_single_relations,
-                                                                                     timed_preoptimizer,
-                                                                                     timed_utils)
+from pm4py.objects.conversion.dcr_apt.variants.to_timed_arc_petri_net_submodules import timed_exceptional_cases, timed_preoptimizer
 
 
 class Dcr2TimedArcPetri(object):
 
-    def __init__(self, preoptimize=True, postoptimize=False, map_unexecutable_events=False, debug=True, **kwargs) -> None:
-        self.in_t_types = ['event', 'init', 'initpend', 'pend']
-        self.helper_struct = {}
+    def __init__(self, preoptimize=False, postoptimize=False, map_unexecutable_events=False, debug=False, **kwargs) -> None:
         self.preoptimize = preoptimize
         self.postoptimize = postoptimize
         self.map_unexecutable_events = map_unexecutable_events
         self.preoptimizer = timed_preoptimizer.TimedPreoptimizer()
         self.transitions = {}
-        self.helper_struct['pend_matrix'] = {}
-        self.helper_struct['pend_exc_matrix'] = {}
         self.mapping_exceptions = None
         self.reachability_timeout = None
         self.print_steps = debug
-        self.debug = debug
+        self.base_case = pd.DataFrame([[3, 3, 4, 0],
+                                       [3, 5, 4, 0],
+                                       [3, 5, 2, 0],
+                                       [3, 3, 2, 0]], columns=['In', 'Ex', 'Re', 'Rex'])
+        self.unique_deadline = {}
+        self.event_to_deadline_map = {}
+        self.p_dict = {}
+        self.delay_dict = {}
+
 
     def initialize_helper_struct(self, G) -> None:
-        self.helper_struct['transport_index'] = 0
+        # determine all deadlines
+        def do_work(v, event, all_unique_deadlines):
+            if v > 0:
+                if v not in all_unique_deadlines:
+                    all_unique_deadlines[v] = set()
+                all_unique_deadlines[v].add(event)
+            elif v == 0:
+                if np.inf not in all_unique_deadlines:
+                    all_unique_deadlines[np.inf] = set()
+                all_unique_deadlines[np.inf].add(event)
+
+        # for each event we have a list of all unique deadlines (can be infinity)
+        # + all events that determine each unique deadline
+        # can be initially pending then we use init
+        # or self response then we have [event][unique deadline][event]
         for event in G['events']:
-            self.helper_struct[event] = {}
-            self.helper_struct[event]['places'] = {}
-            self.helper_struct[event]['places']['included'] = None
-            self.helper_struct[event]['places']['pending'] = set()
-            self.helper_struct[event]['places']['pending_excluded'] = set()
-            self.helper_struct[event]['places']['executed'] = None
-            self.helper_struct[event]['transitions'] = []
-            self.helper_struct[event]['t_types'] = self.in_t_types
-            self.helper_struct[event]['pending_pairs'] = {}
-            self.helper_struct[event]['trans_group_index'] = 0
+            self.unique_deadline[event] = {}
+        for event in G['events']:
+            if event in G['marking']['pendingDeadline']:
+                v = G['marking']['pendingDeadline'][event]
+                do_work(v, 'init', self.unique_deadline[event])
+            if event in G['marking']['pending']:
+                do_work(0, 'init', self.unique_deadline[event])
+            if event in G['responseToDeadlines']:
+                for event_prime, v in G['responseToDeadlines'][event].items():
+                    do_work(v, event, self.unique_deadline[event_prime])
+            elif event in G['responseTo']:
+                for event_prime in G['responseTo'][event]:
+                    do_work(0, event, self.unique_deadline[event_prime])
+        for event in G['conditionsForDelays']:
+            for event_prime in G['conditionsForDelays'][event]:
+                delay = G['conditionsForDelays'][event][event_prime]
+                #TODO: find out if it needs more advanced parsing
+                self.delay_dict[frozenset([event, event_prime])] = int(delay)
 
-            self.helper_struct[event]['firstResp'] = True
-            self.helper_struct[event]['firstNoResp'] = True
+    def create_event_pattern(self, event, G):
+        event_base_case = deepcopy(self.base_case)
 
-            self.transitions[event] = {}
-            self.helper_struct['pend_matrix'][event] = {}
-            self.helper_struct['pend_exc_matrix'][event] = {}
-            for event_prime in G['events']:
-                self.transitions[event][event_prime] = []
-                self.helper_struct['pend_matrix'][event][event_prime] = None
-                self.helper_struct['pend_exc_matrix'][event][event_prime] = None
-            # if effect (resp or noresp) > 1 between event -> multiple event_prime
-            # then the default makes pending or makes not pending has to have the same effect on all
-            # therefore you do not copy that transition for multiple relations
+        # this if statement handles self response exclude
+        if event in self.mapping_exceptions.self_exceptions[frozenset([Relations.R.value, Relations.E.value])]:
+            # change the base case to the exception case
+            event_base_case['In'] = event_base_case['In'] - 1
+            event_base_case['Rex'] = event_base_case['Rex'] + 1
+        # this if statement handles self exclude
+        if event in self.mapping_exceptions.self_exceptions[Relations.E.value]:
+            event_base_case['In'] = event_base_case['In'] - 1
+        # this if statement handles self response
+        if event in self.mapping_exceptions.self_exceptions[Relations.R.value]:
+            event_base_case['Re'] = event_base_case['Re'] + 1
 
-    def create_event_pattern_places(self, event, G, tapn, m) -> (TimedArcNet, TimedMarking):
-        default_make_included = True
-        default_make_pend = True
-        default_make_pend_ex = True
-        default_make_exec = True
-        if self.preoptimize:
-            default_make_included = event in self.preoptimizer.need_included_place
-            default_make_pend = event in self.preoptimizer.need_pending_place
-            default_make_pend_ex = event in self.preoptimizer.need_pending_excluded_place
-            default_make_exec = event in self.preoptimizer.need_executed_place
-
+        default_make_included = event in self.preoptimizer.need_included_place if self.preoptimize else True
+        default_make_pend = event in self.preoptimizer.need_pending_place if self.preoptimize else True
+        default_make_pend_ex = event in self.preoptimizer.need_pending_excluded_place if self.preoptimize else True
+        default_make_exec = event in self.preoptimizer.need_executed_place if self.preoptimize else True
+        event_columns = []
+        re_columns = {}
+        rex_columns = {}
         if default_make_included:
-            inc_place = TimedArcNet.Place(f'included_{event}')
-            tapn.places.add(inc_place)
-            self.helper_struct[event]['places']['included'] = inc_place
-            # fill the marking
-            if event in G['marking']['included']:
-                m[inc_place] = 1
-
-        if default_make_pend:
-            if event in G['marking']['pendingDeadline']:
-                init_pend_place = TimedArcNet.Place(f'init_pending_{event}')
-                init_pend_place.properties['ageinvariant'] = G['marking']['pendingDeadline'][event]
-                tapn.places.add(init_pend_place)
-                self.helper_struct[event]['places']['pending'].add((init_pend_place, event))
-                self.helper_struct['pend_matrix'][event][event] = init_pend_place
-                self.helper_struct[event]['pending_pairs'][event] = init_pend_place
-                if event in G['marking']['pending'] and event in G['marking']['included']:
-                    m[init_pend_place] = 1
-
-        if default_make_pend_ex:
-            if event in G['marking']['pendingDeadline']:
-                init_pend_excl_place = TimedArcNet.Place(f'init_pending_excluded_{event}')
-                tapn.places.add(init_pend_excl_place)
-                self.helper_struct[event]['places']['pending_excluded'].add((init_pend_excl_place, event))
-                self.helper_struct['pend_exc_matrix'][event][event] = init_pend_excl_place
-                self.helper_struct[event]['pending_pairs'][event] = (
-                    self.helper_struct[event]['pending_pairs'][event], init_pend_excl_place)
-                if event in G['marking']['pending'] and event not in G['marking']['included']:
-                    m[init_pend_excl_place] = 1
-
-        e_prime_pending_by_e = {}
-        for k, v1 in G['responseToDeadlines'].items():
-            for v in v1:
-                if v not in e_prime_pending_by_e:
-                    e_prime_pending_by_e[v] = set()
-                e_prime_pending_by_e[v].add(k)
-        for k, v1 in G['responseTo'].items():
-            for v in v1:
-                if v not in e_prime_pending_by_e:
-                    e_prime_pending_by_e[v] = set()
-                e_prime_pending_by_e[v].add(k)
-        if event in e_prime_pending_by_e:
-            if default_make_pend:
-                for event_prime in e_prime_pending_by_e[event]:
-                    pend_by_place = TimedArcNet.Place(f'pending_{event}_by_{event_prime}')
-                    if event_prime in G['responseToDeadlines'] and event in G['responseToDeadlines'][event_prime]:
-                        pend_by_place.properties['ageinvariant'] = G['responseToDeadlines'][event_prime][event]
-                    tapn.places.add(pend_by_place)
-                    self.helper_struct[event]['places']['pending'].add((pend_by_place, event_prime))
-                    self.helper_struct['pend_matrix'][event][event_prime] = pend_by_place
-                    self.helper_struct[event]['pending_pairs'][event_prime] = pend_by_place
-
-            if default_make_pend_ex:
-                for event_prime in e_prime_pending_by_e[event]:
-                    pend_excl_by_place = TimedArcNet.Place(f'pending_excluded_{event}_by_{event_prime}')
-                    tapn.places.add(pend_excl_by_place)
-                    self.helper_struct[event]['places']['pending_excluded'].add((pend_excl_by_place, event_prime))
-                    self.helper_struct['pend_exc_matrix'][event][event_prime] = pend_excl_by_place
-                    self.helper_struct[event]['pending_pairs'][event_prime] = (self.helper_struct[event]['pending_pairs'][event_prime], pend_excl_by_place)
-        else:
-            if default_make_pend:
-                pend_place = TimedArcNet.Place(f'pending_{event}')
-                tapn.places.add(pend_place)
-                self.helper_struct[event]['places']['pending'] = set([(pend_place, '')])
-                # fill the marking
-                if event in G['marking']['pending'] and event in G['marking']['included']:
-                    m[pend_place] = 1
-
-            if default_make_pend_ex:
-                pend_excl_place = TimedArcNet.Place(f'pending_excluded_{event}')
-                tapn.places.add(pend_excl_place)
-                self.helper_struct[event]['places']['pending_excluded'] = set([(pend_excl_place, '')])
-                # fill the marking
-                if event in G['marking']['pending'] and not event in G['marking']['included']:
-                    m[pend_excl_place] = 1
+            event_columns.append('In')
 
         if default_make_exec:
-            exec_place = TimedArcNet.Place(f'executed_{event}')
-            tapn.places.add(exec_place)
-            self.helper_struct[event]['places']['executed'] = exec_place
-            # fill the marking
-            if event in G['marking']['executed']:
-                m[exec_place] = 1
+            event_columns.append('Ex')
+
+        if default_make_pend:
+            rows = []
+            n = len(self.unique_deadline[event])
+            col_vals = [[] for i in range(n)]
+            for i, (deadline, events) in enumerate(self.unique_deadline[event].items()):
+                re_columns[f'Re_{deadline}'] = events
+                event_base_case[f'Re_{deadline}'] = event_base_case['Re']
+                if event not in self.event_to_deadline_map:
+                    self.event_to_deadline_map[event] = {}
+                for e in events:
+                    self.event_to_deadline_map[event][e] = deadline
+
+                rows.extend([2, 3])
+                for k in range(n):
+                    if k == i:
+                        col_vals[i].extend([2, 2])
+                    else:
+                        col_vals[i].extend([0, 0])
+            rrrr = [0, 1]
+            rrrr.extend(rows)
+            new_bc = event_base_case.loc[rrrr]
+            new_bc = new_bc.reset_index(drop=True)
+            new_bc = new_bc.astype(int)
+            col_vals_df = pd.DataFrame(col_vals, dtype=int).T
+            col_vals_df.columns = re_columns.keys()  # ['Re0', 'Re1', 'Re2']
+            col_vals_df.index = col_vals_df.index + 2
+            new_bc.loc[2:, re_columns.keys()] = col_vals_df
+            event_base_case = new_bc
+            event_columns.extend(re_columns.keys())
+
+        if default_make_pend_ex:
+            for deadline, events in self.unique_deadline[event].items():
+                rex_columns[f'Rex_{deadline}'] = events
+                event_base_case[f'Rex_{deadline}'] = event_base_case['Rex']
+            event_columns.extend(rex_columns.keys())
+
+        base_case_rows = set(event_base_case.index)
+        n = len(base_case_rows)
         if self.preoptimize:
-            ts = ['event']
-            if default_make_exec and not event in G['marking']['executed'] and not event in self.preoptimizer.no_init_t:
-                ts.append('init')
-            if default_make_exec and default_make_pend and not event in self.preoptimizer.no_initpend_t:
-                ts.append('initpend')
+            # this tells which rows to create in the base case: 0 = event, 1 = init, 2 = initpend, 3 = pend
+            base_case_rows = {0}
+            if default_make_exec and event not in G['marking']['executed'] and event not in self.preoptimizer.no_init_t:
+                base_case_rows.add(1)
+            if default_make_exec and default_make_pend and event not in self.preoptimizer.no_initpend_t:
+                base_case_rows = base_case_rows.union(set([i for i in range(2, n, 2)]))
             if default_make_pend:
-                ts.append('pend')
-            self.helper_struct[event]['t_types'] = ts
-        return tapn, m
+                base_case_rows = base_case_rows.union(set([i for i in range(3, n, 2)]))
 
-    def create_event_pattern(self, event, G, tapn, m) -> (TimedArcNet, TimedMarking):
-        tapn, m = self.create_event_pattern_places(event, G, tapn, m)
+        # this if statement handles self condition
+        if event in self.mapping_exceptions.self_exceptions[Relations.C.value]:
+            base_case_rows = base_case_rows.difference({1}.union(set([i for i in range(2, n, 2)])))
 
-        tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct,
-                                                                         self.mapping_exceptions)
-        self.helper_struct[event]['transitions'].extend(ts)
-        self.helper_struct[event]['len_internal'] = len(ts)
-        return tapn, m
+        res_base_case = event_base_case[event_columns].loc[list(base_case_rows)]
+        if len(event_columns) == 0 and len(base_case_rows) == 1:
+            res_base_case = pd.DataFrame(columns=['No'])  # 'In', 'Re', 'Rex', 'Ex'])
+            res_base_case.loc[0] = [0]  # , 0, 0, 0]
+        res_base_case = res_base_case.astype(int)
+
+        # fill the marking
+        m = {}
+        if event in G['marking']['included']:
+            m['In'] = 1
+        if event in G['marking']['pending'] and event in G['marking']['included']:
+            m['Re'] = 1
+            if event in G['marking']['pendingDeadline']:
+                m['Deadline_Re'] = G['marking']['pendingDeadline'][event]
+        if event in G['marking']['pending'] and not event in G['marking']['included']:
+            m['Rex'] = 1
+        if event in G['marking']['executed']:
+            m['Ex'] = 1
+
+        return res_base_case, m
 
     def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> TimedArcNet:
         from pm4py.objects.petri_net.utils import reachability_graph
@@ -264,25 +263,39 @@ class Dcr2TimedArcPetri(object):
                     by_who = f"_by_{str.split(event_place_prime.name,'_')[-1]}"
                 places_to_rename[event_place] = f'{type_prime}_{event_place.name}{by_who}'
 
-    def export_debug_net(self, tapn, m, path, step, pn_export_format):
-        path_without_extension, extens = os.path.splitext(path)
-        debug_save_path = f'{path_without_extension}_{step}{extens}'
-        pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
+    def map_events(self, G):
+        events = G['events']
+        base_case_dict = {}
+        marking = {}
+        if self.print_steps:
+            print('[i] mapping events')
+        for event in events:
+            event_base_case, m = self.create_event_pattern(event, G)
+            base_case_dict[event] = event_base_case
+            marking[event] = m
 
-    def apply(self, G, tapn_path=None, **kwargs) -> (TimedArcNet, TimedMarking):
-        self.basic = False  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
+        row_tuples = []
+        # Step 3: Create a multilevel column index for each dataframe
+        for event in base_case_dict:
+            base_case_dict[event] = base_case_dict[event].reset_index(drop=True)
+            row_tuples.extend([(event, idx) for idx in range(base_case_dict[event].shape[0])])
+            base_case_dict[event].columns = pd.MultiIndex.from_product([[event], base_case_dict[event].columns])
+
+        master_df = pd.concat(base_case_dict, ignore_index=True)
+        master_df = master_df.fillna(0)
+        master_df = master_df.astype(int)
+        multi_index = pd.MultiIndex.from_tuples(row_tuples, names=["Event", "Index"])
+        master_df.index = multi_index
+        return master_df, marking
+
+    def apply(self, G, tapn_path=None, **kwargs):
+        # self.basic = False  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
         self.timed = True  # False = untimed | True = timed cond (delay) and resp (deadline)
-        self.transport_idx = 0
+        # self.transport_idx = 0
         self.initialize_helper_struct(G)
-        self.mapping_exceptions = timed_exceptional_cases.TimedExceptionalCases(self.helper_struct)
+        self.mapping_exceptions = timed_exceptional_cases.TimedExceptionalCases(self.event_to_deadline_map)
         self.preoptimizer = timed_preoptimizer.TimedPreoptimizer()
-        induction_step = 0
-        pn_export_format = pnml_exporter.TAPN
-        if tapn_path and tapn_path.endswith("pnml"):
-            pn_export_format = pnml_exporter.PNML
 
-        tapn = TimedArcNet("Dcr2Tapn")
-        m = TimedMarking()
         # pre-optimize mapping based on DCR graph behaviour
         if self.preoptimize:
             if self.print_steps:
@@ -292,86 +305,30 @@ class Dcr2TimedArcPetri(object):
                 G = self.preoptimizer.remove_un_executable_events_from_dcr(G)
 
         # including the handling of exception cases from the induction step
+        G, transition_types = self.mapping_exceptions.filter_exceptional_cases(G)
         if self.preoptimize:
             if self.print_steps:
                 print('[i] finding exceptional behaviour')
             self.preoptimizer.preoptimize_based_on_exceptional_cases(G, self.mapping_exceptions)
 
-        G, original_G = self.mapping_exceptions.filter_exceptional_cases(G)
         # map events
-        if self.print_steps:
-            print('[i] mapping events')
-        for event in G['events']:
-            tapn, m = self.create_event_pattern(event, original_G, tapn, m)
-        if self.debug:
-            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}event', pn_export_format)
-            induction_step += 1
-        # all self exceptions have been mapped at this point
+        master_df, marking = self.map_events(G)
 
-        sr = timed_single_relations.TimedSingleRelations(self.helper_struct, self.mapping_exceptions)
-        # map constraining relations
         if self.print_steps:
-            print('[i] map constraining relations')
-        for event in G['conditionsFor']:
-            for event_prime in G['conditionsFor'][event]:
-                delay = None
-                if event in G['conditionsForDelays'] and event_prime in G['conditionsForDelays'][event]:
-                    delay = G['conditionsForDelays'][event][event_prime]
-                tapn = sr.create_condition_pattern(event, event_prime, tapn, delay=delay)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}conditionsFor', pn_export_format)
-                    induction_step += 1
-        if not self.basic:
-            for event in G['milestonesFor']:
-                for event_prime in G['milestonesFor'][event]:
-                    tapn = sr.create_milestone_pattern(event, event_prime, tapn)
-                    if self.debug:
-                        self.export_debug_net(tapn, m, tapn_path, f'{induction_step}milestonesFor', pn_export_format)
-                        induction_step += 1
+            print('[i] handle all relations')
+        master_df = self.mapping_exceptions.map_exceptional_cases_between_events(master_df)
 
-        # map effect relations
-        if self.print_steps:
-            print('[i] map effect relations')
-        for event in G['responseTo']:
-            for event_prime in G['responseTo'][event]:
-                tapn = sr.create_response_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}responseTo', pn_export_format)
-                    induction_step += 1
-        if not self.basic:
-            for event in G['noResponseTo']:
-                for event_prime in G['noResponseTo'][event]:
-                    tapn = sr.create_no_response_pattern(event, event_prime, tapn)
-                    if self.debug:
-                        self.export_debug_net(tapn, m, tapn_path, f'{induction_step}noResponseTo', pn_export_format)
-                        induction_step += 1
-        for event in G['includesTo']:
-            for event_prime in G['includesTo'][event]:
-                tapn = sr.create_include_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}includesTo', pn_export_format)
-                    induction_step += 1
-        for event in G['excludesTo']:
-            for event_prime in G['excludesTo'][event]:
-                tapn = sr.create_exclude_pattern(event, event_prime, tapn)
-                if self.debug:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}{event}excludesTo{event_prime}', pn_export_format)
-                    induction_step += 1
-
-        # handle all relation exceptions
-        if self.print_steps:
-            print('[i] handle all relation exceptions')
-        tapn = self.mapping_exceptions.map_exceptional_cases_between_events(tapn, m, tapn_path, induction_step, pn_export_format, self.debug)
-        if self.debug:
-            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions', pn_export_format)
-            induction_step += 1
-
+        # Part 2
+        pn_export_format = pnml_exporter.TAPN
+        if tapn_path and tapn_path.endswith("pnml"):
+            pn_export_format = pnml_exporter.PNML
+        tapn, m = self.arc_pattern_table_to_petri(master_df, marking)
         # post-optimize based on the petri net reachability graph
         if self.postoptimize:
             if self.print_steps:
                 print('[i] post optimizing')
-            for k in tapn.places:
-                m.timed_dict[k] = 0
+            # for k in tapn.places:
+            #     m.timed_dict[k] = 0
             tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, G)
 
         if tapn_path:
@@ -380,14 +337,84 @@ class Dcr2TimedArcPetri(object):
 
             pnml_exporter.apply(tapn, m, tapn_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
-        return tapn, m
+        return tapn, m, master_df
 
+    def arc_pattern_table_to_petri(self, master_df, marking):
+        res_pn = TimedArcNet("TapnfromDcr")
+        res_m = TimedMarking()
+        for event, place_type in master_df.columns:
+            if place_type != 'No':
+                p = PetriNet.Place(name=f'{event}_{place_type}')
+                self.p_dict[(event, place_type)] = p
+                res_pn.places.add(p)
 
-def apply(dcr, parameters):
-    d2p = Dcr2TimedArcPetri(**parameters)
-    G = deepcopy(dcr)
-    tapn, m = d2p.apply(G, **parameters)
-    return tapn, m
+                pt = place_type
+                if place_type.startswith('Re_'):
+                    pt, deadline = place_type.split('_')
+                    if deadline.isdigit() and int(deadline) > 0:
+                        p.properties['ageinvariant'] = int(deadline)
+                        if 'Deadline_Re' in marking[event] and marking[event]['Deadline_Re']==int(deadline):
+                            res_m.timed_dict[p] = marking[event]['Deadline_Re']
+                            res_m[p] = marking[event][pt]
+                elif pt in marking[event]:
+                    res_m[p] = marking[event][pt]
+        transport_idx = 0
+        increase = False
+        for event, idx in master_df.index:
+            t = PetriNet.Transition(name=f'{event}_{idx}', label=f'{event}_{idx}_label')
+            res_pn.transitions.add(t)
+            for (event_prime, place_type), arc_type in dict(master_df.loc[(event, idx)]).items():
+                if arc_type > 0:
+                    match arc_type:
+                        case 1:  # TtoP -->
+                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                        case 2:  # PtoT <--
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
+                        case 3:  # Read Both <-->
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
+                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                        case 4:  # Inhib o--
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                        case 5:  # TtoPandInhib o-->
+                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                        case 6: # TtP 6 # --<>
+                            ttp = pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn, type='transport')
+                            ttp.properties['transportindex'] = transport_idx
+                            if increase:
+                                transport_idx += 1
+                                increase = False
+                            else:
+                                increase = True
+                        case 7: # PtT 7 # <>--
+                            ptt = pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
+                            ptt.properties['transportindex'] = transport_idx
+                            if increase:
+                                transport_idx += 1
+                                increase = False
+                            else:
+                                increase = True
+                        case 8: # TRead TBoth 8 # <>-<>
+                            if increase == True:
+                                print('[X] increase is true this should not happen!')
+                            ttp = pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn, type='transport')
+                            ttp.properties['transportindex'] = transport_idx
+                            ptt = pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
+                            ptt.properties['transportindex'] = transport_idx
+                            # this should work because only conditions have this type of arc
+                            delay = self.delay_dict[frozenset([event, event_prime])]
+                            if delay and delay > 0:
+                                ptt.properties['agemin'] = delay
+                            transport_idx += 1
+                            increase = False
+
+        return res_pn, res_m
+
+# def apply(dcr, parameters):
+#     d2p = Dcr2TimedArcPetri(**parameters)
+#     G = deepcopy(dcr)
+#     tapn, m = d2p.apply(G, **parameters)
+#     return tapn, m
 
 # def run_specific_dcr():
 #     '''
@@ -415,20 +442,20 @@ def apply(dcr, parameters):
 #     tapn, m = d2p.dcr2tapn(dcr, tapn_path="/home/vco/Projects/pm4py-dcr/models/one_petri_timed.tapn")
 #
 #
-if __name__ == "__main__":
-    import os
-
-    print(os.getcwd())
-    os.chdir('/home/vco/Projects/pm4py-dcr/')
-    print(os.getcwd())
-    from pm4py.objects.dcr.importer import importer as dcr_importer
-    from pm4py.objects.conversion.dcr import converter as dcr_to_tapn
-    from pm4py.objects.dcr.utils.dcr_utils import nested_groups_and_sps_to_flat_dcr
-
-    example = 'models/rail_example.xml'
-    # example = 'models/test.xml'
-    dcr_dict = dcr_importer.apply(example, parameters={'as_dcr_object': True, 'labels_as_ids': True})
-    nested_groups_and_sps_to_flat_dcr(dcr_dict)
-    dcr_dict = dcr_dict.obj_to_template()
-    tapn, m = dcr_to_tapn.apply(dcr_dict, variant=dcr_to_tapn.Variants.TO_TIMED_ARC_PETRI_NET,
-                                parameters={'preoptimize': True, 'postoptimize': True, 'map_unexecutable_events': False, 'debug': True, 'tapn_path': 'models/rail_example.tapn'})
+# if __name__ == "__main__":
+#     import os
+#
+#     print(os.getcwd())
+#     os.chdir('/home/vco/Projects/pm4py-dcr/')
+#     print(os.getcwd())
+#     from pm4py.objects.dcr.importer import importer as dcr_importer
+#     from pm4py.objects.conversion.dcr import converter as dcr_to_tapn
+#     from pm4py.objects.dcr.utils.utils import nested_groups_and_sps_to_flat_dcr
+#
+#     example = 'models/rail_example.xml'
+#     # example = 'models/test.xml'
+#     dcr_dict = dcr_importer.apply(example, parameters={'as_dcr_object': True, 'labels_as_ids': True})
+#     nested_groups_and_sps_to_flat_dcr(dcr_dict)
+#     dcr_dict = dcr_dict.obj_to_template()
+#     tapn, m = dcr_to_tapn.apply(dcr_dict, variant=dcr_to_tapn.Variants.TO_TIMED_ARC_PETRI_NET,
+#                                 parameters={'preoptimize': True, 'postoptimize': True, 'map_unexecutable_events': False, 'debug': True, 'tapn_path': 'models/rail_example.tapn'})

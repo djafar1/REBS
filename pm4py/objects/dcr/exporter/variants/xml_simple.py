@@ -1,3 +1,5 @@
+from pandas import Timedelta
+
 from lxml import etree
 
 from pm4py.objects.dcr.obj import DcrGraph
@@ -40,9 +42,11 @@ def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespa
                 xml_target.text = event.replace(' ', replace_whitespace)
                 if hasattr(graph, 'timedconditions') and event in graph.timedconditions and event_prime in graph.timedconditions[event]:
                     time = graph.timedconditions[event][event_prime]
-                    if time.floor(freq='S').to_numpy() > 0:
+                    if not isinstance(time, Timedelta):
+                        time = Timedelta(days=time)
+                    if time.floor(freq='s').to_numpy() > 0:
                         xml_target = etree.SubElement(xml_condition, "duration")
-                        iso_time = time.floor(freq='S').isoformat()
+                        iso_time = time.floor(freq='s').isoformat()
                         if time_precision:
                             iso_time = iso_time.split(time_precision)[0] + time_precision
                         xml_target.text = iso_time
@@ -56,9 +60,11 @@ def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespa
                 xml_target.text = event_prime.replace(' ', replace_whitespace)
                 if hasattr(graph, 'timedresponses') and event in graph.timedresponses and event_prime in graph.timedresponses[event]:
                     time = graph.timedresponses[event][event_prime]
-                    if time.floor(freq='S').to_numpy() > 0:
+                    if not isinstance(time, Timedelta):
+                        time = Timedelta(days=time)
+                    if time.floor(freq='s').to_numpy() > 0:
                         xml_target = etree.SubElement(xml_response, "duration")
-                        iso_time = time.floor(freq='S').isoformat()
+                        iso_time = time.floor(freq='s').isoformat()
                         if time_precision:
                             iso_time = iso_time.split(time_precision)[0] + time_precision
                         xml_target.text = iso_time

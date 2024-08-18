@@ -53,6 +53,7 @@ class TimedDcrGraph(GroupSubprocessDcrGraph):
         res = super().obj_to_template()
         res['conditionsForDelays'] = self.__timedconditions
         res['responseToDeadlines'] = self.__timedresponses
+        res['marking']['pendingDeadline'] = self.__marking.pending_deadline
         return res
 
     @property

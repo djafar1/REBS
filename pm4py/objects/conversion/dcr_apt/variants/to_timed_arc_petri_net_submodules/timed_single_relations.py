@@ -1,386 +1,140 @@
-from pm4py.objects.petri_net.obj import *
-from pm4py.objects.petri_net.utils import petri_utils as pn_utils
-
-from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules import timed_utils
+import numpy as np
+import pandas as pd
+from pm4py.objects.conversion.dcr_apt.variants.to_timed_arc_petri_net_submodules.timed_utils import copy_event_rows, prepare_timed_case
 
 class TimedSingleRelations(object):
 
-    def __init__(self, helper_struct, mapping_exceptions) -> None:
-        self.helper_struct = helper_struct
-        self.mapping_exceptions = mapping_exceptions
+    def __init__(self, event_to_deadline_map) -> None:
+        self.event_to_deadline_map = event_to_deadline_map
 
-    def create_include_pattern(self, event, event_prime, tapn) -> PetriNet:
-        inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
-        pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
-        pend_excl_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
-        copy_0 = self.helper_struct[event]['transitions']
-        len_copy_0 = len(copy_0)
-        len_internal = self.helper_struct[event]['len_internal']
-        len_delta = int(len_copy_0 / len_internal)
-        new_transitions = []
+    def create_include_pattern(self, event, event_prime, master_df):
+        case = pd.DataFrame([[3,0,0,0],
+                             [1,0,6,7],
+                             [5,0,0,4]], columns=['In', 'Ex', 'Re', 'Rex'])
+        case_others = pd.DataFrame([[6,7],
+                                    [0,4]], index=[1,2], columns=['Re', 'Rex'])
+        copy_to_all_index = [2]
+        copy_pairwise_index = [1]
 
-        # copy 1
-        if inc_place_e_prime and len(pend_places_e_prime) > 0 and len(pend_excl_places_e_prime) > 0:
-            for _, (pend_place_e_prime, pend_excl_place_e_prime) in self.helper_struct[event_prime]['pending_pairs'].items():
-                for delta in range(len_delta):
-                    # (exists) for each event create a transition with a transport arc link (independent of the other pending places)
-                    tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                    new_transitions.extend(ts)
-                    for t in ts:
-                        tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+        needed_columns = master_df.loc[event][event_prime].columns
+        needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
+        if 'Re' not in needed_columns and 'Rex' not in needed_columns:
+            case = case.drop(index=[1])
+        else:
+            event_place = self.event_to_deadline_map[event_prime][event] if event in self.event_to_deadline_map[event_prime] else None
+            event_to_deadline = self.event_to_deadline_map[event_prime]
+            case = prepare_timed_case(event_place,case,case_others,copy_to_all_index,copy_pairwise_index,event_to_deadline)
+        return copy_event_rows(event, event_prime, master_df, case)
 
-                        pex_to_t = pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='transport')
-                        t_to_p = pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn, type='transport')
-                        pex_to_t.properties['transportindex'] = self.helper_struct['transport_index']
-                        t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
-                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
-        # copy 2
-        if inc_place_e_prime:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-                    # (for all) inhibitor arcs to all pending excluded places
-                    for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
-                        pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+    def create_exclude_pattern(self, event, event_prime, master_df):
+        case = pd.DataFrame([[4,0,0,0],
+                             [2,0,4,0],
+                             [2,0,7,6]], columns=['In', 'Ex', 'Re', 'Rex'])
+        case_others = pd.DataFrame([[4,0],
+                                    [7,6]], index=[1,2], columns=['Re', 'Rex'])
+        copy_to_all_index = [1]
+        copy_pairwise_index = [2]
 
-        # map the copy_0 last but before adding the new transitions
-        # copy 0
-        if inc_place_e_prime:
-            for t in copy_0:
-                pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+        needed_columns = master_df.loc[event][event_prime].columns
+        needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
+        if 'Re' not in needed_columns and 'Rex' not in needed_columns:
+            case = case.drop(index=[2])
+            case_others = case_others.drop(index=[2])
+            copy_pairwise_index.remove(2)
+        else:
+            event_place = self.event_to_deadline_map[event_prime][event] if event in self.event_to_deadline_map[event_prime] else None
+            event_to_deadline = self.event_to_deadline_map[event_prime]
+            case = prepare_timed_case(event_place, case,case_others,copy_to_all_index,copy_pairwise_index,event_to_deadline)
+        return copy_event_rows(event, event_prime, master_df, case)
 
-        self.helper_struct[event]['transitions'].extend(new_transitions)
-        return tapn
+    def create_response_pattern(self, event, event_prime, master_df):
+        case = pd.DataFrame([[3, 0, 5, 0],
+                             [3, 0, 1, 0],
+                             [3, 0, 3, 0],
+                             [4, 0, 0, 5],
+                             [4, 0, 0, 1],
+                             [4, 0, 0, 3]], columns=['In', 'Ex', 'Re', 'Rex'])
+        case_others = pd.DataFrame([[4, 0],
+                                    [2, 0],
+                                    [0, 4],
+                                    [0, 2]], index=[0, 1, 3, 4], columns=['Re', 'Rex'])
+        copy_to_all_index = [0, 3]
+        copy_pairwise_index = [1, 4]
 
-    def create_exclude_pattern(self, event, event_prime, tapn) -> PetriNet:
-        inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
-        pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
-        pend_excl_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
-        copy_0 = self.helper_struct[event]['transitions']
-        len_copy_0 = len(copy_0)
-        len_internal = self.helper_struct[event]['len_internal']
-        len_delta = int(len_copy_0 / len_internal)
-        new_transitions = []
+        needed_columns = master_df.loc[event][event_prime].columns
+        needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
+        if 'Re' not in needed_columns:
+            case = case.drop(index=[0, 1, 2])
+            case_others = case_others.drop(index=[0, 1])
+            copy_to_all_index.remove(0)
+            copy_pairwise_index.remove(1)
+        if 'In' not in needed_columns and 'Rex' not in needed_columns:
+            case = case.drop(index=[3, 4, 5])
+            case_others = case_others.drop(index=[3, 4])
+            copy_to_all_index.remove(3)
+            copy_pairwise_index.remove(4)
+        event_place = self.event_to_deadline_map[event_prime][event] if event in self.event_to_deadline_map[event_prime] else None
+        event_to_deadline = self.event_to_deadline_map[event_prime]
+        case = prepare_timed_case(event_place, case,case_others,copy_to_all_index,copy_pairwise_index,event_to_deadline)
+        return copy_event_rows(event, event_prime, master_df, case)
 
-        # copy 1
-        if inc_place_e_prime:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-                    #(for all) no pending event executes this transition
-                    for pend_place_e_prime, _ in pend_places_e_prime:
-                        pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
+    def create_no_response_pattern(self, event, event_prime, master_df):
+        case = pd.DataFrame([[3,0,4,0],
+                             [3,0,2,0],
+                             [3,0,0,0],
+                             [4,0,0,4],
+                             [4,0,0,2],
+                             [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
+        case_others = pd.DataFrame([[4,0],
+                                    [2, 0],
+                                    [0,4],
+                                    [2,0]], index=[0,2,3,5], columns=['Re', 'Rex'])
+        copy_to_all_index = [0,3]
+        copy_pairwise_index = [2,5]
 
-        # copy 2
-        if inc_place_e_prime and len(pend_places_e_prime) > 0 and len(pend_excl_places_e_prime) > 0:
-            for _, (pend_place_e_prime, pend_excl_place_e_prime) in self.helper_struct[event_prime]['pending_pairs'].items():
-                for delta in range(len_delta):
-                    # (for each) pairwise transport arcs for each pair of pending places
-                    tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                    new_transitions.extend(ts)
-                    for t in ts:
-                        tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+        needed_columns = master_df.loc[event][event_prime].columns
+        needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
+        if 'Re' not in needed_columns:
+            case = case.drop(index=[0,1,2])
+            case_others = case_others.drop(index=[0,2])
+            copy_to_all_index.remove(0)
+            copy_pairwise_index.remove(2)
+        if 'In' not in needed_columns and 'Rex' not in needed_columns:
+            case = case.drop(index=[3,4,5])
+            case_others = case_others.drop(index=[3,5])
+            copy_to_all_index.remove(3)
+            copy_pairwise_index.remove(5)
 
-                        p_to_t = pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='transport')
-                        t_to_pex = pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn, type='transport')
-                        p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
-                        t_to_pex.properties['transportindex'] = self.helper_struct['transport_index']
-                        self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
+        event_place = self.event_to_deadline_map[event_prime][event] if event in self.event_to_deadline_map[event_prime] else None
+        event_to_deadline = self.event_to_deadline_map[event_prime]
+        case = prepare_timed_case(event_place, case,case_others,copy_to_all_index,copy_pairwise_index,event_to_deadline)
+        return copy_event_rows(event, event_prime, master_df, case)
 
-        # copy 0
-        if inc_place_e_prime:
-            for t in copy_0:
-                pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+    def create_condition_pattern(self, event, event_prime, master_df):
+        case = pd.DataFrame([[4,0,0,0],
+                             [3,8,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
 
-        self.helper_struct[event]['transitions'].extend(new_transitions)
-        return tapn
+        needed_columns = master_df.loc[event][event_prime].columns
+        needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
+        if 'In' not in needed_columns:
+            case = case.drop(index=[0])
 
-    def create_response_pattern(self, event, event_prime, tapn) -> PetriNet:
-        inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
-        pend_place_e_prime = self.helper_struct['pend_matrix'][event_prime][event]
-        pend_excl_place_e_prime = self.helper_struct['pend_exc_matrix'][event_prime][event]
-        copy_0 = self.helper_struct[event]['transitions']
-        len_copy_0 = len(copy_0)
-        len_internal = self.helper_struct[event]['len_internal']
-        len_delta = int(len_copy_0 / len_internal)
-        new_transitions = []
+        return copy_event_rows(event, event_prime, master_df, case)
 
-        pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
-        pend_excl_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
-        pending_others = [x[0] for x in pend_places_e_prime if x[1] != event]
-        pending_exc_others = [x[0] for x in pend_excl_places_e_prime if x[1] != event]
-        # copy 1
-        if len(pend_places_e_prime) > 0:# and self.helper_struct[event]['firstResp']:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+    def create_milestone_pattern(self, event, event_prime, master_df):
+        case = pd.DataFrame([[4,0,0,0],
+                             [3,0,4,0]], columns=['In', 'Ex', 'Re', 'Rex'])
+        case_others = pd.DataFrame([[4,0]], index=[1], columns=['Re', 'Rex'])
+        copy_to_all_index = [1]
+        copy_pairwise_index = []
 
-                    pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
-                    for pend_other in pending_others:
-                        # pn_utils.add_arc_from_to(t, pend_other, tapn)
-                        pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
-                    # pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                    # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-                    #
-                    # pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                    # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
-                    #
-                    # # for pend_other in pending_others:
-                    # #     pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
+        needed_columns = master_df.loc[event][event_prime].columns
+        needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
+        if 'In' not in needed_columns:
+            case = case.drop(index=[0])
 
-        # copy 2
-        if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
-            #if self.helper_struct[event]['firstResp']:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
+        event_place = self.event_to_deadline_map[event_prime][event] if event in self.event_to_deadline_map[event_prime] else None
+        event_to_deadline = self.event_to_deadline_map[event_prime]
+        case = prepare_timed_case(event_place, case,case_others,copy_to_all_index,copy_pairwise_index,event_to_deadline)
+        return copy_event_rows(event, event_prime, master_df, case)
 
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-
-                    pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
-                    for pend_exc_other in pending_exc_others:
-                        # pn_utils.add_arc_from_to(t, pend_exc_other, tapn)
-                        pn_utils.add_arc_from_to(pend_exc_other,t,tapn,type='inhibitor')
-            # copy 2X
-            for pend_exc_other in pending_exc_others:
-                for delta in range(len_delta):
-                    tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                    new_transitions.extend(ts)
-                    for t in ts:
-                        tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-
-                        pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
-                        # pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
-
-                        pn_utils.add_arc_from_to(pend_exc_other, t, tapn)
-
-        # copy 3
-        if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-
-                    pn_utils.add_arc_from_to(t, pend_excl_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
-                    # for pend_exc_other in pending_exc_others:
-                    #     pn_utils.add_arc_from_to(pend_exc_other,t,tapn,type='inhibitor')
-
-        # copy 0
-        if len(pend_places_e_prime) > 0:
-            # copy 0X
-            for pend_other in pending_others:
-                for delta in range(len_delta):
-                    tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                    new_transitions.extend(ts)
-                    for t in ts:
-                        tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta * len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-
-                        pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
-
-                        pn_utils.add_arc_from_to(pend_other, t, tapn)
-            for t in copy_0:
-                pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-
-                pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
-
-                # pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-                #
-                # pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
-                # for pend_other in pending_others:
-                #     pn_utils.add_arc_from_to(t, pend_other, tapn)
-                #     pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
-
-        # self.helper_struct[event]['firstResp'] = False
-        # when here I ask: have I done the first response?
-        # If the answer is yes. Then
-        # Do not create a new transition (do not copy any past behaviour)
-        # Simply retrieve the transition that behaves towards the other place in that way and
-        # add the same behaviour towards this transition
-        # this applies the same way to a response or a no-response
-        self.helper_struct[event]['transitions'].extend(new_transitions)
-        return tapn
-
-    def create_no_response_pattern(self, event, event_prime, tapn) -> PetriNet:
-        inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
-        pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
-        pend_excl_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
-        copy_0 = self.helper_struct[event]['transitions']
-        len_copy_0 = len(copy_0)
-        len_internal = self.helper_struct[event]['len_internal']
-        len_delta = int(len_copy_0 / len_internal)
-        new_transitions = []
-
-        # pend_place_e_prime = self.helper_struct['pend_matrix'][event_prime][event]
-        # pending_others = [x[0] for x in pend_places_e_prime if x[1] != event]
-        # copy 1
-        if len(pend_places_e_prime) > 0:# and self.helper_struct[event]['firstResp']:
-            # (for all) if included and not pending then fire
-            # for delta in range(len_delta):
-            #     tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-            #     new_transitions.extend(ts)
-            #     for t in ts:
-            #         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-            #         pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-            #         pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-            #         for pp_e_prime, _ in pend_places_e_prime:
-            #             pn_utils.add_arc_from_to(pp_e_prime, t, tapn, type='inhibitor')
-
-            for pp_e_prime,_ in pend_places_e_prime:
-                for delta in range(len_delta):
-                    tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                    new_transitions.extend(ts)
-                    for t in ts:
-                        tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-
-                        pn_utils.add_arc_from_to(pp_e_prime, t, tapn)
-        # copy 2
-        if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:# and self.helper_struct[event]['firstNoResp']:
-            # (for all) if no pending excl place is pending and not included then it fires
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-                    for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
-                        pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
-
-        # copy 3
-        if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
-            # (exists) for each pending excluded place if it is pending make it unpending when event is not included
-            for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
-                for delta in range(len_delta):
-                    tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                    new_transitions.extend(ts)
-                    for t in ts:
-                        tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-
-                        pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn)
-
-        # copy 0
-        if len(pend_places_e_prime) > 0:
-            # (exists) for each pending incl place we need to make the specific place unpending and inhibitor arcs to the rest
-            # for pend_other in pending_others:
-            #     for delta in range(len_delta):
-            #         tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-            #         new_transitions.extend(ts)
-            #         for t in ts:
-            #             tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta * len_internal, copy_0, t, tapn)
-            #             pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-            #             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-            #
-            #             pn_utils.add_arc_from_to(pend_other, t, tapn)
-            for t in copy_0:
-                # pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-                #
-                # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
-
-                pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-                for pp_e_prime, _ in pend_places_e_prime:
-                    pn_utils.add_arc_from_to(pp_e_prime, t, tapn, type='inhibitor')
-
-        # self.helper_struct[event]['firstResp'] = False
-        self.helper_struct[event]['transitions'].extend(new_transitions)
-        return tapn
-
-    def create_condition_pattern(self, event, event_prime, tapn, delay=0) -> PetriNet:
-        inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
-        exec_place_e_prime = self.helper_struct[event_prime]['places']['executed']
-
-        copy_0 = self.helper_struct[event]['transitions']
-        len_copy_0 = len(copy_0)
-        len_internal = self.helper_struct[event]['len_internal']
-        len_delta = int(len_copy_0 / len_internal)
-        new_transitions = []
-        # copy 1
-        if inc_place_e_prime and exec_place_e_prime:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-
-        # copy 0
-        if exec_place_e_prime:
-            for t in copy_0:
-                pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-
-                t_to_p = pn_utils.add_arc_from_to(t, exec_place_e_prime, tapn, type='transport')
-                p_to_t = pn_utils.add_arc_from_to(exec_place_e_prime, t, tapn, type='transport')
-                t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
-                p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
-                self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
-                if delay and delay > 0:
-                    p_to_t.properties['agemin'] = delay
-
-        self.helper_struct[event]['transitions'].extend(new_transitions)
-        return tapn
-
-    def create_milestone_pattern(self, event, event_prime, tapn) -> PetriNet:
-        inc_place_e_prime = self.helper_struct[event_prime]['places']['included']
-        pend_places_e_prime = self.helper_struct[event_prime]['places']['pending']
-        # pend_excluded_places_e_prime = self.helper_struct[event_prime]['places']['pending_excluded']
-
-        copy_0 = self.helper_struct[event]['transitions']
-        len_copy_0 = len(copy_0)
-        len_internal = self.helper_struct[event]['len_internal']
-        len_delta = int(len_copy_0 / len_internal)
-        new_transitions = []
-        # copy 1
-        if inc_place_e_prime:
-            for delta in range(len_delta):
-                tapn, ts = timed_utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct, self.mapping_exceptions)
-                new_transitions.extend(ts)
-                for t in ts:
-                    tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-
-                    pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
-
-        # copy 0
-        if len(pend_places_e_prime) > 0:
-            for t in copy_0:
-                pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
-
-                for pend_place_e_prime,_ in pend_places_e_prime:
-                    pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
-
-        self.helper_struct[event]['transitions'].extend(new_transitions)
-        return tapn

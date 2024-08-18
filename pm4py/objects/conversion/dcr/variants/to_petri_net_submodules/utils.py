@@ -1,6 +1,6 @@
 from pm4py.objects.petri_net.obj import *
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
-from pm4py.objects.dcr.obj import Relations
+from pm4py.objects.dcr.obj import TemplateRelations as Relations
 
 
 def map_existing_transitions_of_copy_0(delta, copy_0, t, tapn) -> (PetriNet, PetriNet.Transition):
