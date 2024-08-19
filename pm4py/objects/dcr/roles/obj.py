@@ -1,7 +1,7 @@
 from typing import Set
 
 
-class RoledcrGraph(object):
+class RoleDcrGraph(object):
     """
     A class representing a Role-based DCR graph.
 

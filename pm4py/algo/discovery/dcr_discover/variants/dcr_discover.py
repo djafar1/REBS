@@ -101,7 +101,7 @@ class Discover:
             'successor': {}
         }
 
-    def mine(self, log: Union[EventLog,pd.DataFrame], findAdditionalConditions=True, parameters=None) -> Tuple[DcrGraph,Dict[str, Any]]:
+    def mine(self, log: Union[EventLog, pd.DataFrame], findAdditionalConditions=True, parameters=None) -> Tuple[DcrGraph,Dict[str, Any]]:
         """
         Method used for calling the underlying mining algorithm used for discovery of DCR Graphs
 
@@ -255,12 +255,13 @@ class Discover:
         Dict[str, Set[str]]
             An optimized version of the input relations, with redundant connections removed.
         """
-        # Sorted dict to avoid possibly non-deterministic behavior due to unordered nature of dict
-        relation = dict(sorted(relation.items(), key=lambda conditions: len(conditions[1]),reverse=True))
-        for eventA in relation:
-            for eventB in relation[eventA]:
-                relation[eventA] = relation[eventA].difference(relation[eventB])
-        return relation
+        # Sortedlist to avoid possibly non-deterministic behavior due to unordered nature of dict
+        sortedList = np.array(list(relation.items()))
+        sortedList = sorted(sortedList, key=lambda num: len(num[1]), reverse=True)
+        for i in sortedList:
+            for j in i[1]:
+                i[1] = i[1].difference(relation[j])
+        return dict(sortedList)
 
     def mineFromAbstraction(self, findAdditionalConditions: bool = True) -> int:
         """
@@ -313,13 +314,12 @@ class Discover:
             if event in self.logAbstraction['atMostOnce']:
                 self.graph['excludesTo'][event].add(event)
 
-
         # For each chainprecedence(i,j) we add: include(i,j) exclude(j,j)
         for j in self.logAbstraction['chainPrecedenceFor']:
             for i in self.logAbstraction['chainPrecedenceFor'][j]:
+                if j not in self.logAbstraction['atMostOnce']:
+                    self.graph['includesTo'][i].add(j)
                 self.graph['excludesTo'][j].add(j)
-                self.graph['includesTo'][i].add(j)
-
 
         # Additional excludes based on predecessors / successors
         for event in self.logAbstraction['events']:
@@ -366,8 +366,6 @@ class Discover:
                     included = included.difference(self.graph['excludesTo'][event])
                     # Execute includes starting from (event)
                     included = included.union(self.graph['includesTo'][event])
-                    localSeenBefore.add(event)
-
             # Now the only possible Condtitions that remain are valid for all traces
             # These are therefore added to the graph
             for key in self.graph['conditionsFor']:
@@ -375,14 +373,4 @@ class Discover:
 
             # Removing redundant conditions
             self.graph['conditionsFor'] = self.optimizeRelation(self.graph['conditionsFor'])
-            self.clean_empty_sets()
         return 0
-
-    def clean_empty_sets(self):
-        for k, v in deepcopy(self.graph).items():
-            if k in ['conditionsFor', 'responseTo', 'excludesTo', 'includesTo']:
-                v_new = {}
-                for k2, v2 in v.items():
-                    if v2:
-                        v_new[k2] = set([v3 for v3 in v2 if v3 is not set()])
-                self.graph[k] = v_new

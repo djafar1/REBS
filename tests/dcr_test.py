@@ -9,8 +9,6 @@ from pm4py.algo.conformance.alignments.dcr.variants.optimal import Alignment
 from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.dcr.importer import importer as dcr_importer
 from pm4py.objects.dcr.exporter import exporter as dcr_exporter
-from pm4py.algo.simulation.playout.dcr.variants.classic import Parameters
-from datetime import datetime
 
 class TestDiscoveryDCR(unittest.TestCase):
     def check_if_dcr_is_equal(self, dcr1, dcr2):
@@ -218,8 +216,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # when an event is check for being enabled
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         # Then register request should return true, and other event has yet met conditions is false
         self.assertTrue(sem.is_enabled(log.iloc[0]["concept:name"], dcr))
         self.assertFalse(sem.is_enabled(log.iloc[1]["concept:name"], dcr))
@@ -234,8 +232,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # When event is executed, the event that has the event as a condition can then be executed
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         if sem.is_enabled(log.iloc[0]["concept:name"], dcr):
             dcr = sem.execute(dcr, log.iloc[0]["concept:name"])
 
@@ -251,8 +249,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # then the DCR is accepting
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         self.assertTrue(sem.is_accepting(dcr))
 
         del log
@@ -265,8 +263,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # when an event triggers a response relation
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         sem.execute(dcr, "register request")
         self.assertFalse(sem.is_accepting(dcr))
 
@@ -321,7 +319,7 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.objects.dcr.importer.variants.xml_dcr_portal import apply as import_apply
         # given a dcr graph and event log
         # we use this as it provides an dcr graph, with eventIDs and labels and label mapping
-        dcr = import_apply('test_output_data/pendingEvent.xml')
+        dcr = import_apply('input_data/pendingEvent.xml')
         self.assertEqual(1, len(dcr.marking.pending))
 
         del dcr
@@ -344,8 +342,8 @@ class TestConformanceDCR(unittest.TestCase):
         dcr, _ = pm4py.discover_dcr(log)
         # when running getConstraints
         no = dcr.get_constraints()
-        # then object, should contain 30 constraints
-        self.assertTrue(no == 30)
+        # then object, should contain 31 constraints
+        self.assertTrue(no == 31)
 
         del log
         del dcr
@@ -488,26 +486,6 @@ class TestConformanceDCR(unittest.TestCase):
         del conf_res
         del collect
 
-    def test_exclude_violation2(self):
-        # given A log with check ticket at end after it has been excluded
-        log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        log = log[log['case:concept:name'] == "1"]
-        row = log[log['concept:name'] == "check ticket"]
-        log = pd.concat([log,row]).reset_index(drop=True)
-
-        #when conformance is checked
-        from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
-        conf_res = conf_alg(log, dcr)
-
-        # fitness is not 1, and has 1 exclude violation
-        collect = []
-        for i in conf_res[0]['deviations']:
-            if i[0] == 'excludeViolation':
-                collect.append(i[0])
-        self.assertIn('excludeViolation', collect)
-        self.assertEqual(1, len(collect))
-
     def test_include_violation(self):
         # given a log
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
@@ -553,7 +531,7 @@ class TestConformanceDCR(unittest.TestCase):
         no = dcr.get_constraints()
         # then object, should contain the roleAssignment
         # 31 original constraints, but also, 19 additional role assignments
-        self.assertTrue(no == 49)
+        self.assertTrue(no == 50)
 
         del log
         del dcr
@@ -585,6 +563,7 @@ class TestConformanceDCR(unittest.TestCase):
 
         dcr, _ = pm4py.discover_dcr(log, process_type={'roles'})
         conf_res = pm4py.conformance_dcr(log, dcr)
+
         for i in conf_res:
             self.assertEqual(int(i['dev_fitness']), 1)
             self.assertTrue(i['is_fit'])
@@ -782,6 +761,7 @@ class TestAlignment(unittest.TestCase):
         aligned_traces = alignment_obj.apply_trace()
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
+
         del trace
         del graph_handler
         del trace_handler
@@ -815,6 +795,7 @@ class TestAlignment(unittest.TestCase):
         trace_handler = self.create_trace_handler(trace)
         alignment_obj = Alignment(graph_handler, trace_handler)
         aligned_traces = alignment_obj.apply_trace()
+
         self.check_alignment_cost(aligned_traces)
         self.check_trace_alignment(trace)
 
@@ -846,7 +827,7 @@ class TestAlignment(unittest.TestCase):
         self.assertIsInstance(align_res,pd.DataFrame)
 
         for index,row in align_res.iterrows():
-            self.assertTrue(row['align_fitness'] == 1.0)
+            self.assertTrue(row['fitness'] == 1.0)
         del log_path
         del align_res
 
@@ -890,14 +871,6 @@ class TestAlignment(unittest.TestCase):
         expected_cost = model_moves + log_moves
         self.assertEqual(expected_cost, alignment_cost)
 
-    def test_return_datafrane_alignment(self):
-        log_path = os.path.join("input_data", "running-example.xes")
-        self.log = pm4py.read_xes(log_path)
-        res = pm4py.optimal_alignment_dcr(self.log, self.dcr, return_diagnostics_dataframe=True)
-        self.assertIsInstance(res,pd.DataFrame)
-        for index,row in res.iterrows():
-            self.assertTrue(row['align_fitness'] == 1.0)
-
 class TestImportExportDCR(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -935,13 +908,13 @@ class TestImportExportDCR(unittest.TestCase):
     # Events are not included (dashed lines) in the portal
     def test_xml_simple_to_dcr_js_portal(self):
         event_log_file = os.path.join("input_data", "receipt.xes")
-        self.test_file = os.path.join("test_output_data", "receipt_xml_simple.xml")
+        self.test_file = os.path.join("input_data", "receipt_xml_simple.xml")
         self.export_file_simple(event_log_file)
         dcr = pm4py.read_dcr_xml(self.test_file, variant=dcr_importer.Variants.XML_SIMPLE)
 
         os.remove(self.test_file)
 
-        self.test_file = os.path.join("test_output_data", "receipt_xml_simple_to_dcr_js_portal.xml")
+        self.test_file = os.path.join("input_data", "receipt_xml_simple_to_dcr_js_portal.xml")
         pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.Variants.DCR_JS_PORTAL, dcr_title='receipt_xml_simple_to_dcr_js_portal')
 
         del dcr
@@ -969,10 +942,10 @@ class TestImportExportDCR(unittest.TestCase):
 
     def test_import_export_dcr_portal(self):
 
-        self.test_file = os.path.join("test_output_data", "sepsis_dcr_portal.xml")
+        self.test_file = os.path.join("input_data", "sepsis_dcr_portal.xml")
         self.export_file_dcr_portal(self.sepsis)
         dcr = pm4py.read_dcr_xml(self.test_file)
-        self.second_test_file = os.path.join("test_output_data", "sepsis_dcr_portal_exported.xml")
+        self.second_test_file = os.path.join("input_data", "sepsis_dcr_portal_exported.xml")
         pm4py.write_dcr_xml(dcr_graph=dcr,path=self.second_test_file,variant=dcr_exporter.XML_DCR_PORTAL, dcr_title='sepsis_dcr_portal_exported_xml')
         dcr_imported_after_export = pm4py.read_dcr_xml(self.second_test_file)
         self.assertEqual(len(dcr.__dict__), len(dcr_imported_after_export.__dict__))
@@ -1080,39 +1053,6 @@ class TestImportExportDCR(unittest.TestCase):
         if self.second_test_file != '':
             os.remove(self.second_test_file)
             self.second_test_file = ''
-
-
-class TestPlayOut(unittest.TestCase):
-        
-    def test_playout(self):
-        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        number_of_traces = 10
-        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: number_of_traces})
-        self.assertEqual(len(generated_log), number_of_traces)
-        case_id_default = 1
-        last_case_id = case_id_default + number_of_traces - 1
-        timestamp_default = 10000000
-        self.assertEqual(generated_log[0].attributes['concept:name'], str(case_id_default))
-        self.assertEqual(datetime.timestamp(generated_log[0][0]['time:timestamp']), timestamp_default)
-        self.assertEqual(generated_log[-1].attributes['concept:name'], str(last_case_id))
-    
-    def test_playout_conformance_fitness(self):
-        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: 10})
-        conf_res = pm4py.conformance_dcr(generated_log, dcr)
-        for i in conf_res:
-            self.assertEqual(int(i['dev_fitness']), 1)
-            self.assertTrue(i['is_fit'])
-
-    def test_playout_alignment_fitness(self):
-        log = pm4py.read_xes(os.path.join("../tests", "input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log)
-        generated_log = pm4py.play_out(dcr, parameters={Parameters.NO_TRACES: 10})
-        align_res = pm4py.optimal_alignment_dcr(generated_log, dcr)
-        for i in align_res:
-            self.assertEqual(i['fitness'], 1.0)
 
 
 if __name__ == '__main__':

@@ -19,13 +19,12 @@ The ``pm4py.conformance`` module contains the conformance checking algorithms im
 """
 
 from typing import List, Dict, Any, Union, Optional, Tuple, Set
-from pandas import DataFrame
 
-import pm4py
 from pm4py.objects.log.obj import EventLog, Trace, Event, EventStream
 from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.convert import convert_to_event_log
 from pm4py.objects.process_tree.obj import ProcessTree
+from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.util import xes_constants, constants
 from pm4py.utils import get_properties, __event_log_deprecation_warning
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
@@ -33,13 +32,8 @@ import pandas as pd
 import deprecation
 
 
-def conformance_diagnostics_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet,
-                                               initial_marking: Marking,
-                                               final_marking: Marking, activity_key: str = "concept:name",
-                                               timestamp_key: str = "time:timestamp",
-                                               case_id_key: str = "case:concept:name",
-                                               return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME,
-                                               opt_parameters: Optional[Dict[Any, Any]] = None) -> List[Dict[str, Any]]:
+def conformance_diagnostics_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking,
+                                               final_marking: Marking, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME, opt_parameters: Optional[Dict[Any, Any]] = None) -> List[Dict[str, Any]]:
     """
     Apply token-based replay for conformance checking analysis.
     The methods return the full token-based-replay diagnostics.
@@ -87,13 +81,10 @@ def conformance_diagnostics_token_based_replay(log: Union[EventLog, pd.DataFrame
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         tbr_diagnostics = pm4py.conformance_diagnostics_token_based_replay(dataframe, net, im, fm, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     if return_diagnostics_dataframe:
         log = convert_to_event_log(log, case_id_key=case_id_key)
@@ -116,12 +107,7 @@ def conformance_diagnostics_token_based_replay(log: Union[EventLog, pd.DataFrame
     return result
 
 
-def conformance_diagnostics_alignments(log: Union[EventLog, pd.DataFrame], *args,
-                                       multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT,
-                                       activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
-                                       case_id_key: str = "case:concept:name", variant_str: Optional[str] = None,
-                                       return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> \
-List[Dict[str, Any]]:
+def conformance_diagnostics_alignments(log: Union[EventLog, pd.DataFrame], *args, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", variant_str : Optional[str] = None, return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> List[Dict[str, Any]]:
     """
     Apply the alignments algorithm between a log and a process model.
     The methods return the full alignment diagnostics.
@@ -157,19 +143,17 @@ List[Dict[str, Any]]:
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         alignments_diagnostics = pm4py.conformance_diagnostics_alignments(dataframe, net, im, fm, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     if return_diagnostics_dataframe:
         log = convert_to_event_log(log, case_id_key=case_id_key)
         case_id_key = None
 
     properties = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
+
     if len(args) == 3:
         if type(args[0]) is PetriNet:
             # Petri net alignments
@@ -178,8 +162,7 @@ List[Dict[str, Any]]:
             if variant_str is not None:
                 variant = variant_str
             if multi_processing:
-                result = alignments.apply_multiprocessing(log, args[0], args[1], args[2], parameters=properties,
-                                                          variant=variant)
+                result = alignments.apply_multiprocessing(log, args[0], args[1], args[2], parameters=properties, variant=variant)
             else:
                 result = alignments.apply(log, args[0], args[1], args[2], parameters=properties, variant=variant)
 
@@ -191,6 +174,8 @@ List[Dict[str, Any]]:
             # DFG alignments
             from pm4py.algo.conformance.alignments.dfg import algorithm as dfg_alignment
             result = dfg_alignment.apply(log, args[0], args[1], args[2], parameters=properties)
+
+            return result
     elif len(args) == 1:
         if type(args[0]) is ProcessTree:
             # process tree alignments
@@ -222,9 +207,7 @@ List[Dict[str, Any]]:
     return result
 
 
-def fitness_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking,
-                               final_marking: Marking, activity_key: str = "concept:name",
-                               timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> \
+def fitness_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking, final_marking: Marking, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> \
         Dict[
             str, float]:
     """
@@ -257,27 +240,21 @@ def fitness_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: Pe
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         fitness_tbr = pm4py.fitness_token_based_replay(dataframe, net, im, fm, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     properties = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     from pm4py.algo.evaluation.replay_fitness import algorithm as replay_fitness
     result = replay_fitness.apply(log, petri_net, initial_marking, final_marking,
-                                  variant=replay_fitness.Variants.TOKEN_BASED, parameters=properties)
+                                variant=replay_fitness.Variants.TOKEN_BASED, parameters=properties)
 
     return result
 
 
-def fitness_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking,
-                       final_marking: Marking, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT,
-                       activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
-                       case_id_key: str = "case:concept:name", variant_str: Optional[str] = None) -> \
+def fitness_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking, final_marking: Marking, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", variant_str : Optional[str] = None) -> \
         Dict[str, float]:
     """
     Calculates the fitness using alignments
@@ -312,28 +289,22 @@ def fitness_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, 
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         fitness_alignments = pm4py.fitness_alignments(dataframe, net, im, fm, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     from pm4py.algo.evaluation.replay_fitness import algorithm as replay_fitness
     parameters = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
     parameters["multiprocessing"] = multi_processing
     result = replay_fitness.apply(log, petri_net, initial_marking, final_marking,
-                                  variant=replay_fitness.Variants.ALIGNMENT_BASED, align_variant=variant_str,
-                                  parameters=parameters)
+                                variant=replay_fitness.Variants.ALIGNMENT_BASED, align_variant=variant_str, parameters=parameters)
 
     return result
 
 
 def precision_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking,
-                                 final_marking: Marking, activity_key: str = "concept:name",
-                                 timestamp_key: str = "time:timestamp",
-                                 case_id_key: str = "case:concept:name") -> float:
+                                 final_marking: Marking, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> float:
     """
     Calculates the precision precision using token-based replay
 
@@ -364,27 +335,22 @@ def precision_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: 
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         precision_tbr = pm4py.precision_token_based_replay(dataframe, net, im, fm, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     properties = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     from pm4py.algo.evaluation.precision import algorithm as precision_evaluator
     result = precision_evaluator.apply(log, petri_net, initial_marking, final_marking,
-                                       variant=precision_evaluator.Variants.ETCONFORMANCE_TOKEN, parameters=properties)
+                                     variant=precision_evaluator.Variants.ETCONFORMANCE_TOKEN, parameters=properties)
 
     return result
 
 
 def precision_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking,
-                         final_marking: Marking, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT,
-                         activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
-                         case_id_key: str = "case:concept:name") -> float:
+                         final_marking: Marking, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> float:
     """
     Calculates the precision of the model w.r.t. the event log using alignments
 
@@ -418,26 +384,22 @@ def precision_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet
         net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         precision_alignments = pm4py.precision_alignments(dataframe, net, im, fm, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     from pm4py.algo.evaluation.precision import algorithm as precision_evaluator
     parameters = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
     parameters["multiprocessing"] = multi_processing
     result = precision_evaluator.apply(log, petri_net, initial_marking, final_marking,
-                                       variant=precision_evaluator.Variants.ALIGN_ETCONFORMANCE,
-                                       parameters=parameters)
+                                     variant=precision_evaluator.Variants.ALIGN_ETCONFORMANCE,
+                                     parameters=parameters)
 
     return result
 
 
-def replay_prefix_tbr(prefix: List[str], net: PetriNet, im: Marking, fm: Marking,
-                      activity_key: str = "concept:name") -> Marking:
+def replay_prefix_tbr(prefix: List[str], net: PetriNet, im: Marking, fm: Marking, activity_key: str = "concept:name") -> Marking:
     """
     Replays a prefix (list of activities) on a given accepting Petri net, using Token-Based Replay.
 
@@ -473,8 +435,7 @@ def replay_prefix_tbr(prefix: List[str], net: PetriNet, im: Marking, fm: Marking
     return res["reached_marking"]
 
 
-@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0",
-                        details="conformance checking using footprints will not be exposed in a future release")
+@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0", details="conformance checking using footprints will not be exposed in a future release")
 def __convert_to_fp(*args) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
     """
     Internal method to convert the provided event log / process model argument
@@ -496,8 +457,7 @@ def __convert_to_fp(*args) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
     return fp
 
 
-@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0",
-                        details="conformance checking using footprints will not be exposed in a future release")
+@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0", details="conformance checking using footprints will not be exposed in a future release")
 def conformance_diagnostics_footprints(*args) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
     """
     Provide conformance checking diagnostics using footprints
@@ -523,8 +483,7 @@ def conformance_diagnostics_footprints(*args) -> Union[List[Dict[str, Any]], Dic
     return result
 
 
-@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0",
-                        details="conformance checking using footprints will not be exposed in a future release")
+@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0", details="conformance checking using footprints will not be exposed in a future release")
 def fitness_footprints(*args) -> Dict[str, float]:
     """
     Calculates fitness using footprints. The output is a dictionary containing two keys:
@@ -550,8 +509,7 @@ def fitness_footprints(*args) -> Dict[str, float]:
     return result
 
 
-@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0",
-                        details="conformance checking using footprints will not be exposed in a future release")
+@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0", details="conformance checking using footprints will not be exposed in a future release")
 def precision_footprints(*args) -> float:
     """
     Calculates precision using footprints
@@ -574,8 +532,7 @@ def precision_footprints(*args) -> float:
     return result
 
 
-@deprecation.deprecated(removed_in="2.3.0", deprecated_in="3.0.0",
-                        details="this method will be removed in a future release.")
+@deprecation.deprecated(removed_in="2.3.0", deprecated_in="3.0.0", details="this method will be removed in a future release.")
 def __check_is_fit_process_tree(trace, tree) -> bool:
     """
     Check if a trace object is fit against a process tree model
@@ -599,8 +556,7 @@ def __check_is_fit_process_tree(trace, tree) -> bool:
     else:
         from pm4py.convert import convert_to_petri_net
         net, im, fm = convert_to_petri_net(tree)
-        tbr_conf_res = conformance_diagnostics_token_based_replay(log, net, im, fm, return_diagnostics_dataframe=False)[
-            0]
+        tbr_conf_res = conformance_diagnostics_token_based_replay(log, net, im, fm, return_diagnostics_dataframe=False)[0]
         # CHECK 2) if TBR says that is fit, then return True
         # (if they say False, it might be a false negative)
         if tbr_conf_res["trace_is_fit"]:
@@ -611,8 +567,7 @@ def __check_is_fit_process_tree(trace, tree) -> bool:
             return align_conf_res["fitness"] == 1.0
 
 
-@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0",
-                        details="this method will be removed in a future release.")
+@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0", details="this method will be removed in a future release.")
 def __check_is_fit_petri_net(trace, net, im, fm, activity_key=xes_constants.DEFAULT_NAME_KEY) -> bool:
     """
     Checks if a trace object is fit against Petri net object
@@ -636,8 +591,7 @@ def __check_is_fit_petri_net(trace, net, im, fm, activity_key=xes_constants.DEFA
     else:
         log = EventLog()
         log.append(trace)
-        tbr_conf_res = conformance_diagnostics_token_based_replay(log, net, im, fm, return_diagnostics_dataframe=False)[
-            0]
+        tbr_conf_res = conformance_diagnostics_token_based_replay(log, net, im, fm, return_diagnostics_dataframe=False)[0]
         # CHECK 2) if TBR says that is fit, then return True
         # (if they say False, it might be a false negative)
         if tbr_conf_res["trace_is_fit"]:
@@ -648,8 +602,7 @@ def __check_is_fit_petri_net(trace, net, im, fm, activity_key=xes_constants.DEFA
             return align_conf_res["fitness"] == 1.0
 
 
-@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0",
-                        details="this method will be removed in a future release.")
+@deprecation.deprecated(deprecated_in="2.3.0", removed_in="3.0.0", details="this method will be removed in a future release.")
 def check_is_fitting(*args, activity_key=xes_constants.DEFAULT_NAME_KEY) -> bool:
     """
     Checks if a trace object is fit against a process model
@@ -681,12 +634,7 @@ def check_is_fitting(*args, activity_key=xes_constants.DEFAULT_NAME_KEY) -> bool
         return __check_is_fit_petri_net(trace, model[0], model[1], model[2], activity_key=activity_key)
 
 
-def conformance_temporal_profile(log: Union[EventLog, pd.DataFrame],
-                                 temporal_profile: Dict[Tuple[str, str], Tuple[float, float]], zeta: float = 1.0,
-                                 activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
-                                 case_id_key: str = "case:concept:name",
-                                 return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> \
-List[List[Tuple[float, float, float, float]]]:
+def conformance_temporal_profile(log: Union[EventLog, pd.DataFrame], temporal_profile: Dict[Tuple[str, str], Tuple[float, float]], zeta: float = 1.0, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> List[List[Tuple[float, float, float, float]]]:
     """
     Performs conformance checking on the provided log with the provided temporal profile.
     The result is a list of time-based deviations for every case.
@@ -713,13 +661,10 @@ List[List[Tuple[float, float, float, float]]]:
         temporal_profile = pm4py.discover_temporal_profile(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         conformance_temporal_profile = pm4py.conformance_temporal_profile(dataframe, temporal_profile, zeta=1, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     properties = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
     properties["zeta"] = zeta
@@ -733,11 +678,7 @@ List[List[Tuple[float, float, float, float]]]:
     return result
 
 
-def conformance_declare(log: Union[EventLog, pd.DataFrame], declare_model: Dict[str, Dict[Any, Dict[str, int]]],
-                        activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
-                        case_id_key: str = "case:concept:name",
-                        return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> List[
-    Dict[str, Any]]:
+def conformance_declare(log: Union[EventLog, pd.DataFrame], declare_model: Dict[str, Dict[Any, Dict[str, int]]], activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> List[Dict[str, Any]]:
     """
     Applies conformance checking against a DECLARE model.
 
@@ -760,8 +701,6 @@ def conformance_declare(log: Union[EventLog, pd.DataFrame], declare_model: Dict[
         declare_model = pm4py.discover_declare(log)
         conf_result = pm4py.conformance_declare(log, declare_model)
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
@@ -783,11 +722,7 @@ def conformance_declare(log: Union[EventLog, pd.DataFrame], declare_model: Dict[
     return result
 
 
-def conformance_log_skeleton(log: Union[EventLog, pd.DataFrame], log_skeleton: Dict[str, Any],
-                             activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
-                             case_id_key: str = "case:concept:name",
-                             return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> \
-List[Set[Any]]:
+def conformance_log_skeleton(log: Union[EventLog, pd.DataFrame], log_skeleton: Dict[str, Any], activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> List[Set[Any]]:
     """
     Performs conformance checking using the log skeleton
 
@@ -826,13 +761,10 @@ List[Set[Any]]:
         log_skeleton = pm4py.discover_log_skeleton(dataframe, noise_threshold=0.1, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
         conformance_lsk = pm4py.conformance_log_skeleton(dataframe, log_skeleton, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
     """
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: raise Exception(
-        "the method can be applied only to a traditional event log!")
     __event_log_deprecation_warning(log)
 
     if check_is_pandas_dataframe(log):
-        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key,
-                                       case_id_key=case_id_key)
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
 
     if return_diagnostics_dataframe:
         log = convert_to_event_log(log, case_id_key=case_id_key)
@@ -849,26 +781,18 @@ List[Set[Any]]:
     return result
 
 
-from pm4py.objects.dcr.obj import DcrGraph
-
-
-# parameters: Optional[Dict[Any, Any]] = None
-
-
 def conformance_dcr(log: Union[EventLog, pd.DataFrame], dcr_graph: DcrGraph, activity_key: str = "concept:name",
                     timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name",
                     group_key: str = "org:group", resource_key: str = "org:resource",
-                    return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> DataFrame | \
+                    return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> pd.DataFrame | \
                                                                                                             List[Tuple[
                                                                                                                 str,
                                                                                                                 Dict[
                                                                                                                     str, Any]]]:
     """
     Applies conformance checking against a DCR model.
-
     inspired by github implementation:
     https://github.com/fau-is/cc-dcr/tree/master
-
     :param log: event log
     :param dcr_graph: DCR graph
     :param activity_key: attribute to be used for the activity
@@ -878,11 +802,8 @@ def conformance_dcr(log: Union[EventLog, pd.DataFrame], dcr_graph: DcrGraph, act
     :param resource_key: attribute to be used as resource identifier
     :param return_diagnostics_dataframe: if possible, returns a dataframe with the diagnostics (instead of the usual output)
     :rtype: `DataFrame | List[Tuple[str,Dict[str, Any]]]`
-
     .. code-block:: python3
-
         import pm4py
-
         log = pm4py.read_xes("C:/receipt.xes")
         grap, la = pm4py.discover_dcr(log)
         conf_res = pm4py.conformance_dcr(log, dcr_graph)
@@ -918,10 +839,9 @@ def optimal_alignment_dcr(
         timestamp_key: str = "time:timestamp",
         case_id_key: str = "case:concept:name",
         return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME
-) -> DataFrame | Any:
+) -> pd.DataFrame | Any:
     """
     Applies optimal alignment against a DCR model.
-
     Parameters
     ----------
     log : EventLog | pd.DataFrame | Trace
@@ -936,22 +856,18 @@ def optimal_alignment_dcr(
         The key to identify case identifiers in the log.
     return_diagnostics_dataframe : bool, default False
         If True, returns a diagnostics dataframe instead of the usual list output.
-
     Returns
     -------
     Union[pd.DataFrame, List[Tuple[str, Dict[str, Any]]]]
         Depending on the value of `return_diagnostics_dataframe`, returns either
         a pandas DataFrame with diagnostics or a list of alignment results.
-
     Raises
     ------
     Exception
         If the log provided is not an instance of EventLog or pandas DataFrame.
-
     Examples
     --------
     .. code-block:: python3
-
         import pm4py
         graph, la = pm4py.discover_DCR(log)
         conf_res = pm4py.optimal_alignment_dcr(log,graph)

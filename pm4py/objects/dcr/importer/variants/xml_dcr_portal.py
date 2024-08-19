@@ -5,7 +5,7 @@ import isodate
 from pm4py.util import constants
 from copy import deepcopy
 from pm4py.objects.dcr.obj import Relations, dcr_template, DcrGraph
-from pm4py.objects.dcr.roles.obj import RoledcrGraph
+from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 
 I = Relations.I.value
 E = Relations.E.value
@@ -174,7 +174,7 @@ def import_xml_tree_from_root(root, white_space_replacement=None):
     '''
     graph = DcrGraph(dcr)
     if hasattr(graph,'roles'):
-        graph = RoledcrGraph(graph,dcr)
+        graph = RoleDcrGraph(graph, dcr)
     return graph
 
 
@@ -186,27 +186,27 @@ def clean_input(dcr, white_space_replacement=None):
         if k in [I, E, C, R, M, N]:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [v3.strip().replace('_', white_space_replacement) for v3 in v2])
+                v_new[k2.strip().replace(' ', white_space_replacement)] = set(
+                    [v3.strip().replace(' ', white_space_replacement) for v3 in v2])
             dcr[k] = v_new
         elif k in ['conditionsForDelays', 'responseToDeadlines']:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [(v3.strip().replace('_', white_space_replacement), d) for (v3, d) in v2])
+                v_new[k2.strip().replace(' ', white_space_replacement)] = set(
+                    [(v3.strip().replace(' ', white_space_replacement), d) for (v3, d) in v2])
             dcr[k] = v_new
         elif k == 'marking':
             for k2 in ['executed', 'included', 'pending']:
-                new_v = set([v2.strip().replace('_', white_space_replacement) for v2 in dcr[k][k2]])
+                new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
                 dcr[k][k2] = new_v
         elif k in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
             v_new = {}
             for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [v3.strip().replace('_', white_space_replacement) for v3 in v2])
+                v_new[k2.strip().replace(' ', white_space_replacement)] = set(
+                    [v3.strip().replace(' ', white_space_replacement) for v3 in v2])
             dcr[k] = v_new
         else:
-            new_v = set([v2.strip().replace('_', white_space_replacement) for v2 in dcr[k]])
+            new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k]])
             dcr[k] = new_v
     return dcr
 

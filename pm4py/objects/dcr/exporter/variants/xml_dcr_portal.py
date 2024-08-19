@@ -1,7 +1,7 @@
 from lxml import etree
 
 
-def export_dcr_xml(dcr, output_file_name, dcr_title='DCR from pm4py'):
+def export_dcr_xml(dcr, output_file_name, dcr_title):
     '''
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
 
