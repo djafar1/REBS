@@ -316,8 +316,9 @@ class Discover:
         # For each chainprecedence(i,j) we add: include(i,j) exclude(j,j)
         for j in self.logAbstraction['chainPrecedenceFor']:
             for i in self.logAbstraction['chainPrecedenceFor'][j]:
+                if j not in self.logAbstraction['atMostOnce']:
+                    self.graph['includesTo'][i].add(j)
                 self.graph['excludesTo'][j].add(j)
-                self.graph['includesTo'][i].add(j)
 
         # Additional excludes based on predecessors / successors
         for event in self.logAbstraction['events']:

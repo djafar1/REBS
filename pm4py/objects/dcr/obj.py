@@ -28,6 +28,7 @@ class Relations(Enum):
 
 
 class TemplateRelations(Enum):
+>>>>>>>>> Temporary merge branch 2
     I = 'includesTo'
     E = 'excludesTo'
     R = 'responseTo'
@@ -396,3 +397,4 @@ class DcrGraph(object):
         for key,_ in vars(self).items():
             if item == key.split("_")[-1]:
                 setattr(self, key, value)
+

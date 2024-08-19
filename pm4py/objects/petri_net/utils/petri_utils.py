@@ -22,7 +22,8 @@ from copy import copy, deepcopy
 
 from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.petri_net import semantics, properties
-from pm4py.objects.petri_net.obj import PetriNet, Marking, ResetNet, InhibitorNet
+from pm4py.objects.petri_net.obj import PetriNet, Marking, ResetNet, InhibitorNet, ResetInhibitorNet
+from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet
 from pm4py.objects.petri_net.saw_net.obj import StochasticArcWeightNet
 from pm4py.util import xes_constants as xes_util
 
@@ -205,7 +206,9 @@ def add_arc_from_to_newer(fr, to, net: PetriNet, weight=1, type=None) -> PetriNe
     None
     """
     if type == properties.INHIBITOR_ARC:
-        if isinstance(net, InhibitorNet):
+        if isinstance(net, InhibitorNet) or isinstance(net, TimedArcNet):
+            if isinstance(fr, PetriNet.Transition):
+                raise Exception("trying to add an inhibitor arc from a Transition object is prohibited.")
             a = InhibitorNet.InhibitorArc(fr, to, weight)
             a.properties[properties.ARCTYPE] = type
         else:
@@ -222,6 +225,12 @@ def add_arc_from_to_newer(fr, to, net: PetriNet, weight=1, type=None) -> PetriNe
             #a.properties[properties.ARCTYPE] = type
         else:
             raise Exception("trying to add a stochastic arc on a traditional Petri net object.")
+    elif type == properties.TRANSPORT_ARC:
+        if isinstance(net, TimedArcNet):
+            a = TimedArcNet.TransportArc(fr, to, weight)
+            a.properties[properties.ARCTYPE] = type
+        else:
+            raise Exception("trying to add a transport arc on a traditional Petri net object.")
     else:
         a = PetriNet.Arc(fr, to, weight)
     net.arcs.add(a)
