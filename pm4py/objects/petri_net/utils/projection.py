@@ -17,7 +17,7 @@
 import numpy as np
 
 from pm4py.objects.petri_net.obj import PetriNet, Marking
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
 
 
 def project_net_on_place(place):
@@ -60,12 +60,12 @@ def project_net_on_place(place):
     for trans in input_trans:
         new_trans = PetriNet.Transition(trans.name, trans.label)
         place_net.transitions.add(new_trans)
-        add_arc_from_to(new_trans, new_place, place_net)
+        add_arc_from_to_with_check(new_trans, new_place, place_net)
 
     for trans in output_trans:
         new_trans = PetriNet.Transition(trans.name, trans.label)
         place_net.transitions.add(new_trans)
-        add_arc_from_to(new_place, new_trans, place_net)
+        add_arc_from_to_with_check(new_place, new_trans, place_net)
 
     return place_net, place_net_im, place_net_fm
 

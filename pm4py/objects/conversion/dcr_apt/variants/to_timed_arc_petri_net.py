@@ -206,8 +206,8 @@ class Dcr2TimedArcPetri(object):
         ps_to_remove = set(tapn.places).difference(changed_places)
         if G:
             for event in G['events']:
-                for type, event_place in self.helper_struct[event]['places'].items():
-                    for type_prime, event_place_prime in self.helper_struct[event]['places'].items():
+                for (e, type), event_place in self.p_dict.items():
+                    for (e_prime, type_prime), event_place_prime in self.p_dict.items():
                         # TODO: if type is (pending or pending_excluded) then event_place is a set
                         # if type_prime is (pending or pending_excluded) then event_place_prime is a set
                         if type in ['pending', 'pending_excluded'] and type_prime in ['pending', 'pending_excluded']:
@@ -367,19 +367,19 @@ class Dcr2TimedArcPetri(object):
                 if arc_type > 0:
                     match arc_type:
                         case 1:  # TtoP -->
-                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn)
                         case 2:  # PtoT <--
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn)
                         case 3:  # Read Both <-->
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
-                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn)
+                            pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn)
                         case 4:  # Inhib o--
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
                         case 5:  # TtoPandInhib o-->
-                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                            pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
                         case 6: # TtP 6 # --<>
-                            ttp = pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn, type='transport')
+                            ttp = pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn, type='transport')
                             ttp.properties['transportindex'] = transport_idx
                             if increase:
                                 transport_idx += 1
@@ -387,7 +387,7 @@ class Dcr2TimedArcPetri(object):
                             else:
                                 increase = True
                         case 7: # PtT 7 # <>--
-                            ptt = pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
+                            ptt = pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
                             ptt.properties['transportindex'] = transport_idx
                             if increase:
                                 transport_idx += 1
@@ -397,9 +397,9 @@ class Dcr2TimedArcPetri(object):
                         case 8: # TRead TBoth 8 # <>-<>
                             if increase == True:
                                 print('[X] increase is true this should not happen!')
-                            ttp = pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn, type='transport')
+                            ttp = pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn, type='transport')
                             ttp.properties['transportindex'] = transport_idx
-                            ptt = pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
+                            ptt = pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
                             ptt.properties['transportindex'] = transport_idx
                             # this should work because only conditions have this type of arc
                             delay = self.delay_dict[frozenset([event, event_prime])]

@@ -268,17 +268,17 @@ class Dcr2PetriNet(object):
                 if arc_type > 0:
                     match arc_type:
                         case 1:  # TtoP -->
-                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn)
                         case 2:  # PtoT <--
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn)
                         case 3:  # Read Both <-->
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn)
-                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn)
+                            pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn)
                         case 4:  # Inhib o--
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
                         case 5:  # TtoPandInhib o-->
-                            pn_utils.add_arc_from_to(t, self.p_dict[(event_prime, place_type)], res_pn)
-                            pn_utils.add_arc_from_to(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
+                            pn_utils.add_arc_from_to_apt(t, self.p_dict[(event_prime, place_type)], res_pn)
+                            pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='inhibitor')
         return res_pn, res_m
 
 

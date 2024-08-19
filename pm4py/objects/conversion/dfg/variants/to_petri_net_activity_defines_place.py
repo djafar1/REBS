@@ -75,16 +75,16 @@ def apply(dfg, parameters=None):
             index = index + 1
             trans = PetriNet.Transition(act + "_" + str(index), act)
             net.transitions.add(trans)
-            pn_util.add_arc_from_to(source, trans, net)
-            pn_util.add_arc_from_to(trans, places_corr[act], net)
+            pn_util.add_arc_from_to_with_check(source, trans, net)
+            pn_util.add_arc_from_to_with_check(trans, places_corr[act], net)
 
     for act in end_activities:
         if act in places_corr:
             index = index + 1
             inv_trans = PetriNet.Transition(act + "_" + str(index), None)
             net.transitions.add(inv_trans)
-            pn_util.add_arc_from_to(places_corr[act], inv_trans, net)
-            pn_util.add_arc_from_to(inv_trans, sink, net)
+            pn_util.add_arc_from_to_with_check(places_corr[act], inv_trans, net)
+            pn_util.add_arc_from_to_with_check(inv_trans, sink, net)
 
     for el in dfg.keys():
         act1 = el[0]
@@ -94,7 +94,7 @@ def apply(dfg, parameters=None):
         trans = PetriNet.Transition(act2 + "_" + str(index), act2)
         net.transitions.add(trans)
 
-        pn_util.add_arc_from_to(places_corr[act1], trans, net)
-        pn_util.add_arc_from_to(trans, places_corr[act2], net)
+        pn_util.add_arc_from_to_with_check(places_corr[act1], trans, net)
+        pn_util.add_arc_from_to_with_check(trans, places_corr[act2], net)
 
     return net, im, fm

@@ -15,7 +15,7 @@
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
 from pm4py.objects.petri_net.obj import PetriNet, Marking
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
 from pm4py.objects.petri_net import properties
 
 
@@ -51,13 +51,13 @@ def construct(pn1, im1, fm1, pn2, im2, fm2, skip):
                 for p2 in t2.properties:
                     sync.properties[p2] = t2.properties[p2]
                 for a in t1.in_arcs:
-                    add_arc_from_to(p1_map[a.source], sync, sync_net)
+                    add_arc_from_to_with_check(p1_map[a.source], sync, sync_net)
                 for a in t2.in_arcs:
-                    add_arc_from_to(p2_map[a.source], sync, sync_net)
+                    add_arc_from_to_with_check(p2_map[a.source], sync, sync_net)
                 for a in t1.out_arcs:
-                    add_arc_from_to(sync, p1_map[a.target], sync_net)
+                    add_arc_from_to_with_check(sync, p1_map[a.target], sync_net)
                 for a in t2.out_arcs:
-                    add_arc_from_to(sync, p2_map[a.target], sync_net)
+                    add_arc_from_to_with_check(sync, p2_map[a.target], sync_net)
 
     sync_im = Marking()
     sync_fm = Marking()
@@ -119,13 +119,13 @@ def construct_cost_aware(pn1, im1, fm1, pn2, im2, fm2, skip, pn1_costs, pn2_cost
                 for p2 in t2.properties:
                     sync.properties[p2] = t2.properties[p2]
                 for a in t1.in_arcs:
-                    add_arc_from_to(p1_map[a.source], sync, sync_net)
+                    add_arc_from_to_with_check(p1_map[a.source], sync, sync_net)
                 for a in t2.in_arcs:
-                    add_arc_from_to(p2_map[a.source], sync, sync_net)
+                    add_arc_from_to_with_check(p2_map[a.source], sync, sync_net)
                 for a in t1.out_arcs:
-                    add_arc_from_to(sync, p1_map[a.target], sync_net)
+                    add_arc_from_to_with_check(sync, p1_map[a.target], sync_net)
                 for a in t2.out_arcs:
-                    add_arc_from_to(sync, p2_map[a.target], sync_net)
+                    add_arc_from_to_with_check(sync, p2_map[a.target], sync_net)
 
     sync_im = Marking()
     sync_fm = Marking()
@@ -166,8 +166,8 @@ def __copy_into(source_net, target_net, upper, skip):
 
     for t in source_net.transitions:
         for a in t.in_arcs:
-            add_arc_from_to(p_map[a.source], t_map[t], target_net)
+            add_arc_from_to_with_check(p_map[a.source], t_map[t], target_net)
         for a in t.out_arcs:
-            add_arc_from_to(t_map[t], p_map[a.target], target_net)
+            add_arc_from_to_with_check(t_map[t], p_map[a.target], target_net)
 
     return t_map, p_map

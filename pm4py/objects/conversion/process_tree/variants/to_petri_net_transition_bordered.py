@@ -44,8 +44,8 @@ def apply(tree, parameters=None):
     if tree.parent is None:
         p_ini = pn_util.add_place(net)
         p_fin = pn_util.add_place(net)
-        pn_util.add_arc_from_to(p_ini, _get_src_transition(net), net)
-        pn_util.add_arc_from_to(_get_sink_transition(net), p_fin, net)
+        pn_util.add_arc_from_to_with_check(p_ini, _get_src_transition(net), net)
+        pn_util.add_arc_from_to_with_check(_get_sink_transition(net), p_fin, net)
         return net, obj.Marking({p_ini: 1}), obj.Marking({p_fin: 1})
     return net, obj.Marking(), obj.Marking()
 
@@ -66,9 +66,9 @@ def _get_sink_transition(sub_net):
 
 def _add_src_sink_transitions(net, p_s, p_t):
     src = pn_util.add_transition(net)
-    pn_util.add_arc_from_to(src, p_s, net)
+    pn_util.add_arc_from_to_with_check(src, p_s, net)
     sink = pn_util.add_transition(net)
-    pn_util.add_arc_from_to(p_t, sink, net)
+    pn_util.add_arc_from_to_with_check(p_t, sink, net)
     return net, obj.Marking(), obj.Marking()
 
 
@@ -77,12 +77,12 @@ def construct_sequence_pattern(net, sub_nets):
     for i in range(len(sub_nets) + 1):
         places[i] = pn_util.add_place(net)
     for i in range(len(sub_nets)):
-        pn_util.add_arc_from_to(places[i], _get_src_transition(sub_nets[i]), net)
-        pn_util.add_arc_from_to(_get_sink_transition(sub_nets[i]), places[i + 1], net)
+        pn_util.add_arc_from_to_with_check(places[i], _get_src_transition(sub_nets[i]), net)
+        pn_util.add_arc_from_to_with_check(_get_sink_transition(sub_nets[i]), places[i + 1], net)
     src = pn_util.add_transition(net)
-    pn_util.add_arc_from_to(src, places[0], net)
+    pn_util.add_arc_from_to_with_check(src, places[0], net)
     sink = pn_util.add_transition(net)
-    pn_util.add_arc_from_to(places[len(places) - 1], sink, net)
+    pn_util.add_arc_from_to_with_check(places[len(places) - 1], sink, net)
     return net, obj.Marking(), obj.Marking()
 
 
@@ -90,8 +90,8 @@ def construct_xor_pattern(net, sub_nets):
     p_s = pn_util.add_place(net)
     p_o = pn_util.add_place(net)
     for n in sub_nets:
-        pn_util.add_arc_from_to(p_s, _get_src_transition(n), net)
-        pn_util.add_arc_from_to(_get_sink_transition(n), p_o, net)
+        pn_util.add_arc_from_to_with_check(p_s, _get_src_transition(n), net)
+        pn_util.add_arc_from_to_with_check(_get_sink_transition(n), p_o, net)
     return _add_src_sink_transitions(net, p_s, p_o)
 
 
@@ -101,14 +101,14 @@ def construct_and_pattern(net, sub_nets):
     for i in range(len(sub_nets)):
         p_s[i] = pn_util.add_place(net)
         p_t[i] = pn_util.add_place(net)
-        pn_util.add_arc_from_to(p_s[i], _get_src_transition(sub_nets[i]), net)
-        pn_util.add_arc_from_to(_get_sink_transition(sub_nets[i]), p_t[i], net)
+        pn_util.add_arc_from_to_with_check(p_s[i], _get_src_transition(sub_nets[i]), net)
+        pn_util.add_arc_from_to_with_check(_get_sink_transition(sub_nets[i]), p_t[i], net)
     src = pn_util.add_transition(net)
     for p in p_s:
-        pn_util.add_arc_from_to(src, p, net)
+        pn_util.add_arc_from_to_with_check(src, p, net)
     sink = pn_util.add_transition(net)
     for p in p_t:
-        pn_util.add_arc_from_to(p, sink, net)
+        pn_util.add_arc_from_to_with_check(p, sink, net)
     return net, obj.Marking(), obj.Marking()
 
 
@@ -116,9 +116,9 @@ def construct_loop_pattern(net, sub_nets):
     assert (len(sub_nets) == 2)
     p_s = pn_util.add_place(net)
     p_t = pn_util.add_place(net)
-    pn_util.add_arc_from_to(p_s, _get_src_transition(sub_nets[0]), net)
-    pn_util.add_arc_from_to(p_t, _get_src_transition(sub_nets[1]), net)
-    pn_util.add_arc_from_to(_get_sink_transition(sub_nets[0]), p_t, net)
-    pn_util.add_arc_from_to(_get_sink_transition(sub_nets[1]), p_s, net)
+    pn_util.add_arc_from_to_with_check(p_s, _get_src_transition(sub_nets[0]), net)
+    pn_util.add_arc_from_to_with_check(p_t, _get_src_transition(sub_nets[1]), net)
+    pn_util.add_arc_from_to_with_check(_get_sink_transition(sub_nets[0]), p_t, net)
+    pn_util.add_arc_from_to_with_check(_get_sink_transition(sub_nets[1]), p_s, net)
     net, ini, fin = _add_src_sink_transitions(net, p_s, p_t)
     return net, obj.Marking(), obj.Marking()

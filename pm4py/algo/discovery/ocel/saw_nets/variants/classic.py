@@ -97,7 +97,7 @@ def __get_ot_saw_nets(obj_types, ocpn_nets, saw_weights):
         for trans in net.transitions:
             saw_net.transitions.add(trans)
         for arc in net.arcs:
-            new_arc = petri_utils.add_arc_from_to(arc.source, arc.target, saw_net, type="stochastic_arc")
+            new_arc = petri_utils.add_arc_from_to_with_check(arc.source, arc.target, saw_net, type="stochastic_arc")
             if isinstance(new_arc.source, PetriNet.Transition) and new_arc.source in saw_weights[ot]:
                 new_arc.weight = saw_weights[ot][new_arc.source]
             elif isinstance(new_arc.target, PetriNet.Transition) and new_arc.target in saw_weights[ot]:
@@ -135,7 +135,7 @@ def __get_multi_saw_net(ot_saw_nets):
             else:
                 el_corr[trans] = el_corr[trans_unq_corr[trans.label]]
         for arc in saw_net.arcs:
-            new_arc = petri_utils.add_arc_from_to(el_corr[arc.source], el_corr[arc.target], multi_saw_net, weight=arc.weight)
+            new_arc = petri_utils.add_arc_from_to_with_check(el_corr[arc.source], el_corr[arc.target], multi_saw_net, weight=arc.weight)
             decorations_multi_saw_net[new_arc] = ot_color
 
     return multi_saw_net, decorations_multi_saw_net

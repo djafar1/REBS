@@ -471,5 +471,5 @@ def convert_petri_net_type(net: PetriNet, im: Marking, fm: Marking, type: str = 
             trans.out_arcs.remove(arc)
     for arc in net.arcs:
         arc_type = arc.properties["arctype"] if "arctype" in arc.properties else None
-        new_arc = petri_utils.add_arc_from_to(arc.source, arc.target, new_net, weight=arc.weight, type=arc_type)
+        new_arc = petri_utils.add_arc_from_to_with_check(arc.source, arc.target, new_net, weight=arc.weight, type=arc_type)
     return new_net, im, fm

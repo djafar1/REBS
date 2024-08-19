@@ -85,16 +85,16 @@ def apply(dfg: Dict[Tuple[str, str], int], parameters: Optional[Dict[Any, Any]] 
         net.places.add(pl1)
         net.places.add(pl2)
         net.transitions.add(trans)
-        petri_utils.add_arc_from_to(pl1, trans, net)
-        petri_utils.add_arc_from_to(trans, pl2, net)
+        petri_utils.add_arc_from_to_with_check(pl1, trans, net)
+        petri_utils.add_arc_from_to_with_check(trans, pl2, net)
         left_places[act] = pl1
         right_places[act] = pl2
         transes[act] = trans
     for arc in enriched_dfg:
         hidden = PetriNet.Transition(arc[0] + "_" + arc[1], None)
         net.transitions.add(hidden)
-        petri_utils.add_arc_from_to(right_places[arc[0]], hidden, net)
-        petri_utils.add_arc_from_to(hidden, left_places[arc[1]], net)
+        petri_utils.add_arc_from_to_with_check(right_places[arc[0]], hidden, net)
+        petri_utils.add_arc_from_to_with_check(hidden, left_places[arc[1]], net)
     im[left_places[artificial_start_activity]] = 1
     fm[right_places[artificial_end_activity]] = 1
 

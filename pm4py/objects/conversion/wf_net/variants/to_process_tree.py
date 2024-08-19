@@ -90,9 +90,9 @@ def binary_loop_detection(net):
         net.transitions.add(t)
         # reduce
         for a in c1.in_arcs:
-            pn_util.add_arc_from_to(a.source, t, net)
+            pn_util.add_arc_from_to_with_check(a.source, t, net)
         for a in c1.out_arcs:
-            pn_util.add_arc_from_to(t, a.target, net)
+            pn_util.add_arc_from_to_with_check(t, a.target, net)
         pn_util.remove_transition(net, c1)
         pn_util.remove_transition(net, c2)
         return net
@@ -147,13 +147,13 @@ def binary_concurrency_detection(net):
         net.transitions.add(t)
         # reduce
         for a in c1.in_arcs:
-            pn_util.add_arc_from_to(a.source, t, net)
+            pn_util.add_arc_from_to_with_check(a.source, t, net)
         for a in c1.out_arcs:
-            pn_util.add_arc_from_to(t, a.target, net)
+            pn_util.add_arc_from_to_with_check(t, a.target, net)
         for a in c2.in_arcs:
-            pn_util.add_arc_from_to(a.source, t, net)
+            pn_util.add_arc_from_to_with_check(a.source, t, net)
         for a in c2.out_arcs:
-            pn_util.add_arc_from_to(t, a.target, net)
+            pn_util.add_arc_from_to_with_check(t, a.target, net)
         pn_util.remove_transition(net, c1)
         pn_util.remove_transition(net, c2)
         return net
@@ -178,9 +178,9 @@ def binary_choice_detection(net):
         t = generate_new_binary_transition(c1, c2, pt_operator.Operator.XOR, net)
         net.transitions.add(t)
         for a in c1.in_arcs:
-            pn_util.add_arc_from_to(a.source, t, net)
+            pn_util.add_arc_from_to_with_check(a.source, t, net)
         for a in c2.out_arcs:
-            pn_util.add_arc_from_to(t, a.target, net)
+            pn_util.add_arc_from_to_with_check(t, a.target, net)
         pn_util.remove_transition(net, c1)
         pn_util.remove_transition(net, c2)
         return net
@@ -221,9 +221,9 @@ def binary_sequence_detection(net):
         t = generate_new_binary_transition(c1, c2, pt_operator.Operator.SEQUENCE, net)
         net.transitions.add(t)
         for a in c1.in_arcs:
-            pn_util.add_arc_from_to(a.source, t, net)
+            pn_util.add_arc_from_to_with_check(a.source, t, net)
         for a in c2.out_arcs:
-            pn_util.add_arc_from_to(t, a.target, net)
+            pn_util.add_arc_from_to_with_check(t, a.target, net)
         for p in pn_util.post_set(c1):
             pn_util.remove_place(net, p)
         pn_util.remove_transition(net, c1)

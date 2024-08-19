@@ -17,7 +17,7 @@
 import hashlib
 
 from pm4py.objects.petri_net.obj import PetriNet, Marking
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
 from pm4py.util import constants
 
 
@@ -85,13 +85,13 @@ def decompose(net, im, fm):
                     if st.name not in lmap:
                         lmap[st.name] = PetriNet.Transition(st.name, trans_labels[st.name])
                         net_new.transitions.add(lmap[st.name])
-                    add_arc_from_to(lmap[st.name], lmap[el], net_new)
+                    add_arc_from_to_with_check(lmap[st.name], lmap[el], net_new)
                 for arc in old_place.out_arcs:
                     st = arc.target
                     if st.name not in lmap:
                         lmap[st.name] = PetriNet.Transition(st.name, trans_labels[st.name])
                         net_new.transitions.add(lmap[st.name])
-                    add_arc_from_to(lmap[el], lmap[st.name], net_new)
+                    add_arc_from_to_with_check(lmap[el], lmap[st.name], net_new)
                 if old_place in im:
                     im_new[lmap[el]] = im[old_place]
                 if old_place in fm:
@@ -143,15 +143,15 @@ def merge_comp(comp1, comp2):
 
     for arc in comp1[0].arcs:
         if type(arc.source) is PetriNet.Place:
-            add_arc_from_to(places[arc.source.name], trans[arc.target.name], net)
+            add_arc_from_to_with_check(places[arc.source.name], trans[arc.target.name], net)
         else:
-            add_arc_from_to(trans[arc.source.name], places[arc.target.name], net)
+            add_arc_from_to_with_check(trans[arc.source.name], places[arc.target.name], net)
 
     for arc in comp2[0].arcs:
         if type(arc.source) is PetriNet.Place:
-            add_arc_from_to(places[arc.source.name], trans[arc.target.name], net)
+            add_arc_from_to_with_check(places[arc.source.name], trans[arc.target.name], net)
         else:
-            add_arc_from_to(trans[arc.source.name], places[arc.target.name], net)
+            add_arc_from_to_with_check(trans[arc.source.name], places[arc.target.name], net)
 
     lvis_labels = sorted([t.label for t in net.transitions if t.label is not None])
     t_tuple = tuple(sorted(

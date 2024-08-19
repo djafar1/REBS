@@ -19,7 +19,7 @@ from enum import Enum
 
 from pm4py.objects.petri_net.utils import reduction
 from pm4py.objects.petri_net.obj import PetriNet, Marking
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
 from pm4py.util import exec_utils
 
 
@@ -160,14 +160,14 @@ def apply(bpmn_graph, parameters=None):
         transition = PetriNet.Transition(name=str(node.get_id()), label=label)
         net.transitions.add(transition)
         trans_map[node] = [transition]
-        add_arc_from_to(entry_place, transition, net)
-        add_arc_from_to(transition, exiting_place, net)
+        add_arc_from_to_with_check(entry_place, transition, net)
+        add_arc_from_to_with_check(transition, exiting_place, net)
 
         if isinstance(node, BPMN.ParallelGateway) or isinstance(node, BPMN.InclusiveGateway):
             if source_count[node] > 1:
                 exiting_object = PetriNet.Transition(str(uuid.uuid4()), None)
                 net.transitions.add(exiting_object)
-                add_arc_from_to(exiting_place, exiting_object, net)
+                add_arc_from_to_with_check(exiting_place, exiting_object, net)
                 trans_map[node].append(exiting_object)
             else:
                 exiting_object = exiting_place
@@ -175,7 +175,7 @@ def apply(bpmn_graph, parameters=None):
             if target_count[node] > 1:
                 entering_object = PetriNet.Transition(str(uuid.uuid4()), None)
                 net.transitions.add(entering_object)
-                add_arc_from_to(entering_object, entry_place, net)
+                add_arc_from_to_with_check(entering_object, entry_place, net)
                 trans_map[node].append(entering_object)
             else:
                 entering_object = entry_place
@@ -188,14 +188,14 @@ def apply(bpmn_graph, parameters=None):
         if isinstance(node, BPMN.StartEvent):
             start_transition = PetriNet.Transition(str(uuid.uuid4()), None)
             net.transitions.add(start_transition)
-            add_arc_from_to(source_place, start_transition, net)
-            add_arc_from_to(start_transition, entry_place, net)
+            add_arc_from_to_with_check(source_place, start_transition, net)
+            add_arc_from_to_with_check(start_transition, entry_place, net)
             trans_map[node].append(start_transition)
         elif isinstance(node, BPMN.EndEvent):
             end_transition = PetriNet.Transition(str(uuid.uuid4()), None)
             net.transitions.add(end_transition)
-            add_arc_from_to(exiting_place, end_transition, net)
-            add_arc_from_to(end_transition, sink_place, net)
+            add_arc_from_to_with_check(exiting_place, end_transition, net)
+            add_arc_from_to_with_check(end_transition, sink_place, net)
             trans_map[node].append(end_transition)
 
     for flow in bpmn_graph.get_flows():
@@ -205,19 +205,19 @@ def apply(bpmn_graph, parameters=None):
         if isinstance(source_object, PetriNet.Place):
             inv1 = PetriNet.Transition(f"sfl_{flow.get_id()}", None)
             net.transitions.add(inv1)
-            add_arc_from_to(source_object, inv1, net)
+            add_arc_from_to_with_check(source_object, inv1, net)
             source_object = inv1
             trans_map[flow.source].append(inv1)
 
         if isinstance(target_object, PetriNet.Place):
             inv2 = PetriNet.Transition(f"tfl_{flow.get_id()}", None)
             net.transitions.add(inv2)
-            add_arc_from_to(inv2, target_object, net)
+            add_arc_from_to_with_check(inv2, target_object, net)
             target_object = inv2
             trans_map[flow.target].append(inv2)
 
-        add_arc_from_to(source_object, flow_place[flow], net)
-        add_arc_from_to(flow_place[flow], target_object, net)
+        add_arc_from_to_with_check(source_object, flow_place[flow], net)
+        add_arc_from_to_with_check(flow_place[flow], target_object, net)
 
     if inclusive_gateway_exit and inclusive_gateway_entry:
         # do the following steps if there are inclusive gateways:
@@ -237,8 +237,8 @@ def apply(bpmn_graph, parameters=None):
                 if output_places:
                     inv_trans = PetriNet.Transition(str(uuid.uuid4()), None)
                     net.transitions.add(inv_trans)
-                    add_arc_from_to(inv_places[pl1], inv_trans, net)
-                    add_arc_from_to(inv_trans, inv_places[output_places[0][0]], net)
+                    add_arc_from_to_with_check(inv_places[pl1], inv_trans, net)
+                    add_arc_from_to_with_check(inv_trans, inv_places[output_places[0][0]], net)
 
     if enable_reduction:
         reduction.apply_simple_reduction(net)

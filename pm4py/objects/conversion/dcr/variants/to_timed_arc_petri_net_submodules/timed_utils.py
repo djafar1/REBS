@@ -12,14 +12,14 @@ def map_existing_transitions_of_copy_0(delta, copy_0, t, tapn) -> (TimedArcNet, 
     for arc in in_arcs:
         source = arc.source
         type = arc.properties['arctype'] if 'arctype' in arc.properties else None
-        s_to_t = pn_utils.add_arc_from_to(source, t, tapn, type=type, with_check=True)
+        s_to_t = pn_utils.add_arc_from_to_with_check(source, t, tapn, type=type, with_check=True)
         s_to_t.properties['agemin'] = arc.properties['agemin'] if 'agemin' in arc.properties else 0
         s_to_t.properties['transportindex'] = arc.properties['transportindex'] if 'transportindex' in arc.properties else None
     out_arcs = trans.out_arcs
     for arc in out_arcs:
         target = arc.target
         type = arc.properties['arctype'] if 'arctype' in arc.properties else None
-        t_to_t = pn_utils.add_arc_from_to(t, target, tapn, type=type, with_check=True)
+        t_to_t = pn_utils.add_arc_from_to_with_check(t, target, tapn, type=type, with_check=True)
         t_to_t.properties['agemin'] = arc.properties['agemin'] if 'agemin' in arc.properties else 0
         t_to_t.properties['transportindex'] = arc.properties['transportindex'] if 'transportindex' in arc.properties else None
     return tapn, t
@@ -38,32 +38,32 @@ def create_event_pattern_transitions_and_arcs(tapn, event, helper_struct, mappin
         # this if statement handles self response exclude
         if event in mapping_exceptions.self_exceptions[frozenset([Relations.E.value, Relations.R.value])]:
             for pend_exc_place, _ in pend_exc_places:
-                pn_utils.add_arc_from_to(t, pend_exc_place, tapn)
+                pn_utils.add_arc_from_to_with_check(t, pend_exc_place, tapn)
 
-        pn_utils.add_arc_from_to(inc_place, t, tapn)
+        pn_utils.add_arc_from_to_with_check(inc_place, t, tapn)
         # this if statement handles self exclude and self response exclude
         if not ((event in mapping_exceptions.self_exceptions[Relations.E.value]) or (
                 event in mapping_exceptions.self_exceptions[frozenset([Relations.E.value, Relations.R.value])])):
-            pn_utils.add_arc_from_to(t, inc_place, tapn)
+            pn_utils.add_arc_from_to_with_check(t, inc_place, tapn)
 
         # this if statement handles self response
         if event in mapping_exceptions.self_exceptions[Relations.R.value]:
             for pend_place, _ in pend_places:
-                pn_utils.add_arc_from_to(t, pend_place, tapn)
+                pn_utils.add_arc_from_to_with_check(t, pend_place, tapn)
 
         if t_name.__contains__('init'):
-            pn_utils.add_arc_from_to(t, exec_place, tapn)
-            pn_utils.add_arc_from_to(exec_place, t, tapn, type='inhibitor')
+            pn_utils.add_arc_from_to_with_check(t, exec_place, tapn)
+            pn_utils.add_arc_from_to_with_check(exec_place, t, tapn, type='inhibitor')
         else:
-            pn_utils.add_arc_from_to(t, exec_place, tapn)
-            pn_utils.add_arc_from_to(exec_place, t, tapn)
+            pn_utils.add_arc_from_to_with_check(t, exec_place, tapn)
+            pn_utils.add_arc_from_to_with_check(exec_place, t, tapn)
 
         if t_name.__contains__('pend'):
             for pend_place, _ in pend_places:
-                pn_utils.add_arc_from_to(pend_place, t, tapn)
+                pn_utils.add_arc_from_to_with_check(pend_place, t, tapn)
         else:
             for pend_place, _ in pend_places:
-                pn_utils.add_arc_from_to(pend_place, t, tapn, type='inhibitor')
+                pn_utils.add_arc_from_to_with_check(pend_place, t, tapn, type='inhibitor')
         ts.append(t)
     for t_name in set(helper_struct[event]['t_types']).intersection(set(['initpend', 'pend'])):  # ['initpend','pend'] - copy transitions:
         for k in range(len(pend_places)):
@@ -75,29 +75,29 @@ def create_event_pattern_transitions_and_arcs(tapn, event, helper_struct, mappin
             # TODO: test this mf
             if event in mapping_exceptions.self_exceptions[frozenset([Relations.E.value, Relations.R.value])]:
                 pend_exc_place, _ = list(pend_exc_places)[k]
-                pn_utils.add_arc_from_to(t, pend_exc_place, tapn)
+                pn_utils.add_arc_from_to_with_check(t, pend_exc_place, tapn)
 
-            pn_utils.add_arc_from_to(inc_place, t, tapn)
+            pn_utils.add_arc_from_to_with_check(inc_place, t, tapn)
             # this if statement handles self exclude and self response exclude
             if not ((event in mapping_exceptions.self_exceptions[Relations.E.value]) or (
                     event in mapping_exceptions.self_exceptions[frozenset([Relations.E.value, Relations.R.value])])):
-                pn_utils.add_arc_from_to(t, inc_place, tapn)
+                pn_utils.add_arc_from_to_with_check(t, inc_place, tapn)
 
             # this if statement handles self response
             if event in mapping_exceptions.self_exceptions[Relations.R.value]:
-                pn_utils.add_arc_from_to(t, pend_place, tapn)
+                pn_utils.add_arc_from_to_with_check(t, pend_place, tapn)
 
             if t_name.__contains__('init'):
-                pn_utils.add_arc_from_to(t, exec_place, tapn)
-                pn_utils.add_arc_from_to(exec_place, t, tapn, type='inhibitor')
+                pn_utils.add_arc_from_to_with_check(t, exec_place, tapn)
+                pn_utils.add_arc_from_to_with_check(exec_place, t, tapn, type='inhibitor')
             else:
-                pn_utils.add_arc_from_to(t, exec_place, tapn)
-                pn_utils.add_arc_from_to(exec_place, t, tapn)
+                pn_utils.add_arc_from_to_with_check(t, exec_place, tapn)
+                pn_utils.add_arc_from_to_with_check(exec_place, t, tapn)
 
             if t_name.__contains__('pend'):
-                pn_utils.add_arc_from_to(pend_place, t, tapn)
+                pn_utils.add_arc_from_to_with_check(pend_place, t, tapn)
             else:
-                pn_utils.add_arc_from_to(pend_place, t, tapn, type='inhibitor')
+                pn_utils.add_arc_from_to_with_check(pend_place, t, tapn, type='inhibitor')
             ts.append(t)
     helper_struct[event]['trans_group_index'] += 1
     return tapn, ts

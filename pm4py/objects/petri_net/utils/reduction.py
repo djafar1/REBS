@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
-from pm4py.objects.petri_net.utils.petri_utils import remove_arc, remove_transition, remove_place, add_arc_from_to, pre_set, post_set, get_arc_type
+from pm4py.objects.petri_net.utils.petri_utils import remove_arc, remove_transition, remove_place, add_arc_from_to_with_check, pre_set, post_set, get_arc_type
 from pm4py.objects.petri_net import properties
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 import itertools
@@ -45,7 +45,7 @@ def reduce_single_entry_transitions(net):
                 remove_transition(net, t)
                 remove_place(net, source_place)
                 for p in target_places:
-                    add_arc_from_to(source_transition, p, net)
+                    add_arc_from_to_with_check(source_transition, p, net)
                 cont = True
                 break
     return net
@@ -73,7 +73,7 @@ def reduce_single_exit_transitions(net):
                 remove_transition(net, t)
                 remove_place(net, target_place)
                 for p in source_places:
-                    add_arc_from_to(p, target_transition, net)
+                    add_arc_from_to_with_check(p, target_transition, net)
                 cont = True
                 break
     return net
@@ -118,7 +118,7 @@ def apply_fst_rule(net):
                 if u.label == None:
                     remove_place(net, p)
                     for target in post_set(u):
-                        add_arc_from_to(t, target, net)
+                        add_arc_from_to_with_check(t, target, net)
                     remove_transition(net, u)
                     cont = True
                     break
@@ -155,7 +155,7 @@ def apply_fsp_rule(net, im=None, fm=None):
                     # remove place p and transition t
                     remove_transition(net, t)
                     for source in pre_set(p):
-                        add_arc_from_to(source, q, net)
+                        add_arc_from_to_with_check(source, q, net)
                     remove_place(net, p)
                     if p in im:
                         del im[p]
@@ -330,7 +330,7 @@ def apply_a_rule(net):
                     if condition:
                         for u in U:
                             for q in Q:
-                                add_arc_from_to(u, q, net)
+                                add_arc_from_to_with_check(u, q, net)
                         remove_place(net, s)
                         remove_transition(net, t)
                         cont = True
@@ -383,22 +383,22 @@ def apply_bounded_net_inhibitor_removal_rule(net, im):
             if pn_utils.get_arc_type(a) == None:
                 has_reverse = True
         if has_reverse and str(t.name).startswith('init_'):
-            add_arc_from_to(co_p, t, net)
+            add_arc_from_to_with_check(co_p, t, net)
         else:
             same_t = False
             for in_arc in p.in_arcs:
                 source_t = in_arc.source
-                add_arc_from_to(co_p, source_t, net)
+                add_arc_from_to_with_check(co_p, source_t, net)
                 if t == source_t:
                     same_t = True
             for out_arc in p.out_arcs:
                 target_t = out_arc.target
-                add_arc_from_to(target_t, co_p, net)
+                add_arc_from_to_with_check(target_t, co_p, net)
                 if t == target_t:
                     same_t = True
-            add_arc_from_to(co_p, t, net)
+            add_arc_from_to_with_check(co_p, t, net)
             if not same_t:
-                add_arc_from_to(t, co_p, net)
+                add_arc_from_to_with_check(t, co_p, net)
         if p not in im or im[p] == 0:
             im[co_p] = 1
     return net, im

@@ -19,7 +19,7 @@ def execute_script():
     for trans in net.transitions:
         new_place = ResetInhibitorNet.Place(str(uuid.uuid4()))
         net.places.add(new_place)
-        petri_utils.add_arc_from_to(new_place, trans, net, type=None)
+        petri_utils.add_arc_from_to_with_check(new_place, trans, net, type=None)
         im[new_place] = 1
     pm4py.view_petri_net(net, im, fm, format=examples_conf.TARGET_IMG_FORMAT)
     # ensure that superset of the final marking (given the huge number of remaining tokens) are also considered valid

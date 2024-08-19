@@ -264,6 +264,10 @@ class PetriNet(object):
         self.__transitions = set() if transitions is None else transitions
         self.__arcs = set() if arcs is None else arcs
         self.__properties = dict() if properties is None else properties
+        self.__arc_matrix = {}
+
+    def __get_arc_matrix(self):
+        return self.__arc_matrix
 
     def __get_name(self) -> str:
         return self.__name
@@ -298,7 +302,7 @@ class PetriNet(object):
         return id(self) == id(other)
 
     def __deepcopy__(self, memodict={}):
-        from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+        from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
         this_copy = PetriNet(self.name)
         memodict[id(self)] = this_copy
         for place in self.places:
@@ -310,7 +314,7 @@ class PetriNet(object):
             this_copy.transitions.add(trans_copy)
             memodict[id(trans)] = trans_copy
         for arc in self.arcs:
-            add_arc_from_to(memodict[id(arc.source)], memodict[id(arc.target)], this_copy, weight=arc.weight)
+            add_arc_from_to_with_check(memodict[id(arc.source)], memodict[id(arc.target)], this_copy, weight=arc.weight)
         return this_copy
 
     def __repr__(self):
@@ -343,6 +347,7 @@ class PetriNet(object):
     transitions = property(__get_transitions)
     arcs = property(__get_arcs)
     properties = property(__get_properties)
+    arc_matrix = property(__get_arc_matrix)
 
 
 class InhibitorNet(PetriNet):

@@ -86,11 +86,11 @@ def __manage_solution(sol, added_places, explored_solutions, net, activities, tr
                 i = 0
                 while i < len(activities):
                     if sol[i] == 1:
-                        petri_utils.add_arc_from_to(trans_map[activities[i]], place, net)
+                        petri_utils.add_arc_from_to_with_check(trans_map[activities[i]], place, net)
                     i = i + 1
                 while i < 2 * len(activities):
                     if sol[i] == 1:
-                        petri_utils.add_arc_from_to(place, trans_map[activities[i - len(activities)]], net)
+                        petri_utils.add_arc_from_to_with_check(place, trans_map[activities[i - len(activities)]], net)
                     i = i + 1
             vec = x0.tolist() + (y0-1).tolist() + [sol[-1]]
             b = sol[-1] - 1 + x0.sum()
@@ -181,9 +181,9 @@ def apply(log0: Union[EventLog, EventStream, pd.DataFrame], parameters: Optional
         net.transitions.add(trans_map[act])
 
         if act == artificial_start_activity:
-            petri_utils.add_arc_from_to(source, trans_map[act], net)
+            petri_utils.add_arc_from_to_with_check(source, trans_map[act], net)
         elif act == artificial_end_activity:
-            petri_utils.add_arc_from_to(trans_map[act], sink, net)
+            petri_utils.add_arc_from_to_with_check(trans_map[act], sink, net)
 
     # STEP B) construction of the sequence encoding graph
     seq_enc_graph = {}

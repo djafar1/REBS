@@ -54,8 +54,8 @@ def _short_circuit_petri_net(net):
         t_1 = PetriNet.Transition("short_circuited_transition", "short_circuited_transition")
         s_c_net.transitions.add(t_1)
         # add arcs in short-circuited net
-        pn_utils.add_arc_from_to(sink, t_1, s_c_net)
-        pn_utils.add_arc_from_to(t_1, source, s_c_net)
+        pn_utils.add_arc_from_to_with_check(sink, t_1, s_c_net)
+        pn_utils.add_arc_from_to_with_check(t_1, source, s_c_net)
         return s_c_net
     else:
         return None

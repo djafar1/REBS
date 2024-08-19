@@ -20,7 +20,7 @@ from lxml import etree, objectify
 
 from pm4py.objects.petri_net.utils import final_marking
 from pm4py.objects.petri_net.obj import PetriNet, Marking, ResetNet, InhibitorNet, ResetInhibitorNet
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
 from pm4py.objects.petri_net import properties as petri_properties
 from pm4py.util import constants, exec_utils
 import warnings
@@ -313,11 +313,11 @@ def import_net_from_xml_object(root, parameters=None):
                             net = ResetNet(name=net.name, places=net.places,
                                            transitions=net.transitions, arcs=net.arcs,
                                            properties=net.properties)
-                    a = add_arc_from_to(places_dict[arc_source], trans_dict[arc_target], net, weight=arc_weight, type=arc_type)
+                    a = add_arc_from_to_with_check(places_dict[arc_source], trans_dict[arc_target], net, weight=arc_weight, type=arc_type)
                     for prop in arc_properties:
                         a.properties[prop] = arc_properties[prop]
                 elif arc_target in places_dict and arc_source in trans_dict:
-                    a = add_arc_from_to(trans_dict[arc_source], places_dict[arc_target], net, weight=arc_weight, type=arc_type)
+                    a = add_arc_from_to_with_check(trans_dict[arc_source], places_dict[arc_target], net, weight=arc_weight, type=arc_type)
                     for prop in arc_properties:
                         a.properties[prop] = arc_properties[prop]
 

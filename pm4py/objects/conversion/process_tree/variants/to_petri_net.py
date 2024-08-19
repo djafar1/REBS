@@ -19,7 +19,7 @@ import uuid
 
 from pm4py.objects.petri_net.obj import Marking
 from pm4py.objects.petri_net.obj import PetriNet
-from pm4py.objects.petri_net.utils.petri_utils import remove_transition, add_arc_from_to, remove_place
+from pm4py.objects.petri_net.utils.petri_utils import remove_transition, add_arc_from_to_with_check, remove_place
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.obj import Operator
 from pm4py.objects.petri_net.utils import reduction
@@ -344,7 +344,7 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
     if type(initial_entity_subtree) is PetriNet.Transition:
         initial_place = get_new_place(counts)
         net.places.add(initial_place)
-        add_arc_from_to(initial_entity_subtree, initial_place, net)
+        add_arc_from_to_with_check(initial_entity_subtree, initial_place, net)
     else:
         initial_place = initial_entity_subtree
     if final_entity_subtree is not None and type(final_entity_subtree) is PetriNet.Place:
@@ -353,13 +353,13 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
         final_place = get_new_place(counts)
         net.places.add(final_place)
         if final_entity_subtree is not None and type(final_entity_subtree) is PetriNet.Transition:
-            add_arc_from_to(final_place, final_entity_subtree, net)
+            add_arc_from_to_with_check(final_place, final_entity_subtree, net)
     tree_childs = [child for child in tree.children]
 
     if force_add_skip:
         invisible = get_new_hidden_trans(counts, type_trans="skip")
-        add_arc_from_to(initial_place, invisible, net)
-        add_arc_from_to(invisible, final_place, net)
+        add_arc_from_to_with_check(initial_place, invisible, net)
+        add_arc_from_to_with_check(invisible, final_place, net)
 
     if tree.operator is None:
         trans = tree
@@ -368,8 +368,8 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
         else:
             petri_trans = get_transition(counts, trans.label)
         net.transitions.add(petri_trans)
-        add_arc_from_to(initial_place, petri_trans, net)
-        add_arc_from_to(petri_trans, final_place, net)
+        add_arc_from_to_with_check(initial_place, petri_trans, net)
+        add_arc_from_to_with_check(petri_trans, final_place, net)
 
     if tree.operator == Operator.XOR:
         for subtree in tree_childs:
@@ -379,21 +379,21 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
     elif tree.operator == Operator.OR:
         new_initial_trans = get_new_hidden_trans(counts, type_trans="tauSplit")
         net.transitions.add(new_initial_trans)
-        add_arc_from_to(initial_place, new_initial_trans, net)
+        add_arc_from_to_with_check(initial_place, new_initial_trans, net)
         new_final_trans = get_new_hidden_trans(counts, type_trans="tauJoin")
         net.transitions.add(new_final_trans)
-        add_arc_from_to(new_final_trans, final_place, net)
+        add_arc_from_to_with_check(new_final_trans, final_place, net)
         terminal_place = get_new_place(counts)
         net.places.add(terminal_place)
-        add_arc_from_to(terminal_place, new_final_trans, net)
+        add_arc_from_to_with_check(terminal_place, new_final_trans, net)
         first_place = get_new_place(counts)
         net.places.add(first_place)
-        add_arc_from_to(new_initial_trans, first_place, net)
+        add_arc_from_to_with_check(new_initial_trans, first_place, net)
 
         for subtree in tree_childs:
             subtree_init_place = get_new_place(counts)
             net.places.add(subtree_init_place)
-            add_arc_from_to(new_initial_trans, subtree_init_place, net)
+            add_arc_from_to_with_check(new_initial_trans, subtree_init_place, net)
             subtree_start_place = get_new_place(counts)
             net.places.add(subtree_start_place)
             subtree_end_place = get_new_place(counts)
@@ -404,22 +404,22 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
             net.transitions.add(trans_start)
             net.transitions.add(trans_later)
             net.transitions.add(trans_skip)
-            add_arc_from_to(first_place, trans_start, net)
-            add_arc_from_to(subtree_init_place, trans_start, net)
-            add_arc_from_to(trans_start, subtree_start_place, net)
-            add_arc_from_to(trans_start, terminal_place, net)
+            add_arc_from_to_with_check(first_place, trans_start, net)
+            add_arc_from_to_with_check(subtree_init_place, trans_start, net)
+            add_arc_from_to_with_check(trans_start, subtree_start_place, net)
+            add_arc_from_to_with_check(trans_start, terminal_place, net)
 
-            add_arc_from_to(terminal_place, trans_later, net)
-            add_arc_from_to(subtree_init_place, trans_later, net)
-            add_arc_from_to(trans_later, subtree_start_place, net)
-            add_arc_from_to(trans_later, terminal_place, net)
+            add_arc_from_to_with_check(terminal_place, trans_later, net)
+            add_arc_from_to_with_check(subtree_init_place, trans_later, net)
+            add_arc_from_to_with_check(trans_later, subtree_start_place, net)
+            add_arc_from_to_with_check(trans_later, terminal_place, net)
 
-            add_arc_from_to(terminal_place, trans_skip, net)
-            add_arc_from_to(subtree_init_place, trans_skip, net)
-            add_arc_from_to(trans_skip, terminal_place, net)
-            add_arc_from_to(trans_skip, subtree_end_place, net)
+            add_arc_from_to_with_check(terminal_place, trans_skip, net)
+            add_arc_from_to_with_check(subtree_init_place, trans_skip, net)
+            add_arc_from_to_with_check(trans_skip, terminal_place, net)
+            add_arc_from_to_with_check(trans_skip, subtree_end_place, net)
 
-            add_arc_from_to(subtree_end_place, new_final_trans, net)
+            add_arc_from_to_with_check(subtree_end_place, new_final_trans, net)
 
             net, counts, intermediate_place = recursively_add_tree(tree, subtree, net, subtree_start_place,
                                                                    subtree_end_place,
@@ -429,10 +429,10 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
     elif tree.operator == Operator.PARALLEL:
         new_initial_trans = get_new_hidden_trans(counts, type_trans="tauSplit")
         net.transitions.add(new_initial_trans)
-        add_arc_from_to(initial_place, new_initial_trans, net)
+        add_arc_from_to_with_check(initial_place, new_initial_trans, net)
         new_final_trans = get_new_hidden_trans(counts, type_trans="tauJoin")
         net.transitions.add(new_final_trans)
-        add_arc_from_to(new_final_trans, final_place, net)
+        add_arc_from_to_with_check(new_final_trans, final_place, net)
 
         for subtree in tree_childs:
             net, counts, intermediate_place = recursively_add_tree(tree, subtree, net, new_initial_trans,
@@ -443,16 +443,16 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
     elif tree.operator == Operator.INTERLEAVING:
         new_initial_trans = get_new_hidden_trans(counts, type_trans="tauSplit")
         net.transitions.add(new_initial_trans)
-        add_arc_from_to(initial_place, new_initial_trans, net)
+        add_arc_from_to_with_check(initial_place, new_initial_trans, net)
         new_final_trans = get_new_hidden_trans(counts, type_trans="tauJoin")
         net.transitions.add(new_final_trans)
-        add_arc_from_to(new_final_trans, final_place, net)
+        add_arc_from_to_with_check(new_final_trans, final_place, net)
 
         control_place = get_new_place(counts)
         net.places.add(control_place)
 
-        add_arc_from_to(new_initial_trans, control_place, net)
-        add_arc_from_to(control_place, new_final_trans, net)
+        add_arc_from_to_with_check(new_initial_trans, control_place, net)
+        add_arc_from_to_with_check(control_place, new_final_trans, net)
 
         for subtree in tree_childs:
             placeI = get_new_place(counts)
@@ -464,13 +464,13 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
             fTrans = get_new_hidden_trans(counts, type_trans="fTrans")
             net.transitions.add(fTrans)
 
-            add_arc_from_to(new_initial_trans, placeI, net)
-            add_arc_from_to(placeI, iTrans, net)
-            add_arc_from_to(fTrans, placeF, net)
-            add_arc_from_to(placeF, new_final_trans, net)
+            add_arc_from_to_with_check(new_initial_trans, placeI, net)
+            add_arc_from_to_with_check(placeI, iTrans, net)
+            add_arc_from_to_with_check(fTrans, placeF, net)
+            add_arc_from_to_with_check(placeF, new_final_trans, net)
 
-            add_arc_from_to(control_place, iTrans, net)
-            add_arc_from_to(fTrans, control_place, net)
+            add_arc_from_to_with_check(control_place, iTrans, net)
+            add_arc_from_to_with_check(fTrans, control_place, net)
 
             net, counts, intermediate_place = recursively_add_tree(tree, subtree, net, iTrans,
                                                                    fTrans,
@@ -492,8 +492,8 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
         net.places.add(new_initial_place)
         init_loop_trans = get_new_hidden_trans(counts, type_trans="init_loop")
         net.transitions.add(init_loop_trans)
-        add_arc_from_to(initial_place, init_loop_trans, net)
-        add_arc_from_to(init_loop_trans, new_initial_place, net)
+        add_arc_from_to_with_check(initial_place, init_loop_trans, net)
+        add_arc_from_to_with_check(init_loop_trans, new_initial_place, net)
         initial_place = new_initial_place
         loop_trans = get_new_hidden_trans(counts, type_trans="loop")
         net.transitions.add(loop_trans)
@@ -502,8 +502,8 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
                                                                    final_place,
                                                                    counts,
                                                                    rec_depth + 1)
-            add_arc_from_to(final_place, loop_trans, net)
-            add_arc_from_to(loop_trans, initial_place, net)
+            add_arc_from_to_with_check(final_place, loop_trans, net)
+            add_arc_from_to_with_check(loop_trans, initial_place, net)
         else:
             net, counts, int1 = recursively_add_tree(tree, tree_childs[0], net, initial_place,
                                                      None, counts,
@@ -520,8 +520,8 @@ def recursively_add_tree(parent_tree, tree, net, initial_entity_subtree, final_e
 
             looping_place = int2
 
-            add_arc_from_to(looping_place, loop_trans, net)
-            add_arc_from_to(loop_trans, initial_place, net)
+            add_arc_from_to_with_check(looping_place, loop_trans, net)
+            add_arc_from_to_with_check(loop_trans, initial_place, net)
 
     return net, counts, final_place
 
@@ -569,8 +569,8 @@ def apply(tree, parameters=None):
         net.places.add(initial_place)
         tau_initial = get_new_hidden_trans(counts, type_trans="tau")
         net.transitions.add(tau_initial)
-        add_arc_from_to(source, tau_initial, net)
-        add_arc_from_to(tau_initial, initial_place, net)
+        add_arc_from_to_with_check(source, tau_initial, net)
+        add_arc_from_to_with_check(tau_initial, initial_place, net)
     else:
         initial_place = source
     if final_mandatory:
@@ -578,8 +578,8 @@ def apply(tree, parameters=None):
         net.places.add(final_place)
         tau_final = get_new_hidden_trans(counts, type_trans="tau")
         net.transitions.add(tau_final)
-        add_arc_from_to(final_place, tau_final, net)
-        add_arc_from_to(tau_final, sink, net)
+        add_arc_from_to_with_check(final_place, tau_final, net)
+        add_arc_from_to_with_check(tau_final, sink, net)
     else:
         final_place = sink
 

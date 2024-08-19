@@ -1,8 +1,8 @@
-<dcrgraph title="RunningExampleTAPNoriginal" dataTypesStatus="hide" filterLevel="-1" insightFilter="false" zoomLevel="1" formGroupStyle="Normal" formLayoutStyle="Horizontal" formShowPendingCount="true" graphBG="#f1f6fe" graphType="0" exercise="false" version="1.0">
+<dcrgraph title="tapn-original" dataTypesStatus="hide" filterLevel="-1" insightFilter="false" zoomLevel="1" formGroupStyle="Normal" formLayoutStyle="Horizontal" formShowPendingCount="true" graphBG="#f1f6fe" graphType="0" exercise="false" version="1.0">
     <meta>
-        <graph id="1705776" hash="A4F224508411CA5109F84E5338F69B5C" guid="09B6A5A7-01F1-4CB0-8ACF-E8C79670DBC3" OwnerName="Vlad Paul Cosma" OwnerId="2275" categoryId="3862" categoryTitle="Default" Keywords=""/>
-        <revision id="3610716" type="minor" date="2024-01-29T13:00:15.923"/>
-        <organization id="1" name="Community" type="Demonstration"/>
+        <graph id="1824298" hash="06AB8DBB0784BD6619669CBE7EBAF7D9" guid="28CD2751-DC0C-416B-A37E-92DACC0F6C7A" OwnerName="Vlad Paul Cosma" OwnerId="2275" categoryId="3862" categoryTitle="Default"/>
+        <revision id="4002746" type="minor" date="2024-08-19T11:21:58.740"/>
+        <organization id="1" name="Community"/>
     </meta>
     <specification>
         <resources>
@@ -11,7 +11,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="50" yLoc="75"/>
+                            <location xLoc="50" yLoc="125"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -44,7 +44,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="200" yLoc="275"/>
+                            <location xLoc="250" yLoc="275"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>
@@ -77,7 +77,7 @@
                     <precondition message=""/>
                     <custom>
                         <visualization>
-                            <location xLoc="200" yLoc="75"/>
+                            <location xLoc="50" yLoc="275"/>
                             <colors bg="#f9f7ed" textStroke="#000000" stroke="#cccccc"/>
                         </visualization>
                         <roles>

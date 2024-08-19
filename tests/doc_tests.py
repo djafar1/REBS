@@ -490,10 +490,10 @@ class DocTests(unittest.TestCase):
 
         # Add arcs
         from pm4py.objects.petri_net.utils import petri_utils
-        petri_utils.add_arc_from_to(source, t_1, net)
-        petri_utils.add_arc_from_to(t_1, p_1, net)
-        petri_utils.add_arc_from_to(p_1, t_2, net)
-        petri_utils.add_arc_from_to(t_2, sink, net)
+        petri_utils.add_arc_from_to_with_check(source, t_1, net)
+        petri_utils.add_arc_from_to_with_check(t_1, p_1, net)
+        petri_utils.add_arc_from_to_with_check(p_1, t_2, net)
+        petri_utils.add_arc_from_to_with_check(t_2, sink, net)
 
         # Adding tokens
         initial_marking = Marking()

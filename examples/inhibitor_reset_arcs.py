@@ -1,6 +1,6 @@
 import pm4py
 from pm4py.objects.petri_net.obj import ResetInhibitorNet, Marking
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
 from pm4py.objects.petri_net.inhibitor_reset import semantics
 from copy import deepcopy
 from examples import examples_conf
@@ -30,16 +30,16 @@ def execute_script():
     net.transitions.add(trans_C)
     net.transitions.add(trans_free)
     net.transitions.add(trans_inhibitor)
-    add_arc_from_to(source, trans_A, net)
-    add_arc_from_to(trans_A, p1, net)
-    add_arc_from_to(p1, trans_B, net)
-    add_arc_from_to(trans_B, p2, net)
-    add_arc_from_to(p2, trans_C, net)
-    add_arc_from_to(trans_C, sink, net)
-    add_arc_from_to(trans_inhibitor, p_inhibitor, net)
-    inhibitor_arc = add_arc_from_to(p_inhibitor, trans_B, net, type="inhibitor")
-    add_arc_from_to(trans_free, p_reset, net)
-    reset_arc = add_arc_from_to(p_reset, trans_C, net, type="reset")
+    add_arc_from_to_with_check(source, trans_A, net)
+    add_arc_from_to_with_check(trans_A, p1, net)
+    add_arc_from_to_with_check(p1, trans_B, net)
+    add_arc_from_to_with_check(trans_B, p2, net)
+    add_arc_from_to_with_check(p2, trans_C, net)
+    add_arc_from_to_with_check(trans_C, sink, net)
+    add_arc_from_to_with_check(trans_inhibitor, p_inhibitor, net)
+    inhibitor_arc = add_arc_from_to_with_check(p_inhibitor, trans_B, net, type="inhibitor")
+    add_arc_from_to_with_check(trans_free, p_reset, net)
+    reset_arc = add_arc_from_to_with_check(p_reset, trans_C, net, type="reset")
     im = Marking({source: 1})
     fm = Marking({sink: 1})
     pm4py.view_petri_net(net, im, fm, format=examples_conf.TARGET_IMG_FORMAT)
