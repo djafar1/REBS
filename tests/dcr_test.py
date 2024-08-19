@@ -1082,6 +1082,42 @@ class TestImportExportDCR(unittest.TestCase):
             os.remove(self.second_test_file)
             self.second_test_file = ''
 
+class TestMultiConformanceDCR(unittest.TestCase):
+    def test_multi(self):
+        from pm4py.algo.conformance.dcr.variants.multi import apply as conf_multi
+        log = pm4py.read_xes(os.path.join("..", "tests", "input_data", "receipt.xes"))
+        dcr, _ = pm4py.discover_dcr(log)
+
+        conf_res = conf_multi(log, dcr, parameters=None)
+
+        # then the models should have perfect fitness
+        j = 0
+        for i in conf_res:
+            self.assertEqual(int(i['dev_fitness']), 1)
+            self.assertTrue(i['is_fit'], True)
+            j += 1
+
+        del log
+        del dcr
+        del conf_res
+
+    def test_multi_compare(self):
+        from pm4py.algo.conformance.dcr.variants.classic import apply as conf_alg
+        log = pm4py.read_xes(os.path.join("..", "tests", "input_data", "receipt.xes"),return_legacy_log_object=False)
+        dcr, _ = pm4py.discover_dcr(log)
+
+        conf_res = conf_alg(log, dcr, parameters=None)
+
+        # then the models should have perfect fitness
+
+        for i in conf_res:
+            self.assertEqual(int(i['dev_fitness']), 1)
+            self.assertTrue(i['is_fit'], True)
+
+        del log
+        del dcr
+        del conf_res
+
 
 if __name__ == '__main__':
     unittest.main()

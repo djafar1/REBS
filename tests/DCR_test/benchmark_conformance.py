@@ -4,12 +4,17 @@ import pm4py
 import os
 import pandas as pd
 from pm4py.discovery import discover_dcr, discover_declare
+from pm4py.algo.conformance.dcr.variants.multi import apply as conformance_multi_dcr
 from pm4py.objects.log.obj import EventLog, Event, Trace
-from tests.DCR_test.benchmark_util.conformance_sepsis import benchmark_conformance_sepsis, benchmark_conformance_sepsis_declare
-from tests.DCR_test.benchmark_util.conformance_ground_truth import conformance_ground_truth
+from tests.DCR_test.benchmark_util.conformance_sepsis import benchmark_conformance_sepsis_declare
+from pm4py.conformance import conformance_dcr
 from shutil import rmtree
 from zipfile import ZipFile
+import math
 from collections import Counter
+
+import zipfile
+import tempfile
 
 
 import matplotlib.pyplot as plt
@@ -23,19 +28,6 @@ def remove_files(path, folder):
     extract_path = os.path.join(path, folder)
     rmtree(extract_path)
 
-
-def generate_log_using_petri_net(path, log, log_configuration, trace_configuration):
-    # petri met to produce synthetic log for
-    from pm4py.algo.simulation.playout.petri_net.variants.basic_playout import apply_playout
-    print(os.path.join(path,log))
-    log = pm4py.read_xes(os.path.join(path,log))
-    net, im, fm = pm4py.discover_petri_net_alpha(log)
-    for i in log_configuration:
-        for j in trace_configuration:
-            log = apply_playout(net, im, i, j)
-            path = os.path.join(path,path+"_"+str(i)+"_"+str(j)+".xes")
-            pm4py.write_xes(log,path)
-
 def export_graph(graph, path, name):
     from pm4py.objects.dcr.exporter.exporter import DCR_JS_PORTAL
     print(os.path.join(path))
@@ -47,70 +39,118 @@ def import_graph(path,name):
     return graph
 
 
-def sepsis(name):
-    print("running sepsis with synthetic logs")
-    # to generate synthetic sepsis logs
-    configuration_trace_len = [10, 20, 30, 40, 50]
-    max_trace = [25000, 50000, 75000, 100000]
-    path = "sepsis"
-    import_log = "Sepsis Cases - Event Log.xes"
-    #generate_log_using_petri_net(path, import_log, max_trace, configuration_trace_len)
+def write_csv(temp, res_file):
+    data = pd.DataFrame(temp)
+    if os.path.isfile(res_file):
+        data.to_csv(res_file, sep=",", mode="a", header=False,
+                    index=False)
+    else:
+        data.to_csv(res_file, sep=";", index=False)
 
-    # specify test files
-    res_file = "results/"+name+".csv"
-    training_log_path = "Sepsis Cases - Event Log.xes"
-    training_log = pm4py.read_xes(os.path.join("sepsis", training_log_path))
-    graph, _ = discover_dcr(training_log)
-    for test_file in os.listdir("sepsis"):
-        if test_file == training_log_path:
-            continue
-        test_log = pm4py.read_xes(os.path.join("sepsis", test_file), return_legacy_log_object=True)
-        benchmark_conformance_sepsis(graph, test_log, res_file, 10)
+def benchmark_declare():
+    pass
 
-def sepsis_declare():
-    print("running sepsis with synthetic logs for declare")
+def getPercent(eventLog, percent):
+    return int(math.ceil(len(eventLog) * percent / 100))
 
-    # specify test files
-    res_file = "results/sepsis_run_times_declare.csv"
-    training_log_path = "Sepsis Cases - Event Log.xes"
-    training_log = pm4py.read_xes(os.path.join("sepsis", training_log_path))
-    model = discover_declare(training_log)
-    no = 0
-    for test_file in os.listdir("sepsis"):
-        if test_file == training_log_path:
-            continue
-        test_log = pm4py.read_xes(os.path.join("sepsis", test_file), return_legacy_log_object=True)
-        benchmark_conformance_sepsis_declare(model, test_log, res_file, 10)
 
-def traffic_management():
-    path = "Road_Traffic_Fine_Management_Process"
-    import_log = "Road_Traffic_Fine_Management_Process.xes"
-
-    log = pm4py.read_xes(os.path.join("../input_data", "roadtraffic100traces.xes"))
-    graph, _ = pm4py.discover_dcr(log)
-    print(graph)
-    name_of_xml = "road_traffic"
-    #export for visualization and analysis of control flow
-    export_graph(graph, path, name_of_xml)
-    log = pm4py.read_xes(os.path.join(path, import_log))
-    graph, _ = pm4py.discover_dcr(log)
-    cases = log['case:concept:name'].unique()
-    print("running")
-    # create a data frame dictionary to store your data frames
-    i = 0
-    for elem in cases:
-        trace = log[log['case:concept:name'] == elem]
-        print(trace['concept:name'])
-        """
+def benchmark_conformance(graph, test_log, res_file, repeat):
+    times = []
+    res = None
+    for i in range(repeat):
         start = time.perf_counter()
-        conf_res = pm4py.conformance_dcr(trace, graph)
+        res = conformance_dcr(test_log, graph)
         end = (time.perf_counter() - start) * 1000
-        print(end)
-        print(conf_res)
-        """
+        times.append(end)
+
+
+    no_traces = len(res)
+    no_cons = res[0]['no_constr_total']
+
+    no_dev_traces = 0
+    for i in res:
+        if i['dev_fitness'] != 1:
+            no_dev_traces += 1
+
+    dev_ratio = no_dev_traces/no_traces
+    temp = {
+        "avg_run_time": [(sum(times) / len(times))],
+        "no_traces": [no_traces],
+        "dev_traces": no_dev_traces,
+        "no_cons": no_cons,
+        "fitness": "%.2f" % (1-dev_ratio),
+        "dev_ration": "%.2f" % (100 * dev_ratio),
+        "conf_ratio": "%.2f" % (100 - 100 * dev_ratio)
+    }
+    write_csv(temp, res_file)
+
+def benchmark_multi_conformance(graph, test_log, res_file, repeat):
+    times = []
+    res = None
+    for i in range(repeat):
+        start = time.perf_counter()
+        res = conformance_multi_dcr(test_log, graph)
+        end = (time.perf_counter() - start) * 1000
+        times.append(end)
+
+
+    no_traces = len(res)
+    no_cons = res[0]['no_constr_total']
+
+    no_dev_traces = 0
+    for i in res:
+        if i['dev_fitness'] != 1:
+            no_dev_traces += 1
+
+    dev_ratio = no_dev_traces/no_traces
+    temp = {
+        "avg_run_time": [(sum(times) / len(times))],
+        "no_traces": [no_traces],
+        "dev_traces": no_dev_traces,
+        "no_cons": no_cons,
+        "fitness": "%.2f" % (1-dev_ratio),
+        "dev_ration": "%.2f" % (100 * dev_ratio),
+        "conf_ratio": "%.2f" % (100 - 100 * dev_ratio)
+    }
+    write_csv(temp, res_file)
+
+def run_benchmark(path,input_log, res_file, repeat, multi=False):
+    print("running" + path)
+    log = pm4py.read_xes(os.path.join(path, input_log), return_legacy_log_object=True)
+    for i in range(repeat):
+        print("running " + str(i+1) +" iteration")
+        percentage = 5*(i+1)
+        index = getPercent(log,percentage)
+        graph_log = EventLog(log[:index])
+        graph, _ = pm4py.discover_dcr(graph_log)
+
+        test_log = EventLog(log[index:])
+        if not multi:
+            benchmark_conformance(graph, test_log, res_file, repeat)
+        else:
+            benchmark_multi_conformance(graph,test_log,("multi_" + res_file),repeat)
+
+
+def run_dummy(path, input_log, multi=False):
+    log = pm4py.read_xes(os.path.join(path, input_log), return_legacy_log_object=True)
+    index = getPercent(log, 10)
+    graph_log = EventLog(log[:index])
+    graph, _ = pm4py.discover_dcr(graph_log)
+    test_log = EventLog(log[index:])
+    if not multi:
+        res = conformance_dcr(test_log, graph)
+    else:
+        res = conformance_multi_dcr(test_log, graph)
+def open_pdc_zip_files():
+    pass
 
 if __name__ == "__main__":
-    sepsis("new test")
+    multi = False
+    run_dummy("sepsis","Sepsis Cases - Event Log.xes.gz", multi=multi)
+    run_benchmark("sepsis","Sepsis Cases - Event Log.xes.gz", "sepsis_results.csv",10, multi=multi)
+    run_benchmark("traffic_fines", "Road_Traffic_fine_management_Process.xes.gz", "traffic_results.csv", 10, multi=multi)
+    run_benchmark("dreyers_fond", "Dreyers Foundation.xes", "dreyers_fond_results.csv", 10, multi=multi)
+    #sepsis("new test")
     #sepsis_declare()
     #traffic_management()
 

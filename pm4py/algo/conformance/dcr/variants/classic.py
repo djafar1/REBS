@@ -8,8 +8,7 @@ from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.objects.dcr.roles.obj import RoledcrGraph
 from pm4py.algo.conformance.dcr.decorators.decorator import ConcreteChecker
 from pm4py.algo.conformance.dcr.decorators.roledecorator import RoleDecorator
-
-
+import time
 
 class Parameters(Enum):
     CASE_ID_KEY = constants.PARAMETER_CONSTANT_CASEID_KEY
@@ -61,14 +60,11 @@ class RuleBasedConformance:
 
     def __init__(self, log: Union[EventLog, pd.DataFrame], graph: Union[DcrGraph, RoledcrGraph],
                  parameters: Optional[Dict[Union[str, Any], Any]] = None):
-        self.__g = graph
-        if isinstance(log, pd.DataFrame):
-            log = self.__transform_pandas_dataframe(log, exec_utils.get_param_value(Parameters.CASE_ID_KEY, parameters,
-                                                                                    constants.CASE_CONCEPT_NAME))
-        self.__log = log
-        self.__checker = HandleChecker(graph)
-        self.__semantics = DCRSemantics()
-        self.__parameters = parameters
+        self.g = graph
+        self.log = log
+        self.checker = HandleChecker(graph)
+        self.semantics = DCRSemantics()
+        self.parameters = parameters
 
     def apply_conformance(self) -> List[Dict[str, Any]]:
         """
@@ -98,71 +94,89 @@ class RuleBasedConformance:
         * [2] Sebastian Dunzer, `<https://github.com/fau-is/cc-dcr/tree/master>`_.
 
         """
-
+        if isinstance(self.log, pd.DataFrame):
+            self.log = self.__transform_pandas_dataframe(self.log, exec_utils.get_param_value(Parameters.CASE_ID_KEY, self.parameters,
+                                                                                    constants.CASE_CONCEPT_NAME))
         # Create list for accumalating each trace data for conformance
         conf_case = []
 
         # number of constraints (the relations between activities)
-        total_num_constraints = self.__g.get_constraints()
+        total_num_constraints = self.g.get_constraints()
 
         # get activity key
-        activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, self.__parameters,
+        activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, self.parameters,
                                                   xes_constants.DEFAULT_NAME_KEY)
 
-        initial_marking = {'executed': set(), 'included': set(), 'pending': set()}
-        initial_marking['included'] = set(self.__g.marking.included)
-        initial_marking['executed'] = set(self.__g.marking.executed)
-        initial_marking['pending'] = set(self.__g.marking.pending)
+        initial_marking = \
+            {
+                'executed': set(self.g.marking.executed),
+                'included': set(self.g.marking.included),
+                'pending': set(self.g.marking.pending)
+            }
 
         # iterate through all traces in log
-        for trace in self.__log:
-            # create base dict to accumalate trace conformance data
-            ret = {Outputs.NO_CONSTR_TOTAL.value: total_num_constraints, Outputs.DEVIATIONS.value: []}
-            # execution_his for checking dynamic excludes
-            self.__parameters['executionHistory'] = []
-            # response_originator for checking reason for not accepting state
-            response_origin = []
-            # iterate through all events in a trace
-            for event in trace:
-                # get the event to be executed
-                e = self.__g.get_event(event[activity_key])
-                self.__parameters['executionHistory'].append(e)
-
-                # check for deviations
-                if e in self.__g.responses:
-                    for response in self.__g.responses[e]:
-                        response_origin.append((e, response))
-
-                self.__checker.all_checker(e, event, self.__g, ret[Outputs.DEVIATIONS.value],
-                                           parameters=self.__parameters)
-
-                if not self.__semantics.is_enabled(e, self.__g):
-                    self.__checker.enabled_checker(e, self.__g, ret[Outputs.DEVIATIONS.value],
-                                                   parameters=self.__parameters)
-
-                # execute the event
-                self.__semantics.execute(self.__g, e)
-
-                if len(response_origin) > 0:
-                    for i in response_origin:
-                        if e == i[1]:
-                            response_origin.remove(i)
-
-            # check if run is accepting
-            if not self.__semantics.is_accepting(self.__g):
-                self.__checker.accepting_checker(self.__g, response_origin, ret[Outputs.DEVIATIONS.value],
-                                                 parameters=self.__parameters)
-
-            # compute the conformance for the trace
-            ret[Outputs.NO_DEV_TOTAL.value] = len(ret[Outputs.DEVIATIONS.value])
-            ret[Outputs.FITNESS.value] = 1 - ret[Outputs.NO_DEV_TOTAL.value] / ret[Outputs.NO_CONSTR_TOTAL.value]
-            ret[Outputs.IS_FIT.value] = ret[Outputs.NO_DEV_TOTAL.value] == 0
+        for trace in self.log:
+            ret = self.apply_trace_conformance(trace, total_num_constraints, activity_key)
             conf_case.append(ret)
-
             # reset graph
-            self.__g.marking.reset(initial_marking.copy())
+            self.g.marking.reset(initial_marking.copy())
 
         return conf_case
+
+    def apply_trace_conformance(self, trace, total_num_constraints, activity_key):
+        # create base dict to accumalate trace conformance data
+        ret = {Outputs.NO_CONSTR_TOTAL.value: total_num_constraints, Outputs.DEVIATIONS.value: []}
+
+
+        self.parameters['executionHistory'] = []
+        # response_originator for checking reason for not accepting state
+        response_origin = []
+        # iterate through all events in a trace
+        for event in trace:
+            response_origin = self.apply_event_conformance(event, activity_key, response_origin, ret)
+
+        ret = self.apply_end_conformance(response_origin, ret)
+
+        return ret
+
+    def apply_event_conformance(self,event, activity_key, response_origin, ret):
+        # get the event to be executed
+        e = self.g.get_event(event[activity_key])
+        self.parameters['executionHistory'].append(e)
+
+        # check for deviations
+        if e in self.g.responses:
+            for response in self.g.responses[e]:
+                response_origin.append((e, response))
+
+        self.checker.all_checker(e, event, self.g, ret[Outputs.DEVIATIONS.value],
+                                 parameters=self.parameters)
+
+        if not self.semantics.is_enabled(e, self.g):
+            self.checker.enabled_checker(e, self.g, ret[Outputs.DEVIATIONS.value],
+                                         parameters=self.parameters)
+
+        # execute the event
+        self.semantics.execute(self.g, e)
+
+        if len(response_origin) > 0:
+            for i in response_origin:
+                if e == i[1]:
+                    response_origin.remove(i)
+        return response_origin
+
+    def apply_end_conformance(self, response_origin, ret):
+        # check if run is accepting
+        if not self.semantics.is_accepting(self.g):
+            self.checker.accepting_checker(self.g, response_origin, ret[Outputs.DEVIATIONS.value],
+                                           parameters=self.parameters)
+
+        # compute the conformance for the trace
+        ret[Outputs.NO_DEV_TOTAL.value] = len(ret[Outputs.DEVIATIONS.value])
+        ret[Outputs.FITNESS.value] = 1 - ret[Outputs.NO_DEV_TOTAL.value] / ret[Outputs.NO_CONSTR_TOTAL.value]
+        ret[Outputs.IS_FIT.value] = ret[Outputs.NO_DEV_TOTAL.value] == 0
+
+        return ret
 
     def __transform_pandas_dataframe(self, dataframe: pd.DataFrame, case_id_key: str):
         """
@@ -184,6 +198,7 @@ class RuleBasedConformance:
         Each event in the event log is represented as a dictionary, where the keys are the column names
         from the DataFrame and the values are the corresponding values for that event.
         """
+
         list_events = []
         columns_names = list(dataframe.columns)
         columns_corr = []
@@ -343,10 +358,13 @@ def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, RoledcrGrap
     .. [2] Sebastian Dunzer, 'Link <https://github.com/fau-is/cc-dcr/tree/master>.
 
     """
+    start = time.time()
     if parameters is None:
         parameters = {}
     con = RuleBasedConformance(log, graph, parameters=parameters)
-    return con.apply_conformance()
+    conf_case = con.apply_conformance()
+    end = time.time() - start
+    return conf_case
 
 
 def get_diagnostics_dataframe(log: Union[EventLog, pd.DataFrame], conf_result: List[Dict[str, Any]],
