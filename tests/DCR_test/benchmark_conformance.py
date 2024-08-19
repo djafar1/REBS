@@ -52,8 +52,8 @@ def benchmark_conformance(graph, test_log, res_file, repeat):
     times = []
 
     # dummy
-    res = conformance_dcr(test_log, graph)
-
+    conformance_dcr(test_log, graph)
+    res = None
     # actual
     print("running conformance:")
     for i in range(repeat):
@@ -84,25 +84,13 @@ def benchmark_conformance(graph, test_log, res_file, repeat):
     write_csv(temp, "results/" + res_file)
 
 
-def run_benchmark(path, input_log, res_file, repeat):
-    print("running" + path)
-    log = pm4py.read_xes(os.path.join(path, input_log), return_legacy_log_object=True)
-    for i in range(repeat):
-        print("running " + str(i + 1) + " iteration")
-        percentage = 5 * (i + 1)
-        graph_log, test_log = split(log, percentage)
-        graph, _ = pm4py.discover_dcr(graph_log)
-
-        benchmark_conformance(graph, test_log, res_file, repeat)
-
-
 def benchmark_declare_conformance(declare_model, test_log, res_file, repeat):
     times = []
     basic_checker = MPDeclareAnalyzer(log=test_log, declare_model=declare_model, consider_vacuity=False)
-    #dummy
+    # dummy
     conf_check_res: MPDeclareResultsBrowser = basic_checker.run()
 
-    #actual
+    # actual
     print("running conformance:")
     for i in range(repeat):
         print("running round: " + str(i))
@@ -118,7 +106,7 @@ def benchmark_declare_conformance(declare_model, test_log, res_file, repeat):
     no_dev_traces = 0
     for i in range(no_traces):
         for j in conf_check_res.get_metric(trace_id=i, metric="num_violations"):
-            if j != None:
+            if j != None and j>0:
                 no_dev_traces += 1
                 break
 
@@ -132,29 +120,41 @@ def benchmark_declare_conformance(declare_model, test_log, res_file, repeat):
         "dev_ration": "%.2f" % (100 * dev_ratio),
         "conf_ratio": "%.2f" % (100 - 100 * dev_ratio)
     }
-    write_csv(temp, res_file)
+    print(temp)
+    write_csv(temp, "results/" + res_file)
 
 
-def run_declare_benchmark(path, input_log, res_file, repeat, multi=False):
+def run_benchmark(path, input_log, res_file, repeat):
+    print("running" + path)
+    log = pm4py.read_xes(os.path.join(path, input_log), return_legacy_log_object=True)
+    for i in range(repeat):
+        print("running " + str(i + 1) + " iteration")
+        percentage = 5 * (i + 1)
+        graph_log, test_log = split(log, percentage / 100)
+        graph, _ = pm4py.discover_dcr(graph_log)
+
+        benchmark_conformance(graph, test_log, res_file, repeat)
+
+
+def run_declare_benchmark(path, input_log, res_file, repeat):
     print("running " + path)
     log = pm4py.read_xes(os.path.join(path, input_log), return_legacy_log_object=True)
     for i in range(repeat):
         print("running " + str(i + 1) + " iteration")
 
         percentage = 5 * (i + 1)
-        graph_log, test_log = split(log, percentage/100)
+        graph_log, test_log = split(log, percentage / 100)
         graph_log = D4PyEventLog(case_name="case:concept:name", log=graph_log)
-        discovery = DeclareMiner(log=graph_log, consider_vacuity=False, min_support=0.2, itemsets_support=0.9,
-                                 max_declare_cardinality=3)
+        discovery = DeclareMiner(log=graph_log, consider_vacuity=False, min_support=0.9, itemsets_support=0.9)
         declare_model: DeclareModel = discovery.run()
         test_log = D4PyEventLog(case_name="case:concept:name", log=test_log)
         benchmark_declare_conformance(declare_model, test_log, res_file, repeat)
 
 
 if __name__ == "__main__":
-    # run_benchmark("sepsis","Sepsis Cases - Event Log.xes.gz", "sepsis_results.csv",10)
-    # run_benchmark("traffic_fines", "Road_Traffic_fine_management_Process.xes.gz", "traffic_results.csv", 10)
-    # run_benchmark("dreyers_fond", "Dreyers Foundation.xes", "dreyers_fond_results.csv", 10)
+    run_benchmark("sepsis", "Sepsis Cases - Event Log.xes.gz", "sepsis_results.csv", 10)
+    run_benchmark("traffic_fines", "Road_Traffic_fine_management_Process.xes.gz", "traffic_results.csv", 10)
+    run_benchmark("dreyers_fond", "Dreyers Foundation.xes", "dreyers_fond_results.csv", 10)
     run_declare_benchmark("sepsis", "Sepsis Cases - Event Log.xes.gz", "declare_sepsis_results.csv", 10)
     run_declare_benchmark("traffic_fines", "Road_Traffic_fine_management_Process.xes.gz", "declare_traffic_results.csv", 10)
     run_declare_benchmark("dreyers_fond", "Dreyers Foundation.xes", "declare_dreyers_fond_results.csv", 10)
