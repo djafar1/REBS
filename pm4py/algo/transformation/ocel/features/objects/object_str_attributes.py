@@ -50,7 +50,9 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     data = []
     feature_names = []
 
-    ordered_objects = list(ocel.objects[ocel.object_id_column])
+    ordered_objects = parameters["ordered_objects"] if "ordered_objects" in parameters else ocel.objects[
+        ocel.object_id_column].to_numpy()
+
     object_str_attributes = exec_utils.get_param_value(Parameters.OBJECT_STR_ATTRIBUTES, parameters, None)
 
     if object_str_attributes is not None:
@@ -77,7 +79,7 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
                 if ev in dct_corr[attr]:
                     value = dct_corr[attr][ev]
                     idx = count + dct_corr_values[attr].index(value)
-                    data[-1][idx] = 1
+                    data[-1][idx] = 1.0
                 count += len(dct_corr_values[attr])
 
     return data, feature_names

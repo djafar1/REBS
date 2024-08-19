@@ -20,15 +20,14 @@ from enum import Enum
 from typing import Optional, Dict, Any, Tuple, List
 
 import numpy as np
-import pandas as pd
-from sklearn.manifold import LocallyLinearEmbedding
+from pm4py.util import ml_utils
 
 from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.log.obj import EventLog
 from pm4py.algo.transformation.log_to_features import algorithm as log_to_features
 from pm4py.objects.log.util import sorting
 from pm4py.util import constants, xes_constants
-from pm4py.util import exec_utils
+from pm4py.util import exec_utils, pandas_utils
 
 
 class Parameters(Enum):
@@ -87,7 +86,7 @@ def apply(log: EventLog, parameters: Optional[Dict[str, Any]] = None) -> Tuple[L
     timestamp_key = exec_utils.get_param_value(Parameters.TIMESTAMP_KEY, parameters,
                                                xes_constants.DEFAULT_TIMESTAMP_KEY)
 
-    if type(log) is pd.DataFrame:
+    if pandas_utils.check_is_pandas_dataframe(log):
         # keep only the needed columns
         case_id_key = exec_utils.get_param_value(Parameters.CASE_ID_KEY, parameters, constants.CASE_CONCEPT_NAME)
         log = log[[case_id_key, activity_key, timestamp_key]]
@@ -97,8 +96,9 @@ def apply(log: EventLog, parameters: Optional[Dict[str, Any]] = None) -> Tuple[L
 
     x = [trace[0][timestamp_key] for trace in log]
     data, feature_names = log_to_features.apply(log, parameters={"str_ev_attr": [activity_key], "str_evsucc_attr": [activity_key]})
+    data = np.array([np.array(x) for x in data])
 
-    tsne = LocallyLinearEmbedding(n_components=1, eigen_solver='dense')
+    tsne = ml_utils.LocallyLinearEmbedding(n_components=1, eigen_solver='dense')
     data = tsne.fit_transform(data)
     data = np.ndarray.flatten(data)
 

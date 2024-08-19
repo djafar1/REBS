@@ -19,7 +19,6 @@ import tempfile
 from graphviz import Digraph
 
 from pm4py.objects.petri_net.obj import Marking
-from pm4py.objects.petri_net.timed_arc_net.obj import TimedMarking
 from pm4py.objects.petri_net import properties as petri_properties
 from pm4py.util import exec_utils, constants
 from enum import Enum
@@ -170,29 +169,27 @@ def graphviz_visualization(net, image_format="png", initial_marking=None, final_
         fillcolor = decorations[p]["color"] if p in decorations and "color" in decorations[p] else bgcolor
 
         label = str(label)
-        xlabel = None
-        if petri_properties.AGE_INVARIANT in p.properties:
-            xlabel = f'Inv:<={p.properties[petri_properties.AGE_INVARIANT]}'
-
-        age = ''
-        if isinstance(initial_marking, TimedMarking):
-            age = initial_marking.timed_dict[p] if p in initial_marking.timed_dict else ''
         if p in initial_marking:
             if initial_marking[p] == 1:
-                viz.node(str(id(p)), f"&#9679;{age}", fontsize="34", fixedsize='true', shape="circle", width='0.75', style="filled", fillcolor=fillcolor, xlabel=xlabel)
+                viz.node(str(id(p)), "<&#9679;>", fontsize="34", fixedsize='true', shape="circle", width='0.75', style="filled", fillcolor=fillcolor)
             else:
-                viz.node(str(id(p)), str(initial_marking[p]), fontsize="34", fixedsize='true', shape="circle", width='0.75', style="filled", fillcolor=fillcolor, xlabel=xlabel)
+                marking_label = str(initial_marking[p])
+                if len(marking_label) >= 3:
+                    viz.node(str(id(p)), marking_label, fontsize="34",  shape="ellipse", style="filled", fillcolor=fillcolor)
+                else:
+                    viz.node(str(id(p)), marking_label, fontsize="34", fixedsize='true', shape="circle", width='0.75', style="filled", fillcolor=fillcolor)
         elif p in final_marking:
             # <&#9632;>
-            viz.node(str(id(p)), f"&#9632;{age}", fontsize="32", shape='doublecircle', fixedsize='true', width='0.75', style="filled", fillcolor=fillcolor, xlabel=xlabel)
+            viz.node(str(id(p)), "<&#9632;>", fontsize="32", shape='doublecircle', fixedsize='true', width='0.75', style="filled", fillcolor=fillcolor)
         else:
             if debug:
-                viz.node(str(id(p)), str(p.name), fontsize=font_size, shape="ellipse", xlabel=xlabel)
+                viz.node(str(id(p)), str(p.name), fontsize=font_size, shape="ellipse")
             else:
-                if p in decorations and "color" in decorations[p] and "label" in decorations[p]:
-                    viz.node(str(id(p)), label, style='filled', fillcolor=fillcolor, fontsize=font_size, shape="ellipse", xlabel=xlabel)
+                if p in decorations and "label" in decorations[p]:
+                    viz.node(str(id(p)), label, style='filled', fillcolor=fillcolor,
+                             fontsize=font_size, shape="ellipse")
                 else:
-                    viz.node(str(id(p)), label, shape='circle', fixedsize='true', width='0.75', style="filled", fillcolor=fillcolor, xlabel=xlabel)
+                    viz.node(str(id(p)), label, shape='circle', fixedsize='true', width='0.75', style="filled", fillcolor=fillcolor)
 
     # add arcs, in order by their source and target objects names, to avoid undeterminism in the visualization
     arcs_sort_list = sorted(list(net.arcs), key=lambda x: (x.source.name, x.target.name))
@@ -221,22 +218,12 @@ def graphviz_visualization(net, image_format="png", initial_marking=None, final_
                 arrowhead = "vee"
             elif a.properties[petri_properties.ARCTYPE] == petri_properties.INHIBITOR_ARC:
                 arrowhead = "dot"
-            elif a.properties[petri_properties.ARCTYPE] == petri_properties.TRANSPORT_ARC:
-                arrowhead = "diamond"
-                min = '0'
-                max = '<&#221E;>'
-                if petri_properties.AGE_MIN in a.properties:
-                    min = f'{a.properties[petri_properties.AGE_MIN]}'
-                if petri_properties.AGE_MAX in a.properties:
-                    max = f'{a.properties[petri_properties.AGE_MAX]}'
-                if petri_properties.AGE_MIN in a.properties or petri_properties.AGE_MAX in a.properties:
-                    label += f': [{min},{max}]'
 
         viz.edge(str(id(a.source)), str(id(a.target)), label=label,
                  penwidth=penwidth, color=color, fontsize=font_size, arrowhead=arrowhead, fontcolor=color)
 
     viz.attr(overlap='false')
 
-    viz.format = image_format.replace("html", "plain-text")
+    viz.format = image_format.replace("html", "plain-ext")
 
     return viz

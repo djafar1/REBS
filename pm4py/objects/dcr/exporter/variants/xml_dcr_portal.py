@@ -1,7 +1,9 @@
 from lxml import etree
 
+from pm4py.objects.dcr.obj import DcrGraph
 
-def export_dcr_xml(dcr, output_file_name, dcr_title):
+
+def export_dcr_xml(graph:DcrGraph, output_file_name, dcr_title='DCR from pm4py'):
     '''
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
 
@@ -35,7 +37,7 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
     included = etree.SubElement(marking, "included")
     pendingResponse = etree.SubElement(marking, "pendingResponses")
 
-    for event in dcr['events']:
+    for event in graph.events:
         xml_event = etree.SubElement(events, "event")
         xml_event.set("id", event)
         xml_label = etree.SubElement(labels, "label")
@@ -44,31 +46,31 @@ def export_dcr_xml(dcr, output_file_name, dcr_title):
         xml_labelMapping.set("eventId", event)
         xml_labelMapping.set("labelId", event)
 
-        for event_prime in dcr['events']:
-            if event in dcr["conditionsFor"] and event_prime in dcr["conditionsFor"][event]:
+        for event_prime in graph.events:
+            if event in graph.conditions and event_prime in graph.conditions[event]:
                 xml_condition = etree.SubElement(conditions, "condition")
                 xml_condition.set("sourceId", event_prime)
                 xml_condition.set("targetId", event)
-            if event in dcr["responseTo"] and event_prime in dcr["responseTo"][event]:
+            if event in graph.responses and event_prime in graph.responses[event]:
                 xml_response = etree.SubElement(responses, "response")
                 xml_response.set("sourceId", event)
                 xml_response.set("targetId", event_prime)
-            if event in dcr["includesTo"] and event_prime in dcr["includesTo"][event]:
+            if event in graph.includes and event_prime in graph.includes[event]:
                 xml_include = etree.SubElement(includes, "include")
                 xml_include.set("sourceId", event)
                 xml_include.set("targetId", event_prime)
-            if event in dcr["excludesTo"] and event_prime in dcr["excludesTo"][event]:
+            if event in graph.excludes and event_prime in graph.excludes[event]:
                 xml_exclude = etree.SubElement(excludes, "exclude")
                 xml_exclude.set("sourceId", event)
                 xml_exclude.set("targetId", event_prime)
-
-        if event in dcr['marking']['executed']:
+            # TODO: allow for more advanced graphs than just the core ones
+        if event in graph.marking.executed:
             marking_exec = etree.SubElement(executed, "event")
             marking_exec.set("id", event)
-        if event in dcr['marking']['included']:
+        if event in graph.marking.included:
             marking_incl = etree.SubElement(included, "event")
             marking_incl.set("id", event)
-        if event in dcr['marking']['pending']:
+        if event in graph.marking.pending:
             marking_pend = etree.SubElement(pendingResponse, "event")
             marking_pend.set("id", event)
 

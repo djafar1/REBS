@@ -47,7 +47,9 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     if parameters is None:
         parameters = {}
 
-    ordered_events = list(ocel.events[ocel.event_id_column])
+    ordered_events = parameters["ordered_events"] if "ordered_events" in parameters else ocel.events[
+        ocel.event_id_column].to_numpy()
+
     data = []
     feature_names = []
 
@@ -71,13 +73,13 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
                 feature_names.append("@@event_attr_value_"+attr+"_"+value)
 
         for ev in ordered_events:
-            data.append([0] * len(feature_names))
+            data.append([0.0] * len(feature_names))
             count = 0
             for attr in dct_corr_list:
                 if ev in dct_corr[attr]:
                     value = dct_corr[attr][ev]
                     idx = count + dct_corr_values[attr].index(value)
-                    data[-1][idx] = 1
+                    data[-1][idx] = 1.0
                 count += len(dct_corr_values[attr])
 
     return data, feature_names

@@ -1,5 +1,6 @@
 from typing import Set
-from pm4py.objects.dcr.obj import Marking, Relations
+
+from pm4py.objects.dcr.obj import DcrGraph
 
 """
 We will implement the semantics according to the papers given in:
@@ -17,9 +18,8 @@ class DcrSemantics(object):
         Title: Declarative Event-BasedWorkflow as Distributed Dynamic Condition Response Graphs
         publisher: Electronic Proceedings in Theoretical Computer Science. EPTCS, Open Publishing Association, 2010, pp. 59–73. doi: 10.4204/EPTCS.69.5.
         """
-
     @classmethod
-    def is_enabled(cls, event, graph) -> bool:
+    def is_enabled(cls, event, graph: DcrGraph) -> bool:
         """
         Verify that the given event is enabled for execution in the DCR graph
 
@@ -36,7 +36,7 @@ class DcrSemantics(object):
         return event in cls.enabled(graph)
 
     @classmethod
-    def enabled(cls, graph) -> Set[str]:
+    def enabled(cls, graph: DcrGraph) -> Set[str]:
         """
         Creates a list of enabled events, based on included events and conditions constraints met
 
@@ -57,15 +57,12 @@ class DcrSemantics(object):
         return res
 
     @classmethod
-    def execute(cls, event, graph):
-        if cls.is_enabled(event, graph):
-            return cls.weak_execute(event, graph)
-
-    @classmethod
-    def weak_execute(cls, event, graph):
+    def execute(cls, graph: DcrGraph, event):
         """
         Function based on semantics of execution a DCR graph
         will update the graph according to relations of the executed activity
+
+        can extend to allow of execution of milestone activity
 
         Parameters
         ----------
@@ -81,7 +78,8 @@ class DcrSemantics(object):
             graph.marking.pending.discard(event)
         graph.marking.executed.add(event)
 
-        # the following if statements are used to update the DCR graph
+        # the following if statements are used to provide to update DCR graph
+        # depending on prime event structure within conditions relations
         if event in graph.excludes:
             for e_prime in graph.excludes[event]:
                 graph.marking.included.discard(e_prime)
@@ -97,7 +95,7 @@ class DcrSemantics(object):
         return graph
 
     @classmethod
-    def is_accepting(cls, graph) -> bool:
+    def is_accepting(cls, graph: DcrGraph) -> bool:
         """
         Checks if the graph is accepting, no included events are pending
 
@@ -107,7 +105,7 @@ class DcrSemantics(object):
 
         Returns
         ---------
-        :return: True if graph is accepting, False otherwise
+        :return: True if graph is accepting, false otherwise
         """
         res = graph.marking.pending.intersection(graph.marking.included)
         if len(res) > 0:

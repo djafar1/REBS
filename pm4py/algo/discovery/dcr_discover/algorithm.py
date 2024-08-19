@@ -3,24 +3,33 @@ from copy import deepcopy
 from pm4py.objects.log.obj import EventLog
 from pm4py.util import exec_utils
 from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
-from pm4py.algo.discovery.dcr_discover.extenstions import roles
-from enum import Enum
+from pm4py.algo.discovery.dcr_discover.extenstions import roles, pending, time_constraints, nesting
+from enum import Enum, auto
 import pandas as pd
-from typing import Union, Any, Optional, Dict, Tuple
+from typing import Union, Any, Optional, Dict, Tuple, Set
+
+
+class ExtensionVariants(Enum):
+    DCR_ROLES = roles
+    PENDING = pending
+    TIMED = time_constraints
+    NESTING = nesting
 
 
 class Variants(Enum):
-    DCR_BASIC = dcr_discover
-    DCR_ROLES = roles
+    DCR_DISCOVER = dcr_discover
 
 
-DCR_BASIC = Variants.DCR_BASIC
-DCR_ROLES = Variants.DCR_ROLES
-VERSIONS = {DCR_BASIC, DCR_ROLES}
+DCR_DISCOVER = Variants.DCR_DISCOVER
+DCR_ROLES = ExtensionVariants.DCR_ROLES
+DCR_PENDING = ExtensionVariants.PENDING
+DCR_TIMED = ExtensionVariants.TIMED
+DCR_NESTING = ExtensionVariants.NESTING
+VERSIONS = {DCR_DISCOVER}
 
 
-def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_BASIC, findAdditionalConditions: bool = True,
-          post_process=None, parameters: Optional[Dict[Any, Any]] = None) -> Tuple[Any, dict]:
+def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAdditionalConditions: bool = True,
+          post_process: Optional[Set[ExtensionVariants]] = None, parameters: Optional[Dict[Any, Any]] = None) -> Tuple[Any, dict]:
     """
     discover a DCR graph from a provided event log, implemented the DisCoveR algorithm presented in [1]_.
     Allows for mining for additional attribute currently implemented mining of organisational attributes.
@@ -59,13 +68,19 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_BASIC, findAdditionalC
 
     """
 
-    input_log = deepcopy(log)
-    graph, la = exec_utils.get_variant(variant).apply(input_log, findAdditionalConditions=findAdditionalConditions,
-                                                  parameters=parameters)
+    input_log = log  # deepcopy(log)
+    graph, la = exec_utils.get_variant(variant).apply(input_log, findAdditionalConditions=findAdditionalConditions, parameters=parameters)
+
     if post_process is None:
         post_process = set()
 
-    if 'roles' in post_process:
+    if DCR_ROLES in post_process:
         graph = exec_utils.get_variant(DCR_ROLES).apply(input_log, graph, parameters=parameters)
+    if DCR_PENDING in post_process:
+        graph = exec_utils.get_variant(DCR_PENDING).apply(input_log, graph, parameters=parameters)
+    if DCR_TIMED in post_process:
+        graph = exec_utils.get_variant(DCR_TIMED).apply(input_log, graph, parameters=parameters)
+    if DCR_NESTING in post_process:
+        graph = exec_utils.get_variant(DCR_NESTING).apply(graph, parameters=parameters)
 
     return graph, la

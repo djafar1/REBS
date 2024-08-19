@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import pm4py.utils
-from pm4py import get_event_attribute_values
+from pm4py.stats import get_event_attribute_values
 from pm4py.objects.dcr.obj import dcr_template
 from enum import Enum
 from typing import Tuple, Dict, Set, Any, List, Union
@@ -255,13 +255,12 @@ class Discover:
         Dict[str, Set[str]]
             An optimized version of the input relations, with redundant connections removed.
         """
-        # Sortedlist to avoid possibly non-deterministic behavior due to unordered nature of dict
-        sortedList = np.array(list(relation.items()))
-        sortedList = sorted(sortedList, key=lambda num: len(num[1]), reverse=True)
-        for i in sortedList:
-            for j in i[1]:
-                i[1] = i[1].difference(relation[j])
-        return dict(sortedList)
+        # Sorted dict to avoid possibly non-deterministic behavior due to unordered nature of dict
+        relation = dict(sorted(relation.items(), key=lambda conditions: len(conditions[1]),reverse=True))
+        for eventA in relation:
+            for eventB in relation[eventA]:
+                relation[eventA] = relation[eventA].difference(relation[eventB])
+        return relation
 
     def mineFromAbstraction(self, findAdditionalConditions: bool = True) -> int:
         """
@@ -293,7 +292,7 @@ class Discover:
 
         # Initialize all to_petri_net to avoid indexing errors
         for event in self.graph['events']:
-            self.graph['labelMapping'][event] = {event}
+            self.graph['labelMapping'][event] = event #{event}
             self.graph['conditionsFor'][event] = set()
             self.graph['excludesTo'][event] = set()
             self.graph['includesTo'][event] = set()
@@ -366,6 +365,8 @@ class Discover:
                     included = included.difference(self.graph['excludesTo'][event])
                     # Execute includes starting from (event)
                     included = included.union(self.graph['includesTo'][event])
+                    localSeenBefore.add(event)
+
             # Now the only possible Condtitions that remain are valid for all traces
             # These are therefore added to the graph
             for key in self.graph['conditionsFor']:
@@ -373,4 +374,14 @@ class Discover:
 
             # Removing redundant conditions
             self.graph['conditionsFor'] = self.optimizeRelation(self.graph['conditionsFor'])
+        self.clean_empty_sets()
         return 0
+
+    def clean_empty_sets(self):
+        for k, v in deepcopy(self.graph).items():
+            if k in ['conditionsFor', 'responseTo', 'excludesTo', 'includesTo']:
+                v_new = {}
+                for k2, v2 in v.items():
+                    if v2:
+                        v_new[k2] = set([v3 for v3 in v2 if v3 is not set()])
+                self.graph[k] = v_new

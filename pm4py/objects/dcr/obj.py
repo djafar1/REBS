@@ -13,12 +13,21 @@ Classes:
 
 The `dcr_template` dictionary provides a blueprint for initializing new DCR Graphs with default settings.
 """
-
+from copy import deepcopy
 from enum import Enum
 from typing import Set, Dict
 
 
 class Relations(Enum):
+    I = 'includes'
+    E = 'excludes'
+    R = 'responses'
+    N = 'noresponses'
+    C = 'conditions'
+    M = 'milestones'
+
+
+class TemplateRelations(Enum):
     I = 'includesTo'
     E = 'excludesTo'
     R = 'responseTo'
@@ -44,18 +53,18 @@ dcr_template = {
     'conditionsForDelays': {},
     'responseToDeadlines': {},
     'subprocesses': {},
-    'nestings': {},
-    'nestingsMap': {},
+    'nestedgroups': {},
+    'nestedgroupsMap': {},
     'labels': set(),
     'labelMapping': {},
     'roles': set(),
     'principals': set(),
     'roleAssignments': {},
-    'readRoleAssignments': {}
+    'readRoleAssignments': {},
+    'principalsAssignments': {}
 }
 
-
-class Marking(object):
+class Marking:
     """
     This class contains the set of all markings M(G), in which it contains three sets:
     M(G) = executed x included x pending
@@ -76,16 +85,19 @@ class Marking(object):
 
 
     """
-
     def __init__(self, executed, included, pending) -> None:
         self.__executed = executed
         self.__included = included
         self.__pending = pending
 
-    # getters and setters for data manipulation, mainly used for DCR semantics
+    # getters and setters for datamanipulation, mainly used for DCR semantics
     @property
     def executed(self):
         return self.__executed
+
+    @executed.setter
+    def executed(self, value):
+        self.__executed = value
 
     @property
     def included(self):
@@ -99,6 +111,10 @@ class Marking(object):
     def pending(self):
         return self.__pending
 
+    @pending.setter
+    def pending(self, value):
+        self.__pending = value
+
     def reset(self, initial_marking) -> None:
         """
         Resets the marking of a DCR graph, uses the graphs event to reset included marking
@@ -109,9 +125,9 @@ class Marking(object):
             the events in the DCR Graphs
 
         """
-        self.__executed = initial_marking.executed
-        self.__included = initial_marking.included
-        self.__pending = initial_marking.pending
+        self.__executed = set(initial_marking['executed'])
+        self.__included = set(initial_marking['included'])
+        self.__pending = set(initial_marking['pending'])
 
     # built-in functions for printing a visual string representation
     def __str__(self) -> str:
@@ -193,6 +209,7 @@ class DcrGraph(object):
     # initiate the objects: contains events ID, activity, the 4 relations, markings, roles and principals
     def __init__(self, template=None):
         # DisCoveR uses bijective labelling, each event has one label
+        #
         self.__events = set() if template is None else template['events']
         self.__marking = Marking(set(), set(), set()) if template is None else (
             Marking(template['marking']['executed'], template['marking']['included'], template['marking']['pending']))
@@ -201,7 +218,21 @@ class DcrGraph(object):
         self.__responseTo = {} if template is None else template['responseTo']
         self.__includesTo = {} if template is None else template['includesTo']
         self.__excludesTo = {} if template is None else template['excludesTo']
-        self.__labelMapping = {} if template is None else template['labelMapping']
+        self.__labelMap = {} if template is None else template['labelMapping']
+
+    def obj_to_template(self):
+        res = deepcopy(dcr_template)
+        res['events'] = self.__events
+        res['marking']['executed'] = self.__marking.executed
+        res['marking']['included'] = self.__marking.included
+        res['marking']['pending'] = self.__marking.pending
+        res['labels'] = self.__labels
+        res['conditionsFor'] = self.__conditionsFor
+        res['responseTo'] = self.__responseTo
+        res['includesTo'] = self.__includesTo
+        res['excludesTo'] = self.__excludesTo
+        res['labelMapping'] = self.__labelMap
+        return res
 
     # @property functions to extract values used for data manipulation and testing
     @property
@@ -209,7 +240,7 @@ class DcrGraph(object):
         return self.__events
 
     @events.setter
-    def events(self, value):
+    def events(self, value: Set[str]):
         self.__events = value
 
     @property
@@ -224,25 +255,48 @@ class DcrGraph(object):
     def labels(self) -> Set[str]:
         return self.__labels
 
+    @labels.setter
+    def labels(self, value: Set[str]):
+        self.__labels = value
+
     @property
     def conditions(self) -> Dict[str, Set[str]]:
         return self.__conditionsFor
 
+    @conditions.setter
+    def conditions(self, value: Dict[str, Set[str]]):
+        self.__conditionsFor = value
     @property
     def responses(self) -> Dict[str, Set[str]]:
         return self.__responseTo
 
+    @responses.setter
+    def responses(self, value: Dict[str, Set[str]]):
+        self.__responseTo = value
     @property
     def includes(self) -> Dict[str, Set[str]]:
         return self.__includesTo
+
+    @includes.setter
+    def includes(self, value):
+        self.__includesTo = value
 
     @property
     def excludes(self) -> Dict[str, Set[str]]:
         return self.__excludesTo
 
+    @excludes.setter
+    def excludes(self, value: Dict[str, Set[str]]):
+        self.__excludesTo = value
     @property
-    def label_mapping(self) -> Dict[str, Set[str]]:
-        return self.__labelMapping
+    # def label_map(self) -> Dict[str, Set[str]]:
+    def label_map(self) -> Dict[str, str]:
+        return self.__labelMap
+
+    @label_map.setter
+    # def label_map(self, value: Dict[str, Set[str]]):
+    def label_map(self, value: Dict[str, str]):
+        self.__labelMap = value
 
     def get_event(self, activity: str) -> str:
         """
@@ -258,12 +312,17 @@ class DcrGraph(object):
         event
             the event ID of activity
         """
-        event = self.__labelMapping.get(activity, "None")
-        if event is "None":
-            return activity
-        event = event.pop()
-        self.__labelMapping[activity].add(event)
-        return event
+        for event, label in self.label_map.items():
+            if activity == label:
+                # returns only the first event matched
+                # if the intention is to return all events matched then it needs to return a list of strings
+                return event
+        # event = self.__labelMap.get(activity, None)
+        # if event is None:
+        #     return activity
+        # event = event.pop()
+        # self.__labelMap[activity].add(event)
+        # return event
 
     def get_activity(self, event: str) -> str:
         """
@@ -279,13 +338,14 @@ class DcrGraph(object):
         activity
             the activity of the event
         """
-        for activity in self.__labelMapping:
-            event_prime = self.__labelMapping[activity]
-            event_prime = event_prime.pop()
-            self.__labelMapping[activity].add(event_prime)
-            if event == event_prime:
-                return activity
-        return event
+        return self.label_map[event]
+        # for activity in self.__labelMap:
+        #     event_prime = self.__labelMap[activity]
+        #     event_prime = event_prime.pop()
+        #     self.__labelMap[activity].add(event_prime)
+        #     if event == event_prime:
+        #         return activity
+        # return event
 
     def get_constraints(self) -> int:
         """
@@ -314,7 +374,7 @@ class DcrGraph(object):
     def __repr__(self):
         string = ""
         for key, value in vars(self).items():
-            string += str(key.split("_")[-1]) + ": " + str(value) + "\n"
+            string += str(key.split("_")[-1])+": "+str(value)+"\n"
         return string
 
     def __str__(self):
@@ -333,6 +393,7 @@ class DcrGraph(object):
         return set()
 
     def __setitem__(self, item, value):
-        for key, _ in vars(self).items():
+        for key,_ in vars(self).items():
             if item == key.split("_")[-1]:
                 setattr(self, key, value)
+

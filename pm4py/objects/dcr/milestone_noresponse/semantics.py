@@ -20,6 +20,6 @@ class MilestoneNoResponseSemantics(DcrSemantics):
             for e_prime in graph.noresponses[event]:
                 graph.marking.pending.discard(e_prime)
 
-        return super().weak_execute(graph, event)
+        return super().weak_execute(event, graph)
 
 

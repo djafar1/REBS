@@ -18,12 +18,13 @@ from enum import Enum
 from pm4py.objects.log.obj import EventLog, EventStream
 import pandas as pd
 from typing import Optional, Dict, Any, Collection, Union
-from pm4py.util import exec_utils, constants, xes_constants
+from pm4py.util import exec_utils, constants, xes_constants, pandas_utils
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.objects.ocel import constants as ocel_constants
 from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.ocel.util import ocel_consistency
 from copy import copy
+import math
 
 
 class Parameters(Enum):
@@ -36,6 +37,37 @@ class Parameters(Enum):
     LEFT_INDEX = "left_index"
     RIGHT_INDEX = "right_index"
     DIRECTION = "direction"
+
+
+def __postprocess_stream(list_events):
+    """
+    Postprocess the list of events of the stream in order to make sure
+    that there are no NaN/NaT values
+
+    Parameters
+    -------------
+    list_events
+        List of events
+
+    Returns
+    -------------
+    list_events
+        Postprocessed stream
+    """
+    for event in list_events:
+        event_keys = list(event.keys())
+        for k in event_keys:
+            typ_k = type(event[k])
+            if typ_k is pd._libs.tslibs.nattype.NaTType:
+                del event[k]
+                continue
+            elif (typ_k is float or typ_k is int) and math.isnan(event[k]):
+                del event[k]
+                continue
+            elif event[k] is None:
+                del event[k]
+                continue
+    return list_events
 
 
 def from_traditional_log(log: EventLog, parameters: Optional[Dict[Any, Any]] = None) -> OCEL:
@@ -96,9 +128,9 @@ def from_traditional_log(log: EventLog, parameters: Optional[Dict[Any, Any]] = N
                  ocel_constants.DEFAULT_EVENT_TIMESTAMP: timestamp, ocel_constants.DEFAULT_OBJECT_ID: case_id,
                  ocel_constants.DEFAULT_OBJECT_TYPE: target_object_type})
 
-    events = pd.DataFrame(events)
-    objects = pd.DataFrame(objects)
-    relations = pd.DataFrame(relations)
+    events = pandas_utils.instantiate_dataframe(events)
+    objects = pandas_utils.instantiate_dataframe(objects)
+    relations = pandas_utils.instantiate_dataframe(relations)
 
     return OCEL(events=events, objects=objects, relations=relations)
 
@@ -109,6 +141,7 @@ def __get_events_dataframe(df: pd.DataFrame, activity_key: str, timestamp_key: s
     Internal method to get the events dataframe out of a traditional log stored as Pandas dataframe
     """
     columns = {case_id_key}.union(set(x for x in df.columns if not x.startswith(case_attribute_prefix)))
+    columns = list(columns)
     df = df[columns]
     df = df.rename(columns={activity_key: ocel_constants.DEFAULT_EVENT_ACTIVITY,
                             timestamp_key: ocel_constants.DEFAULT_EVENT_TIMESTAMP,
@@ -123,6 +156,7 @@ def __get_objects_dataframe(df: pd.DataFrame, case_id_key: str, case_attribute_p
     Internal method to get the objects dataframe out of a traditional log stored as Pandas dataframe
     """
     columns = {x for x in df.columns if x.startswith(case_attribute_prefix)}
+    columns = list(columns)
     df = df[columns]
     df = df.rename(columns={case_id_key: ocel_constants.DEFAULT_OBJECT_ID})
     df = df.groupby(ocel_constants.DEFAULT_OBJECT_ID).first().reset_index()
@@ -264,9 +298,9 @@ def from_interleavings(df1: pd.DataFrame, df2: pd.DataFrame, interleavings: pd.D
     del events1[ocel_constants.DEFAULT_OBJECT_ID]
     del events2[ocel_constants.DEFAULT_OBJECT_ID]
 
-    events = pd.concat([events1, events2])
-    objects = pd.concat([objects1, objects2])
-    relations = pd.concat([relations1, relations2, relations3, relations4])
+    events = pandas_utils.concat([events1, events2])
+    objects = pandas_utils.concat([objects1, objects2])
+    relations = pandas_utils.concat([relations1, relations2, relations3, relations4])
 
     events = events.sort_values([ocel_constants.DEFAULT_EVENT_TIMESTAMP, ocel_constants.DEFAULT_EVENT_ID])
     relations = relations.sort_values([ocel_constants.DEFAULT_EVENT_TIMESTAMP, ocel_constants.DEFAULT_EVENT_ID])
@@ -274,7 +308,7 @@ def from_interleavings(df1: pd.DataFrame, df2: pd.DataFrame, interleavings: pd.D
     return OCEL(events=events, objects=objects, relations=relations)
 
 
-def log_to_ocel_multiple_obj_types(log_obj: Union[EventLog, EventStream, pd.DataFrame], activity_column: str, timestamp_column: str, obj_types: Collection[str], obj_separator: str = " AND ", additional_event_attributes: Optional[Collection[str]] = None) -> OCEL:
+def log_to_ocel_multiple_obj_types(log_obj: Union[EventLog, EventStream, pd.DataFrame], activity_column: str, timestamp_column: str, obj_types: Collection[str], obj_separator: str = " AND ", additional_event_attributes: Optional[Collection[str]] = None, additional_object_attributes: Optional[Dict[str, Collection[str]]] = None) -> OCEL:
     """
     Converts an event log to an object-centric event log with one or more than one
     object types.
@@ -293,6 +327,10 @@ def log_to_ocel_multiple_obj_types(log_obj: Union[EventLog, EventStream, pd.Data
         Separator between different objects in the same column
     additional_event_attributes
         Additional attributes to be considered as event attributes in the OCEL
+    additional_object_attributes
+        Additional attributes per object type to be considered as object attributes in the OCEL
+        (dictionary in which object types are associated to their attributes, i.e.,
+        {"order": ["quantity", "cost"], "invoice": ["date", "due date"]})
 
     Returns
     ----------------
@@ -304,6 +342,9 @@ def log_to_ocel_multiple_obj_types(log_obj: Union[EventLog, EventStream, pd.Data
     if additional_event_attributes is None:
         additional_event_attributes = {}
 
+    if additional_object_attributes is None:
+        additional_object_attributes = {}
+
     events = []
     objects = []
     relations = []
@@ -311,36 +352,45 @@ def log_to_ocel_multiple_obj_types(log_obj: Union[EventLog, EventStream, pd.Data
     obj_ids = set()
 
     stream = log_obj.to_dict("records")
+    stream = __postprocess_stream(stream)
 
     for index, eve in enumerate(stream):
         ocel_eve = {ocel_constants.DEFAULT_EVENT_ID: str(index), ocel_constants.DEFAULT_EVENT_ACTIVITY: eve[activity_column], ocel_constants.DEFAULT_EVENT_TIMESTAMP: eve[timestamp_column]}
         for attr in additional_event_attributes:
-            ocel_eve[attr] = eve[attr]
+            if attr in eve:
+                ocel_eve[attr] = eve[attr]
         events.append(ocel_eve)
 
-        for col in obj_types:
+        for ot in obj_types:
             try:
-                objs = eve[col].split(obj_separator)
+                objs = eve[ot].split(obj_separator)
 
                 for obj in objs:
                     if len(obj.strip()) > 0:
                         if obj not in obj_ids:
                             obj_ids.add(obj)
+                            obj_instance = {ocel_constants.DEFAULT_OBJECT_ID: obj, ocel_constants.DEFAULT_OBJECT_TYPE: ot}
 
-                            objects.append({ocel_constants.DEFAULT_OBJECT_ID: obj, ocel_constants.DEFAULT_OBJECT_TYPE: col})
+                            if ot in additional_object_attributes:
+                                for objattname in additional_object_attributes[ot]:
+                                    if objattname in eve:
+                                        objattvalue = eve[objattname]
+                                        obj_instance[objattname] = objattvalue
+
+                            objects.append(obj_instance)
 
                         rel = copy(ocel_eve)
                         rel[ocel_constants.DEFAULT_OBJECT_ID] = obj
-                        rel[ocel_constants.DEFAULT_OBJECT_TYPE] = col
+                        rel[ocel_constants.DEFAULT_OBJECT_TYPE] = ot
 
                         relations.append(rel)
             except:
                 pass
 
-    events = pd.DataFrame(events)
-    objects = pd.DataFrame(objects)
-    relations = pd.DataFrame(relations)
-    relations.drop_duplicates(subset=[ocel_constants.DEFAULT_EVENT_ID, ocel_constants.DEFAULT_OBJECT_ID], inplace=True)
+    events = pandas_utils.instantiate_dataframe(events)
+    objects = pandas_utils.instantiate_dataframe(objects)
+    relations = pandas_utils.instantiate_dataframe(relations)
+    relations = relations.drop_duplicates(subset=[ocel_constants.DEFAULT_EVENT_ID, ocel_constants.DEFAULT_OBJECT_ID])
 
     ocel = OCEL(events=events, objects=objects, relations=relations)
     ocel = ocel_consistency.apply(ocel)

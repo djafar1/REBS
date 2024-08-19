@@ -23,6 +23,11 @@ from typing import Tuple, Union, List, Dict, Any, Optional, Set
 import pandas as pd
 from pandas import DataFrame
 
+from pm4py.algo.discovery.powl.inductive.utils.filtering import FILTERING_THRESHOLD
+from pm4py.algo.discovery.powl.inductive.variants.dynamic_clustering_frequency.dynamic_clustering_frequency_partial_order_cut import \
+    ORDER_FREQUENCY_RATIO
+from pm4py.algo.discovery.powl.inductive.variants.powl_discovery_varaints import POWLDiscoveryVariant
+from pm4py.algo.discovery.dcr_discover.algorithm import ExtensionVariants
 from pm4py.objects.bpmn.obj import BPMN
 from pm4py.objects.dfg.obj import DFG
 from pm4py.objects.powl.obj import POWL
@@ -33,10 +38,9 @@ from pm4py.objects.log.obj import EventLog
 from pm4py.objects.log.obj import EventStream
 from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.objects.process_tree.obj import ProcessTree
-from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
 from pm4py.utils import get_properties, __event_log_deprecation_warning
-from pm4py.util import constants
+from pm4py.util import constants, pandas_utils
 import deprecation
 import importlib.util
 
@@ -123,17 +127,17 @@ def discover_dfg_typed(log: pd.DataFrame, case_id_key: str = "case:concept:name"
     from pm4py.algo.discovery.dfg.variants import clean
     parameters = get_properties(
         log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
-    if type(log) is pd.DataFrame:
-        return clean.apply(log, parameters)
-    elif importlib.util.find_spec("polars"):
+
+    if importlib.util.find_spec("polars"):
         import polars as pl
         if type(log) is pl.DataFrame:
             from pm4py.algo.discovery.dfg.variants import clean_polars
             return clean_polars.apply(log, parameters)
-        else:
-            raise TypeError('pm4py.discover_dfg_typed is only defined for pandas/polars DataFrames')
+
+    if pandas_utils.check_is_pandas_dataframe(log):
+        return clean.apply(log, parameters)
     else:
-        raise TypeError('pm4py.discover_dfg_typed is only defined for pandas/polars DataFrames')
+        raise TypeError('pm4py.discover_dfg_typed is only defined for dataFrames')
         
 
 def discover_performance_dfg(log: Union[EventLog, pd.DataFrame], business_hours: bool = False, business_hour_slots=constants.DEFAULT_BUSINESS_HOUR_SLOTS, workcalendar=constants.DEFAULT_BUSINESS_HOURS_WORKCALENDAR, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Tuple[dict, dict, dict]:
@@ -757,7 +761,10 @@ def discover_declare(log: Union[EventLog, pd.DataFrame], allowed_templates: Opti
     return declare_discovery.apply(log, parameters=properties)
 
 
-def discover_powl(log: Union[EventLog, pd.DataFrame], activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> POWL:
+def discover_powl(log: Union[EventLog, pd.DataFrame], variant=POWLDiscoveryVariant.MAXIMAL,
+                  filtering_weight_factor: float = 0.0, order_graph_filtering_threshold: float = None,
+                  activity_key: str = "concept:name", timestamp_key: str = "time:timestamp",
+                  case_id_key: str = "case:concept:name") -> POWL:
     """
     Discovers a POWL model from an event log.
 
@@ -765,6 +772,9 @@ def discover_powl(log: Union[EventLog, pd.DataFrame], activity_key: str = "conce
     Kourani, Humam, and Sebastiaan J. van Zelst. "POWL: partially ordered workflow language." International Conference on Business Process Management. Cham: Springer Nature Switzerland, 2023.
 
     :param log: event log / Pandas dataframe
+    :param variant: variant of the algorithm
+    :param filtering_weight_factor: accepts values 0 <= x < 1
+    :param order_graph_filtering_threshold: accepts values 0.5 < x <= 1
     :param activity_key: attribute to be used for the activity
     :param timestamp_key: attribute to be used for the timestamp
     :param case_id_key: attribute to be used as case identifier
@@ -788,8 +798,16 @@ def discover_powl(log: Union[EventLog, pd.DataFrame], activity_key: str = "conce
     log = pm4py.convert_to_event_log(log, case_id_key=case_id_key)
     properties = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key)
 
+    if order_graph_filtering_threshold is not None:
+        if variant is POWLDiscoveryVariant.DYNAMIC_CLUSTERING:
+            properties[ORDER_FREQUENCY_RATIO] = order_graph_filtering_threshold
+        else:
+            raise Exception("the order graph filtering threshold can only be used for the variant DYNAMIC_CLUSTERING")
+
+    properties[FILTERING_THRESHOLD] = filtering_weight_factor
+
     from pm4py.algo.discovery.powl import algorithm as powl_discovery
-    return powl_discovery.apply(log, parameters=properties)
+    return powl_discovery.apply(log, variant=variant, parameters=properties)
 
 
 def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 15 * 60, min_batch_size: int = 2, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", resource_key: str = "org:resource") -> List[
@@ -850,7 +868,7 @@ def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 1
     return batches_discovery.apply(log, parameters=properties)
 
 
-def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = None, activity_key: str = "concept:name",
+def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[ExtensionVariants] = None, activity_key: str = "concept:name",
                  timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name",
                  resource_key: str = "org:resource", group_key: str = "org:group",
                  finaAdditionalConditions: bool = True) -> Tuple[Any, Dict[str, Any]]:
@@ -862,8 +880,8 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
     ----------
     log : Union[EventLog, pd.DataFrame]
         The event log or Pandas dataframe containing the event data.
-    process_type : Optional[str]
-        Specifies the type of post-processing for the event log, currently supports Roles.
+    post_process : Optional[str]
+        Specifies the type of post-processing for the event log, currently supports ROLES, TIMED and NESTINGS.
     activity_key : str, optional
         The attribute to be used for the activity, defaults to "concept:name".
     timestamp_key : str, optional
@@ -871,9 +889,9 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
     case_id_key : str, optional
         The attribute to be used as the case identifier, defaults to "case:concept:name".
     group_key : str, optional
-        The attribute to be used as a role identifier, defaults to None.
+        The attribute to be used as a role identifier, defaults to "org:group".
     resource_key : str, optional
-        The attribute to be used as a resource identifier, defaults to None.
+        The attribute to be used as a resource identifier, defaults to "org:resource".
     findAdditionalConditions : bool, optional
         A boolean value specifying whether additional conditions should be found, defaults to True.
     Returns
@@ -899,5 +917,5 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], process_type: Set[str] = No
 
     from pm4py.algo.discovery.dcr_discover import algorithm as dcr_alg
     from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
-    return dcr_alg.apply(log, dcr_discover, post_process=process_type,
+    return dcr_alg.apply(log, dcr_discover, post_process=post_process,
                          findAdditionalConditions=finaAdditionalConditions, parameters=properties)

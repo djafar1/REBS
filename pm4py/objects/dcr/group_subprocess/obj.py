@@ -6,29 +6,37 @@ class GroupSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
 
     def __init__(self, template=None):
         super().__init__(template)
-        self.__nested_groups = {} if template is None else template['nestings']
+        self.__nestedgroups = {} if template is None else template['nestedgroups']
         self.__subprocesses = {} if template is None else template['subprocesses']
-        self.__nested_groups_map = {} if template is None else template['nestingsMap']
-        if len(self.__nested_groups_map) == 0 and len(self.__nested_groups) > 0:
-            for group, events in self.__nested_groups.items():
+        self.__nestedgroups_map = {} if template is None else template['nestedgroupsMap']
+        if len(self.__nestedgroups_map) == 0 and len(self.__nestedgroups) > 0:
+            self.__nestedgroups_map = {}
+            for group, events in self.__nestedgroups.items():
                 for e in events:
-                    self.__nested_groups_map[e] = group
+                    self.__nestedgroups_map[e] = group
+
+    def obj_to_template(self):
+        res = super().obj_to_template()
+        res['nestedgroups'] = self.__nestedgroups
+        res['subprocesses'] = self.__subprocesses
+        res['nestedgroupsMap'] = self.__nestedgroups_map
+        return res
 
     @property
-    def nested_groups(self) -> Dict[str, Set[str]]:
-        return self.__nested_groups
+    def nestedgroups(self) -> Dict[str, Set[str]]:
+        return self.__nestedgroups
 
-    @nested_groups.setter
-    def nested_groups(self, ng):
-        self.__nested_groups = ng
+    @nestedgroups.setter
+    def nestedgroups(self, ng):
+        self.__nestedgroups = ng
 
     @property
-    def nested_groups_map(self) -> Dict[str, str]:
-        return self.__nested_groups_map
+    def nestedgroups_map(self) -> Dict[str, str]:
+        return self.__nestedgroups_map
 
-    @nested_groups_map.setter
-    def nested_groups_map(self, ngm):
-        self.__nested_groups_map = ngm
+    @nestedgroups_map.setter
+    def nestedgroups_map(self, ngm):
+        self.__nestedgroups_map = ngm
 
     @property
     def subprocesses(self) -> Dict[str, Set[str]]:

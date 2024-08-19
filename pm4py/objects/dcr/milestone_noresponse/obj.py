@@ -1,14 +1,20 @@
 from typing import Dict, Set
 
-from pm4py.objects.dcr.obj import DcrGraph
+from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 
 
-class MilestoneNoResponseDcrGraph(DcrGraph):
+class MilestoneNoResponseDcrGraph(RoleDcrGraph):
 
     def __init__(self, template=None):
         super().__init__(template)
         self.__milestonesFor = {} if template is None else template['milestonesFor']
         self.__noResponseTo = {} if template is None else template['noResponseTo']
+
+    def obj_to_template(self):
+        res = super().obj_to_template()
+        res['milestonesFor'] = self.__milestonesFor
+        res['noResponseTo'] = self.__noResponseTo
+        return res
 
     @property
     def milestones(self) -> Dict[str, Set[str]]:

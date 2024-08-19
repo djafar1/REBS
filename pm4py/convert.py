@@ -18,7 +18,7 @@ __doc__ = """
 The ``pm4py.convert`` module contains the cross-conversions implemented in ``pm4py``
 """
 
-from typing import Union, Tuple, Optional, Collection, List, Any
+from typing import Union, Tuple, Optional, Collection, List, Any, Dict
 
 import pandas as pd
 from copy import deepcopy
@@ -31,7 +31,7 @@ from pm4py.objects.log.obj import EventLog, EventStream
 from pm4py.objects.petri_net.obj import Marking
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.petri_net.obj import PetriNet
-from pm4py.util import constants
+from pm4py.util import constants, nx_utils
 from pm4py.utils import get_properties, __event_log_deprecation_warning
 from pm4py.objects.transition_system.obj import TransitionSystem
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
@@ -275,7 +275,7 @@ def convert_to_reachability_graph(*args: Union[Tuple[PetriNet, Marking, Marking]
     return reachability_graph.construct_reachability_graph(net, im)
 
 
-def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activity_column: str = "concept:name", timestamp_column: str = "time:timestamp", object_types: Optional[Collection[str]] = None, obj_separator: str = " AND ", additional_event_attributes: Optional[Collection[str]] = None) -> OCEL:
+def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activity_column: str = "concept:name", timestamp_column: str = "time:timestamp", object_types: Optional[Collection[str]] = None, obj_separator: str = " AND ", additional_event_attributes: Optional[Collection[str]] = None, additional_object_attributes: Optional[Dict[str, Collection[str]]] = None) -> OCEL:
     """
     Converts an event log to an object-centric event log with one or more than one
     object types.
@@ -286,6 +286,7 @@ def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activit
     :param object_types: list of columns to consider as object types
     :param obj_separator: separator between different objects in the same column
     :param additional_event_attributes: additional attributes to be considered as event attributes in the OCEL
+    :param additional_object_attributes: additional attributes per object type to be considered as object attributes in the OCEL (dictionary in which object types are associated to their attributes, i.e., {"order": ["quantity", "cost"], "invoice": ["date", "due date"]})
     :rtype: ``OCEL``
 
     .. code-block:: python3
@@ -303,7 +304,7 @@ def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activit
         object_types = list(set(x for x in log.columns if x == "case:concept:name" or x.startswith("ocel:type")))
 
     from pm4py.objects.ocel.util import log_ocel
-    return log_ocel.log_to_ocel_multiple_obj_types(log, activity_column, timestamp_column, object_types, obj_separator, additional_event_attributes=additional_event_attributes)
+    return log_ocel.log_to_ocel_multiple_obj_types(log, activity_column, timestamp_column, object_types, obj_separator, additional_event_attributes=additional_event_attributes, additional_object_attributes=additional_object_attributes)
 
 
 def convert_ocel_to_networkx(ocel: OCEL, variant: str = "ocel_to_nx") -> nx.DiGraph:
@@ -410,8 +411,7 @@ def convert_petri_net_to_networkx(net: PetriNet, im: Marking, fm: Marking) -> nx
         net, im, fm = pm4py.read_pnml('tests/input_data/running-example.pnml')
         nx_digraph = pm4py.convert_petri_to_networkx(net, im, fm)
     """
-    import networkx as nx
-    G = nx.DiGraph()
+    G = nx_utils.DiGraph()
     for place in net.places:
         G.add_node(place.name, attr={"name": place.name, "is_in_im": place in im, "is_in_fm": place in fm, "type": "place"})
     for trans in net.transitions:
