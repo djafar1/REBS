@@ -101,7 +101,7 @@ class Discover:
             'successor': {}
         }
 
-    def mine(self, log: Union[EventLog,pd.DataFrame], findAdditionalConditions=True, parameters=None) -> Tuple[DcrGraph,Dict[str, Any]]:
+    def mine(self, log: Union[EventLog, pd.DataFrame], findAdditionalConditions=True, parameters=None) -> Tuple[DcrGraph,Dict[str, Any]]:
         """
         Method used for calling the underlying mining algorithm used for discovery of DCR Graphs
 
@@ -316,8 +316,9 @@ class Discover:
         # For each chainprecedence(i,j) we add: include(i,j) exclude(j,j)
         for j in self.logAbstraction['chainPrecedenceFor']:
             for i in self.logAbstraction['chainPrecedenceFor'][j]:
+                if j not in self.logAbstraction['atMostOnce']:
+                    self.graph['includesTo'][i].add(j)
                 self.graph['excludesTo'][j].add(j)
-                self.graph['includesTo'][i].add(j)
 
         # Additional excludes based on predecessors / successors
         for event in self.logAbstraction['events']:
