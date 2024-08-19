@@ -9,6 +9,8 @@ from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 from pm4py.algo.conformance.dcr.decorators.decorator import ConcreteChecker
 from pm4py.algo.conformance.dcr.decorators.roledecorator import RoleDecorator
 
+
+
 class Parameters(Enum):
     CASE_ID_KEY = constants.PARAMETER_CONSTANT_CASEID_KEY
     ACTIVITY_KEY = constants.PARAMETER_CONSTANT_ACTIVITY_KEY
@@ -59,11 +61,14 @@ class RuleBasedConformance:
 
     def __init__(self, log: Union[EventLog, pd.DataFrame], graph: Union[DcrGraph, RoleDcrGraph],
                  parameters: Optional[Dict[Union[str, Any], Any]] = None):
-        self.g = graph
-        self.log = log
-        self.checker = HandleChecker(graph)
-        self.semantics = DCRSemantics()
-        self.parameters = parameters
+        self.__g = graph
+        if isinstance(log, pd.DataFrame):
+            log = self.__transform_pandas_dataframe(log, exec_utils.get_param_value(Parameters.CASE_ID_KEY, parameters,
+                                                                                    constants.CASE_CONCEPT_NAME))
+        self.__log = log
+        self.__checker = HandleChecker(graph)
+        self.__semantics = DcrSemantics()
+        self.__parameters = parameters
 
     def apply_conformance(self) -> List[Dict[str, Any]]:
         """

@@ -396,21 +396,3 @@ class DcrGraph(object):
         for key,_ in vars(self).items():
             if item == key.split("_")[-1]:
                 setattr(self, key, value)
-
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        for k, v in self.__dict__.items():
-            if "marking" in k:
-                continue
-            setattr(result, k, v)
-        # Deep copy the Marking object
-        result.__marking = Marking(
-            executed=set(self.__marking.executed),
-            included=set(self.__marking.included),
-            pending=set(self.__marking.pending)
-        )
-
-        return result
-
