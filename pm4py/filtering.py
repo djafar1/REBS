@@ -23,7 +23,7 @@ from typing import Union, Set, List, Tuple, Collection, Any, Dict, Optional
 import pandas as pd
 
 from pm4py.objects.log.obj import EventLog, EventStream
-from pm4py.util import constants, xes_constants
+from pm4py.util import constants, xes_constants, pandas_utils, nx_utils
 import warnings
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
 from pm4py.utils import get_properties, __event_log_deprecation_warning
@@ -215,7 +215,7 @@ def filter_trace_attribute_values(log: Union[EventLog, pd.DataFrame], attribute_
         return attributes_filter.apply_trace_attribute(log, values, parameters=parameters)
 
 
-def filter_variants(log: Union[EventLog, pd.DataFrame], variants:  Union[Set[str], List[str]], retain: bool = True, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Union[
+def filter_variants(log: Union[EventLog, pd.DataFrame], variants:  Union[Set[str], List[str], List[Tuple[str]]], retain: bool = True, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Union[
     EventLog, pd.DataFrame]:
     """
     Filter a log on a specified set of variants
@@ -315,11 +315,11 @@ def filter_eventually_follows_relation(log: Union[EventLog, pd.DataFrame], relat
         if retain:
             cases = set()
         else:
-            cases = set(log[case_id_key])
+            cases = set(log[case_id_key].to_numpy().tolist())
         for path in relations:
             filt_log = ltl_checker.eventually_follows(log, path,
                                                       parameters=parameters)
-            this_traces = set(filt_log[case_id_key])
+            this_traces = set(filt_log[case_id_key].to_numpy().tolist())
             if retain:
                 cases = cases.union(this_traces)
             else:
@@ -398,7 +398,7 @@ def filter_time_range(log: Union[EventLog, pd.DataFrame], dt1: str, dt2: str, mo
             return log
 
 
-def filter_between(log: Union[EventLog, pd.DataFrame], act1: str, act2: str, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Union[EventLog, pd.DataFrame]:
+def filter_between(log: Union[EventLog, pd.DataFrame], act1: Union[str, List[str]], act2: Union[str, List[str]], activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Union[EventLog, pd.DataFrame]:
     """
     Finds all the sub-cases leading from an event with activity "act1" to an event with activity "act2" in the log,
     and returns a log containing only them.
@@ -421,8 +421,8 @@ def filter_between(log: Union[EventLog, pd.DataFrame], act1: str, act2: str, act
     B E F C (from the third case)
 
     :param log: event log / Pandas dataframe
-    :param act1: source activity
-    :param act2: target activity
+    :param act1: source activity  (or collection of activities)
+    :param act2: target activity  (or collection of activities)
     :param activity_key: attribute to be used for the activity
     :param timestamp_key: attribute to be used for the timestamp
     :param case_id_key: attribute to be used as case identifier
@@ -973,6 +973,52 @@ def filter_activity_done_different_resources(log: Union[EventLog, pd.DataFrame],
         return ltl_checker.attr_value_different_persons(log, activity, parameters=properties)
 
 
+def filter_trace_segments(log: Union[EventLog, pd.DataFrame], admitted_traces: List[List[str]], positive: bool = True, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> Union[EventLog, pd.DataFrame]:
+    """
+    Filters an event log on a set of traces. A trace is a sequence of activities and "...", in which:
+    - a "..." before an activity tells that other activities can precede the given activity
+    - a "..." after an activity tells that other activities can follow the given activity
+
+    For example:
+    - pm4py.filter_trace_segments(log, [["A", "B"]]) <- filters only the cases of the event log having exactly the process variant A,B
+    - pm4py.filter_trace_segments(log, [["...", "A", "B"]]) <- filters only the cases of the event log ending with the activities A,B
+    - pm4py.filter_trace_segments(log, [["A", "B", "..."]]) <- filters only the cases of the event log starting with the activities A,B
+    - pm4py.filter_trace_segments(log, [["...", "A", "B", "C", "..."], ["...", "D", "E", "F", "..."]]
+                                <- filters only the cases of the event log in which at any point
+                                    there is A followed by B followed by C, and in which at any other point there is
+                                    D followed by E followed by F
+
+    :param log: event log / Pandas dataframe
+    :param admitted_traces: collection of traces admitted from the filter (with the aforementioned criteria)
+    :param positive: (boolean) indicates if the filter should keep/discard the cases satisfying the filter
+    :param activity_key: attribute to be used for the activity
+    :param timestamp_key: attribute to be used for the timestamp
+    :param case_id_key: attribute to be used as case identifier
+    :rtype: ``Union[EventLog, pd.DataFrame]``
+
+    .. code-block:: python3
+
+        import pm4py
+
+        log = pm4py.read_xes("tests/input_data/running-example.xes")
+
+        filtered_log = pm4py.filter_trace_segments(log, [["...", "check ticket", "decide", "reinitiate request", "..."]])
+        print(filtered_log)
+    """
+    __event_log_deprecation_warning(log)
+
+    parameters = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
+    parameters["positive"] = positive
+
+    if check_is_pandas_dataframe(log):
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
+        from pm4py.algo.filtering.pandas.traces import trace_filter
+        return trace_filter.apply(log, admitted_traces, parameters=parameters)
+    else:
+        from pm4py.algo.filtering.log.traces import trace_filter
+        return trace_filter.apply(log, admitted_traces, parameters=parameters)
+
+
 def filter_ocel_object_types(ocel: OCEL, obj_types: Collection[str], positive: bool = True, level: int = 1) -> OCEL:
     """
     Filters the object types of an object-centric event log.
@@ -1001,7 +1047,7 @@ def filter_ocel_object_types(ocel: OCEL, obj_types: Collection[str], positive: b
             filtered_ocel.objects = filtered_ocel.objects[~filtered_ocel.objects[filtered_ocel.object_type_column].isin(obj_types)]
         return filtering_utils.propagate_object_filtering(filtered_ocel)
     else:
-        object_ids = ocel.objects[ocel.objects[ocel.object_type_column].isin(obj_types)][ocel.object_id_column].unique()
+        object_ids = pandas_utils.format_unique(ocel.objects[ocel.objects[ocel.object_type_column].isin(obj_types)][ocel.object_id_column].unique())
         return filter_ocel_objects(ocel, object_ids, level=level, positive=positive)
 
 
@@ -1024,8 +1070,8 @@ def filter_ocel_objects(ocel: OCEL, object_identifiers: Collection[str], positiv
     """
     object_identifiers = set(object_identifiers)
     if level > 1:
-        ev_rel_obj = ocel.relations.groupby(ocel.event_id_column)[ocel.object_id_column].apply(list).to_dict()
-        objects_ids = set(ocel.objects[ocel.object_id_column].unique())
+        ev_rel_obj = ocel.relations.groupby(ocel.event_id_column)[ocel.object_id_column].agg(list).to_dict()
+        objects_ids = ocel.objects[ocel.object_id_column].to_numpy().tolist()
         graph = {o: set() for o in objects_ids}
         for ev in ev_rel_obj:
             rel_obj = ev_rel_obj[ev]
@@ -1095,15 +1141,14 @@ def filter_ocel_cc_object(ocel: OCEL, object_id: str, conn_comp: Optional[List[L
     """
     if conn_comp is None:
         from pm4py.algo.transformation.ocel.graphs import object_interaction_graph
-        import networkx as nx
 
         g0 = object_interaction_graph.apply(ocel)
-        g = nx.Graph()
+        g = nx_utils.Graph()
 
         for edge in g0:
             g.add_edge(edge[0], edge[1])
 
-        conn_comp = list(nx.connected_components(g))
+        conn_comp = list(nx_utils.connected_components(g))
 
     for cc in conn_comp:
         if object_id in cc:
@@ -1139,15 +1184,14 @@ def filter_ocel_cc_length(ocel: OCEL, min_cc_length: int, max_cc_length: int) ->
         filtered_ocel = pm4py.filter_ocel_cc_length(ocel, 2, 10)
     """
     from pm4py.algo.transformation.ocel.graphs import object_interaction_graph
-    import networkx as nx
 
     g0 = object_interaction_graph.apply(ocel)
-    g = nx.Graph()
+    g = nx_utils.Graph()
 
     for edge in g0:
         g.add_edge(edge[0], edge[1])
 
-    conn_comp = list(nx.connected_components(g))
+    conn_comp = list(nx_utils.connected_components(g))
     conn_comp = [x for x in conn_comp if min_cc_length <= len(x) <= max_cc_length]
     objs = [y for x in conn_comp for y in x]
 
@@ -1180,15 +1224,14 @@ def filter_ocel_cc_otype(ocel: OCEL, otype: str, positive: bool = True) -> OCEL:
         objs = set(ocel.objects[~(ocel.objects[ocel.object_type_column] == otype)][ocel.object_id_column])
 
     from pm4py.algo.transformation.ocel.graphs import object_interaction_graph
-    import networkx as nx
 
     g0 = object_interaction_graph.apply(ocel)
-    g = nx.Graph()
+    g = nx_utils.Graph()
 
     for edge in g0:
         g.add_edge(edge[0], edge[1])
 
-    conn_comp = list(nx.connected_components(g))
+    conn_comp = list(nx_utils.connected_components(g))
     conn_comp = [x for x in conn_comp if len(set(x).intersection(objs)) > 0]
 
     objs = [y for x in conn_comp for y in x]
@@ -1215,19 +1258,18 @@ def filter_ocel_cc_activity(ocel: OCEL, activity: str) -> OCEL:
         ocel = pm4py.read_ocel('log.jsonocel')
         filtered_ocel = pm4py.filter_ocel_cc_activity(ocel, 'Create Order')
     """
-    evs = set(ocel.events[ocel.events[ocel.event_activity] == activity][ocel.event_id_column])
-    objs = set(ocel.relations[ocel.relations[ocel.event_id_column].isin(evs)][ocel.object_id_column].unique())
+    evs = ocel.events[ocel.events[ocel.event_activity] == activity][ocel.event_id_column].to_numpy().tolist()
+    objs = pandas_utils.format_unique(ocel.relations[ocel.relations[ocel.event_id_column].isin(evs)][ocel.object_id_column].unique())
 
     from pm4py.algo.transformation.ocel.graphs import object_interaction_graph
-    import networkx as nx
 
     g0 = object_interaction_graph.apply(ocel)
-    g = nx.Graph()
+    g = nx_utils.Graph()
 
     for edge in g0:
         g.add_edge(edge[0], edge[1])
 
-    conn_comp = list(nx.connected_components(g))
+    conn_comp = list(nx_utils.connected_components(g))
     conn_comp = [x for x in conn_comp if len(set(x).intersection(objs)) > 0]
 
     objs = [y for x in conn_comp for y in x]

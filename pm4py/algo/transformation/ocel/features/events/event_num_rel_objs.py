@@ -39,7 +39,8 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     if parameters is None:
         parameters = {}
 
-    ordered_events = list(ocel.events[ocel.event_id_column])
+    ordered_events = parameters["ordered_events"] if "ordered_events" in parameters else ocel.events[
+        ocel.event_id_column].to_numpy()
 
     rel_objs = ocel.relations.groupby(ocel.event_id_column)[ocel.object_id_column].agg(list).to_dict()
 
@@ -47,6 +48,6 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     feature_names = ["@@event_num_rel_objs"]
 
     for ev in ordered_events:
-        data.append([len(rel_objs[ev])])
+        data.append([float(len(rel_objs[ev]))])
 
     return data, feature_names

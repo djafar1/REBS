@@ -15,6 +15,8 @@
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
 from enum import Enum
+from pm4py.util import hie_utils
+import sys
 
 
 class Operator(Enum):
@@ -153,6 +155,37 @@ class ProcessTree(object):
                     return False
         return False
 
+    def to_string(self, level=0, indent=False, max_indent=sys.maxsize):
+        """
+        Represents a process tree model as a string.
+
+        Parameters
+        -----------------
+        indent
+            Enable the indentation of the resulting string
+        max_indent
+            Maximum level of indentation
+        """
+        if self.operator is not None:
+            rep = str(self._operator) + '( '
+            for i in range(0, len(self._children)):
+                child = self._children[i]
+                if len(child.children) == 0:
+                    if child.label is not None:
+                        rep += '\'' + child.to_string(level=level+1) + '\'' + ', ' if i < len(self._children) - 1 else '\'' + child.to_string(level=level+1) + '\''
+                    else:
+                        rep += child.to_string(level=level+1) + ', ' if i < len(self._children) - 1 else child.to_string(level=level+1)
+                else:
+                    rep += child.to_string(level=level+1) + ', ' if i < len(self._children) - 1 else child.to_string(level=level+1)
+            stru = rep + ' )'
+            if level == 0 and indent:
+                stru = "\n".join(hie_utils.indent_representation(stru, max_indent=max_indent))
+            return stru
+        elif self.label is not None:
+            return self.label
+        else:
+            return 'tau'
+
     def __repr__(self):
         """
         Returns a string representation of the process tree
@@ -162,23 +195,7 @@ class ProcessTree(object):
         stri
             String representation of the process tree
         """
-        if self.operator is not None:
-            rep = str(self._operator) + '( '
-            for i in range(0, len(self._children)):
-                child = self._children[i]
-                if len(child.children) == 0:
-                    if child.label is not None:
-                        rep += '\'' + str(child) + '\'' + ', ' if i < len(self._children) - 1 else '\'' + str(
-                            child) + '\''
-                    else:
-                        rep += str(child) + ', ' if i < len(self._children) - 1 else str(child)
-                else:
-                    rep += str(child) + ', ' if i < len(self._children) - 1 else str(child)
-            return rep + ' )'
-        elif self.label is not None:
-            return self.label
-        else:
-            return 'tau'
+        return self.to_string()
 
     def __str__(self):
         """
@@ -189,7 +206,22 @@ class ProcessTree(object):
         stri
             String representation of the process tree
         """
-        return self.__repr__()
+        return self.to_string()
+
+    @staticmethod
+    def model_description() -> str:
+        descr = """A process tree is a hierarchical process model.
+The following operators are defined for process trees:
+-> ( A, B ) tells that the process tree A should be executed before the process tree B
+X ( A, B ) tells that there is an exclusive choice between executing the process tree A or the process tree B
++ ( A, B ) tells that A and B are executed in true concurrency.
+* ( A, B ) is a loop. So the process tree A is executed, then either you exit the loop, or you execute B and then A again (this can happen several times until the loop is exited).
+the leafs of a process tree are either activities (denoted by 'X' where X is the name of the activity) or silent steps (indicated by tau).
+An example process tree follows:
++ ( 'A', -> ( 'B', 'C' ) )
+tells that you should execute B before executing C. In true concurrency, you can execute A. So the possible traces are A->B->C, B->A->C, B->C->A.
+"""
+        return descr
 
     def _get_root(self):
         root = self

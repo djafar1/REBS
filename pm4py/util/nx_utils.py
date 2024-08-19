@@ -16,18 +16,105 @@
 '''
 import networkx as nx
 from enum import Enum
-from pm4py.util import exec_utils, constants, dt_parsing
 from typing import Optional, Dict, Any
-from pm4py.objects.ocel.obj import OCEL
-from pm4py.objects.log.obj import EventLog, Trace, Event
-from pm4py.objects.log.util import sorting
-import pandas as pd
+from pm4py.util import exec_utils, constants
 import importlib.util
 from copy import copy
 
 
 class Parameters(Enum):
     SHOW_PROGRESS_BAR = "show_progress_bar"
+
+
+def get_default_nx_environment():
+    return nx
+
+
+DEFAULT_NX_ENVIRONMENT = get_default_nx_environment()
+
+
+def Graph(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.Graph(*args, **kwargs)
+
+
+def DiGraph(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.DiGraph(*args, **kwargs)
+
+
+def MultiGraph(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.MultiGraph(*args, **kwargs)
+
+
+def MultiDiGraph(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.MultiDiGraph(*args, **kwargs)
+
+
+def ancestors(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.ancestors(*args, **kwargs)
+
+
+def descendants(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.descendants(*args, **kwargs)
+
+
+def connected_components(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.connected_components(*args, **kwargs)
+
+
+def bfs_tree(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.bfs_tree(*args, **kwargs)
+
+
+def contracted_nodes(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.contracted_nodes(*args, **kwargs)
+
+
+def shortest_path(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.shortest_path(*args, **kwargs)
+
+
+def strongly_connected_components(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.strongly_connected_components(*args, **kwargs)
+
+
+def has_path(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.has_path(*args, **kwargs)
+
+
+def is_strongly_connected(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.is_strongly_connected(*args, **kwargs)
+
+
+def all_pairs_shortest_path(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.all_pairs_shortest_path(*args, **kwargs)
+
+
+def all_pairs_dijkstra(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.all_pairs_dijkstra(*args, **kwargs)
+
+
+def find_cliques(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.find_cliques(*args, **kwargs)
+
+
+def degree_centrality(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.degree_centrality(*args, **kwargs)
+
+
+def greedy_modularity_communities(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.algorithms.community.greedy_modularity_communities(*args, **kwargs)
+
+
+def maximum_flow_value(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.maximum_flow_value(*args, **kwargs)
+
+
+def minimum_weight_full_matching(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.bipartite.minimum_weight_full_matching(*args, **kwargs)
+
+
+def Edmonds(*args, **kwargs):
+    return DEFAULT_NX_ENVIRONMENT.algorithms.tree.Edmonds(*args, **kwargs)
 
 
 def __format_attrs(attributes0: Dict[str, Any]) -> Dict[str, Any]:
@@ -142,6 +229,7 @@ def neo4j_download(session, parameters: Optional[Dict[Any, Any]] = None) -> nx.D
     if parameters is None:
         parameters = {}
 
+    from pm4py.util import dt_parsing
     date_parser = dt_parsing.parser.get()
 
     nodes = session.run("MATCH (n) RETURN n")
@@ -150,7 +238,7 @@ def neo4j_download(session, parameters: Optional[Dict[Any, Any]] = None) -> nx.D
     edges = session.run("MATCH (n)-[r]->(m) RETURN n, r, m")
     edges = [(edge["n"]["id"], edge["m"]["id"], dict(edge["r"])) for edge in edges]
 
-    nx_graph = nx.DiGraph()
+    nx_graph = DiGraph()
 
     for n in nodes:
         node_id = n["id"]
@@ -169,7 +257,7 @@ def neo4j_download(session, parameters: Optional[Dict[Any, Any]] = None) -> nx.D
     return nx_graph
 
 
-def nx_to_ocel(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None) -> OCEL:
+def nx_to_ocel(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None):
     """
     Transforms a NetworkX DiGraph representing an OCEL to a proper OCEL.
 
@@ -187,6 +275,8 @@ def nx_to_ocel(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None
     """
     if parameters is None:
         parameters = {}
+
+    from pm4py.util import pandas_utils
 
     events = []
     objects = []
@@ -232,15 +322,15 @@ def nx_to_ocel(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None
         elif edge_type == 'O2O':
             o2o.append({"ocel:oid": source, "ocel:oid_2": target, "ocel:qualifier": qualifier})
 
-    events = pd.DataFrame(events)
-    objects = pd.DataFrame(objects)
-    relations = pd.DataFrame(relations)
-    o2o = pd.DataFrame(o2o) if o2o else None
-    object_changes = pd.DataFrame(object_changes) if object_changes else None
+    events = pandas_utils.instantiate_dataframe(events)
+    objects = pandas_utils.instantiate_dataframe(objects)
+    relations = pandas_utils.instantiate_dataframe(relations)
+    o2o = pandas_utils.instantiate_dataframe(o2o) if o2o else None
+    object_changes = pandas_utils.instantiate_dataframe(object_changes) if object_changes else None
 
     internal_index = "@@index"
-    events[internal_index] = events.index
-    relations[internal_index] = relations.index
+    events = pandas_utils.insert_index(events, internal_index, reset_index=False, copy_dataframe=False)
+    relations = pandas_utils.insert_index(relations, internal_index, reset_index=False, copy_dataframe=False)
 
     events = events.sort_values(["ocel:timestamp", internal_index])
     relations = relations.sort_values(["ocel:timestamp", internal_index])
@@ -254,10 +344,12 @@ def nx_to_ocel(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None
     if object_changes is not None:
         del object_changes["type"]
 
+    from pm4py.objects.ocel.obj import OCEL
+
     return OCEL(events, objects, relations, o2o=o2o, object_changes=object_changes)
 
 
-def nx_to_event_log(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None) -> EventLog:
+def nx_to_event_log(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] = None):
     """
     Transforms a NetworkX DiGraph representing a traditional event log to a proper event log.
 
@@ -275,6 +367,9 @@ def nx_to_event_log(nx_graph: nx.DiGraph, parameters: Optional[Dict[Any, Any]] =
     """
     if parameters is None:
         parameters = {}
+
+    from pm4py.objects.log.obj import EventLog, Trace, Event
+    from pm4py.objects.log.util import sorting
 
     log = EventLog()
 

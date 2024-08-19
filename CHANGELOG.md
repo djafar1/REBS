@@ -1,5 +1,228 @@
 # Changelog of pm4py
 
+
+## pm4py 2.7.12 (2024.03.XX)
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* e3b8172e4c005dcb633c9018b9b9439d84580f7b
+  * fixing random variables support
+* bb759da149b434d0e279256c8c6d397b06079729
+  * fixing sampling
+
+### Removed
+
+### Other
+
+---
+
+## pm4py 2.7.11 (2024.03.01)
+
+### Added
+* 0fcb1dc2939db30b7129f62bda0d235bd5242428
+  * improved string representation of hierarchical models
+* 0b0d09226574916c5d33c000cbc2a4ffa0a13e7a
+  b56ff781c99ce3126c1ec45d502c16d1c2f3b0b6
+  * BPMN layouting in the frontend
+* b39a7326faf2afb55b8880ce420cdda4a03ffa5c
+  * activity split filter (Pandas dataframes)
+* 6a7cfeaa06d405591d13b6055bf890b8b4a6b3b9
+  * float dtype and padding in log_to_target transformaiton methods
+
+### Changed
+* 56799b618ad1ab727705e24f40aa13a793552326
+  * refactoring BPMN-GraphViz visualization method
+* c56bd55b83133d231f37ac8c89190efb440bb826
+  * moving hierarchical models indentation to separate class
+* d865660c5370640b4c5c013239f6940f145d9e93
+  * refactoring log-to-OCEL
+
+### Deprecated
+
+### Fixed
+* c2278110acbbbf36e8fe5055e0b76f867e833da4
+  * bug fix POWL package
+* d36d0d2ff8133bc979638b7f3405f96225e06ced
+  * bug fix discover_dfg_clean
+* 64ce3341d40c073f274bdda9842fd92a0798a33f
+  * fixed typing of get_variants method
+* ffd0761e8f5490382b33de4fa8187f1ed80ce802
+  * fixed stochastic Petri net PNML importing
+* c9654d8089c5aa0e930ee932b222cc09be25d8a5
+  * fixed typing of pm4py.filter-variants
+* 8475c194929f74bf4e402b24c637299d8c28042a
+  * fixed export of multi-swimlanes BPMNs
+* d32e236cc99ec1b5de198466fe0966752adeb805
+  * fixed incongruency in BPMN visualizer
+* b40821da2612ae1921aec30da2333dc4e1151f1a
+  * fixed exception handling in OpenAI requests
+* e8f0b84bc7de65f090e0e96799486acaaad7572f
+  * fixed incongruency between filter on EventLog
+* 771cfcd6f2321a9106781e15c97895b26d5acbf3
+  * fixing behavior of between filter when act1 == act2
+* e1c84d7f6d6425f40a23ea3c539a0c110c331a3c
+  * ensuring float return for feature extraction methods in pm4py
+* 1b5a2932a60131f648ae476e6b97230c241f5d6e
+  * fixing POWL visualization image importing
+
+### Removed
+
+### Other
+* c4d24d54013e2a18856af840ffbad7c76e86c371
+  81fa8017fbd25352fd87961bc4dcc1406c4e0dda
+  * Process tree to POWL utility
+
+---
+
+
+## pm4py 2.7.10 (2024.01.29)
+
+### Added
+* f5316b9e856e16a0a7a25c27f11b73546654c4e9
+  * methods for simplicity and generalization in the simplified interface
+* c874ba919de25a2a0a69bc1adb324a25484ddc07
+  * key/mouse events logger for Windows with screenshots recording
+
+### Changed
+* 1c93795884140f27d5eae5d2eade1823c93a92d2
+  * refactoring Scikit-Learn usage throughout the project
+* bd1ac4fd04019b3022bfff55553e590aefbd21cb
+  * refactoring NetworkX usage throughout the project
+
+### Deprecated
+
+### Fixed
+* 25ca20af830df69a983c6fd53bb2e456ccc11c25
+  * removed circular dependency on pm4py.util
+* 0da8c5f04f89dab8b9f5a3d31d8f5beb927e71d4
+  * fixing OCEL 2.0 support
+* 7b2c8ffee70c94c1acce7c28a7b366d5ed95bb6b
+  * fixing TBR diagnostics computation
+
+### Removed
+
+### Other
+
+
+---
+
+
+## pm4py 2.7.9.2 (2024.01.16)
+
+### Added
+
+### Changed
+* ab48f194ed0bbcd864683d313285e0db6a3ae570
+  * refactoring DECLARE discovery
+* ba3dd14250f3b713c495833d1ed16d42efb74c7a
+  * moved LLM descriptions to separate methods
+
+### Deprecated
+
+### Fixed
+* 99efc597545a1f0f717c90303db8ca3825062e63
+  * bug fix DECLARE discovery
+* 4e3cedf1dfdaa70da1e381930812676afc103b22
+  * additional PNGs for POWL visualization
+
+### Removed
+
+### Other
+* 73edc01f9e7d986d72dc90b88fe92c5265a5d09b
+  * utility to convert live event stream to static event stream
+* 8ba3e4868b4da409f46559abbb716256517712ee
+  * annotating the SearchTuple alignments class with the description of its properties
+* 847cf991df054edf81e2b13b70b0e6679a9a15ca
+  * check if get_best_worst_cost calculation is always needed
+
+---
+
+
+## pm4py 2.7.9.1 (2023.12.14)
+
+### Added
+* efff63955c1dfd3a3c04c6bf5aecc53042da3b4c
+  9ec7578c95d78f91c6c8fcb906f979b6e8680b10
+  * description of POWL and process tree models
+
+### Changed
+* 3173effdb98dfe37ca3b6770d55aadbbd61b6b7c
+  a48390b8be4495177d2e641fc6ae6e868f3544cb
+  95853c91ed0c9dbba61fecedac2fd98c793b6933
+  864052795e24494023a8b0c76c342db7c8a9305c
+  abd315e4c37701dbbf540726496dfb45b3625992
+  979cc906c9da648face900141be5f355821ffe61
+  4feb5c2000ce82df38294ff3459a25e358d2e69e
+  b13ea6458bbea9cc4099109cc28978aa2513a394
+  293c282dd8a90eb89273f2f8b98b1279b6e46051
+  c672a770bb1a7c58dee0f4f509a93126d0a6f11f
+  5545895f299599799222ce90ff7b446caaf9e3bf
+  6328037090236e6640a4efa51011e19001a5d300
+  ef3de4c7b7803d80b8599d84426badca0c7dfc5d
+  * major refactoring pm4py
+* 8f494f541b5337ae6abc152afea9b6f09b81fef9
+  691aa7d31ae401b16058220a656ffee89fc30eff
+  6366dcb3bc08859d4f435b8ad44bdb38c515361d
+  * refactoring OpenAI connector
+* 376996620052fc23586edc393c73a43288e64164
+  * refactoring POWL class and methods
+
+### Deprecated
+
+### Fixed
+* 093637828f08618f2d149145dc1740cc2b631ecd
+  * fixed BPMN 2.0 exporting (according to the specification)
+
+### Removed
+
+### Other
+* f6d15493110e613321214fbf4465fc561e42a698
+  * method to project DFG/edit distance alignments on log
+
+---
+
+
+## pm4py 2.7.9 (2023.11.20)
+
+### Added
+* e5bb3b43b47217128763157c9e64ba6b39b1672f
+  * OCEL event types-to-object types visualizer
+* be7e28440da6f69bfdad43b724931277f04efdbc
+  * NetworkX visualization utility
+* a17bb8e103b3ee46e46bef17885149070bf7e048
+  * Context-based activity label splitting approach (BPM 2023)
+* 6583504c6056c43868fe1158744fcc7655270dec
+  * Filtering on trace segments
+* 9dedaba837e561640a122e50927f7f5b13d4a334
+  * Utility to get frequent trace segments
+* 19c53e1fcf06c0566a3c697aec37f13345365d04
+  * Utility for the computation of service times
+
+### Changed
+* fb0d9fb049f128bd979c962db54e3a305ecf5f09
+  * Refactoring Pandas calls in pm4py
+* 36e19d3f48dabf03509cf87ae6508c0576b089b4
+  c38d10574587a3efa21d521f25de40e5ade4409b
+  * adapt openai calls to v1 migration
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+### Other
+* 19c53e1fcf06c0566a3c697aec37f13345365d04
+  * refactored 'sojourn time' mis-spelling to 'service time' throughout the project
+
+---
+
+
 ## pm4py 2.7.8.4 (2023.11.15)
 
 ### Added

@@ -1,7 +1,8 @@
 from typing import Set
+from pm4py.objects.dcr.obj import DcrGraph
 
 
-class RoledcrGraph(object):
+class RoleDcrGraph(DcrGraph):
     """
     A class representing a Role-based DCR graph.
 
@@ -61,12 +62,20 @@ class RoledcrGraph(object):
     total_constraints = role_graph.getConstraints()\n
 
     """
-    def __init__(self, graph, template=None):
-        self.__graph = graph
-        self.__principals = set() if None else template.pop("principals", set())
-        self.__roles = set() if None else template.pop("roles", set())
-        self.__roleAssignments = {} if None else template.pop("roleAssignments", set())
-        self.__principalsAssignments = {} if None else template.pop("principalsAssignments", set())
+    def __init__(self, template=None):
+        super().__init__(template)
+        self.__principals = set() if template is None else template.pop("principals", set())
+        self.__roles = set() if template is None else template.pop("roles", set())
+        self.__roleAssignments = {} if template is None else template.pop("roleAssignments", set())
+        self.__principalsAssignments = {} if template is None else template.pop("principalsAssignments", set())
+
+    def obj_to_template(self):
+        res = super().obj_to_template()
+        res['principals'] = self.__principals
+        res['roles'] = self.__roles
+        res['roleAssignments'] = self.__roleAssignments
+        res['principalsAssignment'] = self.__principalsAssignments
+        return res
 
     @property
     def principals(self) -> Set[str]:
@@ -94,25 +103,25 @@ class RoledcrGraph(object):
         int
             number of constraints in dcr graph
         """
-        no = self.__graph.get_constraints()
+        no = super().get_constraints()
         for i in self.__roleAssignments.values():
             no += len(i)
         return no
 
     def __repr__(self):
-        string = str(self.__graph)
+        string = str(super())
         for key, value in vars(self).items():
-            if value is self.__graph:
+            if value is super():
                 continue
             string += str(key.split("_")[-1])+": "+str(value)+"\n"
         return string
 
     def __getattr__(self, name):
-        return getattr(self.__graph, name)
+        return getattr(super(), name)
 
     def __getitem__(self, item):
-        if hasattr(self.__graph, item):
-            return self.__graph[item]
+        if hasattr(super(), item):
+            return super()[item]
         for key, value in vars(self).items():
             if item == key.split("_")[-1]:
                 return value

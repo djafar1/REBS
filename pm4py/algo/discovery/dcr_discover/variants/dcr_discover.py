@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import pm4py.utils
-from pm4py import get_event_attribute_values
+from pm4py.stats import get_event_attribute_values
 from pm4py.objects.dcr.obj import dcr_template
 from enum import Enum
 from typing import Tuple, Dict, Set, Any, List, Union
@@ -292,7 +292,7 @@ class Discover:
 
         # Initialize all to_petri_net to avoid indexing errors
         for event in self.graph['events']:
-            self.graph['labelMapping'][event] = {event}
+            self.graph['labelMapping'][event] = event #{event}
             self.graph['conditionsFor'][event] = set()
             self.graph['excludesTo'][event] = set()
             self.graph['includesTo'][event] = set()

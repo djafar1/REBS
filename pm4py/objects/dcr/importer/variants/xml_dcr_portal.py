@@ -4,8 +4,8 @@ import isodate
 
 from pm4py.util import constants
 from copy import deepcopy
-from pm4py.objects.dcr.obj import Relations, dcr_template, DcrGraph
-from pm4py.objects.dcr.roles.obj import RoledcrGraph
+from pm4py.objects.dcr.obj import Relations, dcr_template
+from pm4py.objects.dcr.utils.utils import cast_to_dcr_object, clean_input, clean_input_as_dict
 
 I = Relations.I.value
 E = Relations.E.value
@@ -14,7 +14,66 @@ N = Relations.N.value
 C = Relations.C.value
 M = Relations.M.value
 
-def parse_element(curr_el, parent, dcr):
+
+def apply(path, parameters=None):
+    '''
+    Reads a DCR graph from an XML file
+
+    Parameters
+    ----------
+    path
+        Path to the XML file
+    parameters
+        Params
+    Returns
+    -------
+    dcr
+        DCR graph object
+    '''
+    if parameters is None:
+        parameters = {}
+
+    from lxml import etree, objectify
+
+    parser = etree.XMLParser(remove_comments=True)
+    xml_tree = objectify.parse(path, parser=parser)
+
+    return import_xml_tree_from_root(xml_tree.getroot(), **parameters)
+
+
+def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=True, labels_as_ids=True):
+    dcr = copy.deepcopy(dcr_template)
+    dcr = __parse_element__(root, None, dcr)
+    dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
+
+    if labels_as_ids:
+        from pm4py.objects.dcr.utils.utils import map_labels_to_events
+        dcr = map_labels_to_events(dcr)
+    '''
+    Transform the dictionary into a DCRGraph object
+    '''
+    if as_dcr_object:
+        return cast_to_dcr_object(dcr)
+    else:
+        return dcr
+
+
+def import_from_string(dcr_string, parameters=None):
+    if parameters is None:
+        parameters = {}
+
+    if type(dcr_string) is str:
+        dcr_string = dcr_string.encode(constants.DEFAULT_ENCODING)
+
+    from lxml import etree, objectify
+
+    parser = etree.XMLParser(remove_comments=True)
+    root = objectify.fromstring(dcr_string, parser=parser)
+
+    return import_xml_tree_from_root(root)
+
+
+def __parse_element__(curr_el, parent, dcr):
     # Create the DCR graph
     tag = curr_el.tag.lower()
     match tag:
@@ -27,7 +86,7 @@ def parse_element(curr_el, parent, dcr):
                     case 'subprocess':
                         dcr['subprocesses'][id] = set()
                     case 'nesting':
-                        dcr['nestings'][id] = set()
+                        dcr['nestedgroups'][id] = set()
                         pass
                     case _:
                         pass
@@ -35,7 +94,7 @@ def parse_element(curr_el, parent, dcr):
                     case 'subprocess':
                         dcr['subprocesses'][parent.get('id')].add(id)
                     case 'nesting':
-                        dcr['nestings'][parent.get('id')].add(id)
+                        dcr['nestedgroups'][parent.get('id')].add(id)
                         pass
                     case _:
                         pass
@@ -64,9 +123,10 @@ def parse_element(curr_el, parent, dcr):
         case 'labelmapping':
             eventId = curr_el.get('eventId')
             labelId = curr_el.get('labelId')
-            if labelId not in dcr['labelMapping']:
-                dcr['labelMapping'][labelId] = set()
-            dcr['labelMapping'][labelId].add(eventId)
+            if eventId not in dcr['labelMapping']:
+                dcr['labelMapping'][eventId] = labelId
+                # dcr['labelMapping'][eventId] = set()
+            # dcr['labelMapping'][eventId].add(labelId)
         case 'condition':
             event = curr_el.get('sourceId')
             event_prime = curr_el.get('targetId')
@@ -83,12 +143,12 @@ def parse_element(curr_el, parent, dcr):
 
             if delay:
                 if not dcr['conditionsForDelays'].__contains__(event_prime):
-                    dcr['conditionsForDelays'][event_prime] = set()
+                    dcr['conditionsForDelays'][event_prime] = {}
                 if delay.isdecimal():
-                    delay_days = int(delay)
+                    delay = int(delay)
                 else:
-                    delay_days = isodate.parse_duration(delay)#.days
-                dcr['conditionsForDelays'][event_prime].add((event, delay_days))
+                    delay = isodate.parse_duration(delay)
+                dcr['conditionsForDelays'][event_prime][event] = delay
 
         case 'response':
             event = curr_el.get('sourceId')
@@ -106,12 +166,12 @@ def parse_element(curr_el, parent, dcr):
 
             if deadline:
                 if not dcr['responseToDeadlines'].__contains__(event):
-                    dcr['responseToDeadlines'][event] = set()
+                    dcr['responseToDeadlines'][event] = {}
                 if deadline.isdecimal():
-                    deadline_days = int(deadline)
+                    deadline = int(deadline)
                 else:
-                    deadline_days = isodate.parse_duration(deadline).days
-                dcr['responseToDeadlines'][event].add((event_prime, deadline_days))
+                    deadline = isodate.parse_duration(deadline)
+                dcr['responseToDeadlines'][event][event_prime] = deadline
         case 'role':
             if curr_el.text:
                 dcr['roles'].add(curr_el.text)
@@ -161,95 +221,6 @@ def parse_element(curr_el, parent, dcr):
         case _:
             pass
     for child in curr_el:
-        dcr = parse_element(child, curr_el, dcr)
+        dcr = __parse_element__(child, curr_el, dcr)
 
     return dcr
-
-def import_xml_tree_from_root(root, white_space_replacement=None):
-    dcr = copy.deepcopy(dcr_template)
-    dcr = parse_element(root, None, dcr)
-    dcr = clean_input(dcr, white_space_replacement=' ')
-    '''
-    Transform the dictionary into a DCR_Graph object
-    '''
-    graph = DcrGraph(dcr)
-    if hasattr(graph,'roles'):
-        graph = RoledcrGraph(graph,dcr)
-    return graph
-
-
-def clean_input(dcr, white_space_replacement=None):
-    if white_space_replacement is None:
-        white_space_replacement = ' '
-    # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
-    for k, v in deepcopy(dcr).items():
-        if k in [I, E, C, R, M, N]:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [v3.strip().replace('_', white_space_replacement) for v3 in v2])
-            dcr[k] = v_new
-        elif k in ['conditionsForDelays', 'responseToDeadlines']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [(v3.strip().replace('_', white_space_replacement), d) for (v3, d) in v2])
-            dcr[k] = v_new
-        elif k == 'marking':
-            for k2 in ['executed', 'included', 'pending']:
-                new_v = set([v2.strip().replace('_', white_space_replacement) for v2 in dcr[k][k2]])
-                dcr[k][k2] = new_v
-        elif k in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
-            v_new = {}
-            for k2, v2 in v.items():
-                v_new[k2.strip().replace('_', white_space_replacement)] = set(
-                    [v3.strip().replace('_', white_space_replacement) for v3 in v2])
-            dcr[k] = v_new
-        else:
-            new_v = set([v2.strip().replace('_', white_space_replacement) for v2 in dcr[k]])
-            dcr[k] = new_v
-    return dcr
-
-
-def map_labels_to_ids(dcr):
-    pass
-
-
-def apply(path, parameters=None):
-    '''
-    Reads a DCR graph from an XML file
-
-    Parameters
-    ----------
-    path
-        Path to the XML file
-
-    Returns
-    -------
-    dcr
-        DCR graph object
-    '''
-    if parameters is None:
-        parameters = {}
-
-    from lxml import etree, objectify
-
-    parser = etree.XMLParser(remove_comments=True)
-    xml_tree = objectify.parse(path, parser=parser)
-
-    return import_xml_tree_from_root(xml_tree.getroot())
-
-
-def import_from_string(dcr_string, parameters=None):
-    if parameters is None:
-        parameters = {}
-
-    if type(dcr_string) is str:
-        dcr_string = dcr_string.encode(constants.DEFAULT_ENCODING)
-
-    from lxml import etree, objectify
-
-    parser = etree.XMLParser(remove_comments=True)
-    root = objectify.fromstring(dcr_string, parser=parser)
-
-    return import_xml_tree_from_root(root)

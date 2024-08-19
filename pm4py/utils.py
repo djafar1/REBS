@@ -29,6 +29,7 @@ from pm4py.objects.ocel.obj import OCEL
 from pm4py.util import constants, xes_constants, pandas_utils
 import warnings
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
+from pm4py.util.dt_parsing.variants import strpfromiso
 import deprecation
 
 
@@ -150,7 +151,7 @@ def rebase(log_obj: Union[EventLog, EventStream, pd.DataFrame], case_id: str = c
     if check_is_pandas_dataframe(log_obj):
         check_pandas_dataframe_columns(log_obj)
 
-    if isinstance(log_obj, pd.DataFrame):
+    if check_is_pandas_dataframe(log_obj):
         return format_dataframe(log_obj, case_id=case_id, activity_key=activity_key, timestamp_key=timestamp_key,
                                 start_timestamp_key=start_timestamp_key, timest_format=timest_format)
     elif isinstance(log_obj, EventLog):
@@ -233,7 +234,7 @@ def serialize(*args) -> Tuple[str, bytes]:
     if type(args[0]) is EventLog:
         from pm4py.objects.log.exporter.xes import exporter as xes_exporter
         return (constants.AvailableSerializations.EVENT_LOG.value, xes_exporter.serialize(*args))
-    elif type(args[0]) is pd.DataFrame:
+    elif pandas_utils.check_is_pandas_dataframe(args[0]):
         from io import BytesIO
         buffer = BytesIO()
         args[0].to_parquet(buffer)
@@ -307,8 +308,6 @@ def get_properties(log, activity_key: str = "concept:name", timestamp_key: str =
     """
     __event_log_deprecation_warning(log)
 
-    if type(log) not in [pd.DataFrame, EventLog, EventStream]: return {}
-
     from copy import copy
     parameters = copy(log.properties) if hasattr(log, 'properties') else copy(log.attrs) if hasattr(log,
                                                                                                     'attrs') else {}
@@ -365,7 +364,7 @@ def set_classifier(log, classifier, classifier_attribute=constants.DEFAULT_CLASS
                 event[classifier_attribute] = "+".join(list(event[x] for x in classifier))
         log.properties[constants.PARAMETER_CONSTANT_ACTIVITY_KEY] = classifier_attribute
         log.properties[constants.PARAMETER_CONSTANT_ATTRIBUTE_KEY] = classifier_attribute
-    elif type(log) is pd.DataFrame:
+    elif pandas_utils.check_is_pandas_dataframe(log):
         log[classifier_attribute] = log[classifier[0]]
         for i in range(1, len(classifier)):
             log[classifier_attribute] = log[classifier_attribute] + "+" + log[classifier[i]]
@@ -411,10 +410,10 @@ def parse_event_log_string(traces: Collection[str], sep: str = ",",
         for act in activities:
             cases.append(str(index))
             activitiess.append(act)
-            timestamps.append(datetime.datetime.fromtimestamp(this_timest))
+            timestamps.append(strpfromiso.fix_naivety(datetime.datetime.fromtimestamp(this_timest)))
             this_timest = this_timest + 1
 
-    dataframe = pd.DataFrame({case_id_key: cases, activity_key: activitiess, timestamp_key: timestamps})
+    dataframe = pandas_utils.instantiate_dataframe({case_id_key: cases, activity_key: activitiess, timestamp_key: timestamps})
 
     if return_legacy_log_object:
         import pm4py
@@ -495,7 +494,7 @@ def sample_cases(log: Union[EventLog, pd.DataFrame], num_cases: int, case_id_key
     if isinstance(log, EventLog):
         from pm4py.objects.log.util import sampling
         return sampling.sample(log, num_cases)
-    elif isinstance(log, pd.DataFrame):
+    elif check_is_pandas_dataframe(log):
         from pm4py.objects.log.util import dataframe_utils
         properties["max_no_cases"] = num_cases
         return dataframe_utils.sample_dataframe(log, parameters=properties)
@@ -521,13 +520,16 @@ def sample_events(log: Union[EventStream, OCEL], num_events: int) -> Union[Event
     if check_is_pandas_dataframe(log):
         check_pandas_dataframe_columns(log)
 
-    if isinstance(log, EventStream):
+    if isinstance(log, EventLog):
+        from pm4py.objects.log.util import sampling
+        return sampling.sample_log(log, num_events)
+    elif isinstance(log, EventStream):
         from pm4py.objects.log.util import sampling
         return sampling.sample_stream(log, num_events)
     elif isinstance(log, OCEL):
         from pm4py.objects.ocel.util import sampling
         return sampling.sample_ocel_events(log, parameters={"num_entities": num_events})
-    elif isinstance(log, pd.DataFrame):
+    elif check_is_pandas_dataframe(log):
         return log.sample(n=num_events)
 
 

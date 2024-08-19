@@ -1,7 +1,7 @@
 import os
 import unittest
 import pm4py
-from pm4py.algo.discovery.dcr_discover.algorithm import apply
+from pm4py.algo.discovery.dcr_discover.algorithm import apply, ExtensionVariants
 from pm4py.objects.dcr.obj import DcrGraph, dcr_template
 import pandas as pd
 from pm4py.algo.discovery.dcr_discover.algorithm import apply
@@ -9,6 +9,7 @@ from pm4py.algo.conformance.alignments.dcr.variants.optimal import Alignment
 from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.dcr.importer import importer as dcr_importer
 from pm4py.objects.dcr.exporter import exporter as dcr_exporter
+
 
 class TestDiscoveryDCR(unittest.TestCase):
     def check_if_dcr_is_equal(self, dcr1, dcr2):
@@ -101,7 +102,7 @@ class TestDiscoveryDCR(unittest.TestCase):
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
         # when mined, with post_process roles
         parameters = get_properties(log, group_key="org:resource")
-        dcr, _ = apply(log, post_process={'roles'}, parameters=parameters)
+        dcr, _ = apply(log, post_process={ExtensionVariants.DCR_ROLES}, parameters=parameters)
         # these attributes, will not be empty
         self.assertNotEqual(len(dcr.roles), 0)
         self.assertNotEqual(len(dcr.principals), 0)
@@ -116,8 +117,8 @@ class TestDiscoveryDCR(unittest.TestCase):
         # Given an event log
         log = pm4py.read_xes(os.path.join("input_data", "receipt.xes"))
         # when process is discovered
-        dcr1, _ = pm4py.discover_dcr(log, process_type={'roles'})
-        dcr2, _ = pm4py.discover_dcr(log, process_type={'roles'})
+        dcr1, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES})
+        dcr2, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES})
         # then the two model should be equal
         self.assertEqual(dcr1.roles, dcr2.roles)
         self.assertEqual(dcr1.principals, dcr2.principals)
@@ -132,7 +133,7 @@ class TestDiscoveryDCR(unittest.TestCase):
         # given an event log with role attribute
         log = pm4py.read_xes("input_data/receipt.xes")
         # when the dcr is mined
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'})
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES})
 
         # then roles, principals and roleAssignment should have some values
         # additionally, a org:role is provided, therefore principals and roles are different
@@ -158,7 +159,7 @@ class TestDiscoveryDCR(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         with self.assertRaises(ValueError) as context:
             parameters = get_properties(log, group_key="org:resource")
-            apply(log, dcr_discover, post_process={'roles'}, parameters=parameters)
+            apply(log, dcr_discover, post_process={ExtensionVariants.DCR_ROLES}, parameters=parameters)
         self.assertTrue(
             'input log does not contain attribute identifiers for resources or roles' in str(context.exception))
 
@@ -175,7 +176,7 @@ class TestDiscoveryDCR(unittest.TestCase):
             log.iloc[index] = new_row.loc[index]
 
         # when process is discovered
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key='org:resource')
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key='org:resource')
         # then reinititate request no longer has the orginal assigned role
         self.assertNotIn("reinitiate request", dcr.role_assignments['Sara'])
 
@@ -192,7 +193,7 @@ class TestObjSematics(unittest.TestCase):
         # when a dcr is mine
         dcr, _ = apply(log, dcr_discover)
         # then dcr graph should be able to be called as a dictionary
-        self.assertEqual(dcr['conditionsFor'], dcr.conditions)
+        self.assertEqual(dcr.obj_to_template()['conditionsFor'], dcr.conditions)
 
         del log
         del dcr
@@ -201,11 +202,11 @@ class TestObjSematics(unittest.TestCase):
         # given an event log
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
         # when mined
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
         # getitem should be able to call the additional variables associated with the role object
-        self.assertEqual(dcr['roles'], dcr.roles)
-        self.assertEqual(dcr['principals'], dcr.principals)
-        self.assertEqual(dcr['roleAssignments'], dcr.role_assignments)
+        self.assertEqual(dcr.obj_to_template()['roles'], dcr.roles)
+        self.assertEqual(dcr.obj_to_template()['principals'], dcr.principals)
+        self.assertEqual(dcr.obj_to_template()['roleAssignments'], dcr.role_assignments)
 
         del log
         del dcr
@@ -216,8 +217,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # when an event is check for being enabled
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         # Then register request should return true, and other event has yet met conditions is false
         self.assertTrue(sem.is_enabled(log.iloc[0]["concept:name"], dcr))
         self.assertFalse(sem.is_enabled(log.iloc[1]["concept:name"], dcr))
@@ -232,8 +233,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # When event is executed, the event that has the event as a condition can then be executed
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         if sem.is_enabled(log.iloc[0]["concept:name"], dcr):
             dcr = sem.execute(dcr, log.iloc[0]["concept:name"])
 
@@ -249,8 +250,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # then the DCR is accepting
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         self.assertTrue(sem.is_accepting(dcr))
 
         del log
@@ -263,8 +264,8 @@ class TestObjSematics(unittest.TestCase):
         from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
         dcr, _ = apply(log, dcr_discover)
         # when an event triggers a response relation
-        from pm4py.objects.dcr.semantics import DCRSemantics
-        sem = DCRSemantics()
+        from pm4py.objects.dcr.semantics import DcrSemantics
+        sem = DcrSemantics()
         sem.execute(dcr, "register request")
         self.assertFalse(sem.is_accepting(dcr))
 
@@ -281,9 +282,9 @@ class TestObjSematics(unittest.TestCase):
         dcr.labels.add("A")
         dcr.labels.add("B")
         dcr.labels.add("C")
-        dcr.label_mapping["A"] = {"event0"}
-        dcr.label_mapping["B"] = {"event1"}
-        dcr.label_mapping["C"] = {"event2"}
+        dcr.label_map["event0"] = "A"
+        dcr.label_map["event1"] = "B"
+        dcr.label_map["event2"] = "C"
         # when labels are retried for the label mapping
         # then all the labels retrieve should exist in labels
 
@@ -303,15 +304,15 @@ class TestObjSematics(unittest.TestCase):
         dcr.labels.add("A")
         dcr.labels.add("B")
         dcr.labels.add("C")
-        dcr.label_mapping["A"] = {"event0"}
-        dcr.label_mapping["B"] = {"event1"}
-        dcr.label_mapping["C"] = {"event2"}
+        dcr.label_map["event0"] = "A"
+        dcr.label_map["event1"] = "B"
+        dcr.label_map["event2"] = "C"
         # when labels are retried for the label mapping
         # then all the labels retrieve should exist in labels
         for i in dcr.labels:
-            act = dcr.get_activity(i)
+            act = dcr.get_event(i)
             self.assertIsInstance(i, str)
-            self.assertTrue(act in dcr.labels)
+            self.assertTrue(act in dcr.events)
 
         del dcr
 
@@ -546,7 +547,7 @@ class TestConformanceDCR(unittest.TestCase):
     def test_get_constraint_for_roles(self):
         # given a dcr graph
         log = pm4py.read_xes("input_data/running-example.xes")
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
         # when running getConstraints
         no = dcr.get_constraints()
         # then object, should contain the roleAssignment
@@ -560,7 +561,7 @@ class TestConformanceDCR(unittest.TestCase):
     def test_rule_checking_role_conformance(self):
         # given a DCR graph and a event log
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
 
         # when conformance is check with roles on same log used for mining
         # should
@@ -581,7 +582,7 @@ class TestConformanceDCR(unittest.TestCase):
         log = pm4py.read_xes("input_data/receipt.xes")
         log.replace("Group 1",float("nan"))
 
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'})
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES})
         conf_res = pm4py.conformance_dcr(log, dcr)
 
         for i in conf_res:
@@ -597,7 +598,7 @@ class TestConformanceDCR(unittest.TestCase):
     def test_rule_checking_event_with_not_included_role(self):
         # Given an event log and discovering a dcr
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
         from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
         # when the roles are changed and conformance is performed
         log = log.replace("Mike", "Brenda")
@@ -615,7 +616,7 @@ class TestConformanceDCR(unittest.TestCase):
     def test_rule_checking_with_wrong_resource(self):
         # Given an event log and discovering a dcr
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
         from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
         # when the roles are changed and conformance is performed
         log = log.replace("Sara", "Mike")
@@ -635,7 +636,7 @@ class TestConformanceDCR(unittest.TestCase):
     def test_rule_checking_with_log_missing_resource(self):
         # Given an event log and discovering a dcr
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
-        dcr, _ = pm4py.discover_dcr(log, process_type='roles', group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
         from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
         # when the roles are changed and conformance is performed
         log = log.replace("Sara", float("nan"))
@@ -664,7 +665,7 @@ class TestConformanceDCR(unittest.TestCase):
             log.iloc[index] = new_row.loc[index]
 
         # given the DCR process is discovered
-        dcr, _ = pm4py.discover_dcr(log, process_type='roles', group_key="org:resource")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:resource")
         from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
         # and a log with 1 trace
         log = (log[log['case:concept:name'] == "3"])
@@ -686,7 +687,7 @@ class TestConformanceDCR(unittest.TestCase):
         # check if conformance work with group_key as standard input
         log = pm4py.read_xes("input_data/receipt.xes")
         log = log.rename(columns={"org:group": "org:role"})
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key='org:role')
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key='org:role')
         from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg
         # it returns deviation due to an event in the log, has instance of event with role and without
         parameters = pm4py.utils.get_properties(log, group_key='org:role')
@@ -705,7 +706,7 @@ class TestConformanceDCR(unittest.TestCase):
         log = pm4py.read_xes("input_data/receipt.xes")
         log = log.rename(columns={"org:group": "org:role"})
         #with a role missing
-        dcr, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key="org:role")
+        dcr, _ = pm4py.discover_dcr(log, post_process={ExtensionVariants.DCR_ROLES}, group_key="org:role")
 
         log = log.replace("Group 14","Group 2")
         from pm4py.algo.conformance.dcr.algorithm import apply as conf_alg

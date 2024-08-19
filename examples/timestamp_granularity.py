@@ -1,29 +1,26 @@
-import pandas as pd
 import pm4py
-from pm4py.util import constants
+from pm4py.util import constants, pandas_utils
 import time
 
 
 def execute_script():
-    dataframe = pd.read_csv("../tests/input_data/receipt.csv")
-    dataframe = pm4py.format_dataframe(dataframe, timest_format="ISO8601")
+    dataframe = pandas_utils.read_csv("../tests/input_data/receipt.csv")
+    dataframe = pm4py.format_dataframe(dataframe, timest_format=constants.DEFAULT_TIMESTAMP_PARSE_FORMAT)
 
     # prints the original timestamp column of the dataframe
     print(dataframe["time:timestamp"])
 
     # Here are some common options that you can use as a granularity:
     #
-    # 'D': Day
-    # 'H': Hour
-    # 'T' or 'min': Minute
-    # 'S': Second
-    # 'L' or 'ms': Millisecond
-    # 'U': Microsecond
-    # 'N': Nanosecond
+    # 'h': Hour
+    # 'min': Minute
+    # 's': Second
+    # 'ms': Millisecond
+    # 'ns': Nanosecond
 
     st = time.time_ns()
     # cast on the minute
-    dataframe["time:timestamp"] = dataframe["time:timestamp"].dt.floor('T')
+    dataframe["time:timestamp"] = dataframe["time:timestamp"].dt.floor(freq='min')
     ct = time.time_ns()
 
     print("required time for the timestamp casting: %.2f seconds" % ((ct-st)/10**9))

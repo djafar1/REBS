@@ -40,7 +40,9 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     if parameters is None:
         parameters = {}
 
-    ordered_objects = list(ocel.objects[ocel.object_id_column])
+    ordered_objects = parameters["ordered_objects"] if "ordered_objects" in parameters else ocel.objects[
+        ocel.object_id_column].to_numpy()
+
     lifecycle_unq = ocel.relations.groupby([ocel.object_id_column, ocel.event_activity]).first().reset_index()
     lifecycle_unq = lifecycle_unq.groupby(ocel.object_id_column).size().to_dict()
 
@@ -49,8 +51,8 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
 
     for obj in ordered_objects:
         if obj in lifecycle_unq:
-            data.append([lifecycle_unq[obj]])
+            data.append([float(lifecycle_unq[obj])])
         else:
-            data.append([0])
+            data.append([0.0])
 
     return data, feature_names

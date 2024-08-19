@@ -186,6 +186,9 @@ def single_element_statistics(log, net, initial_marking, aligned_traces, variant
     if parameters is None:
         parameters = {}
 
+    from pm4py.objects.conversion.log import converter as log_converter
+    log = log_converter.apply(log, variant=log_converter.Variants.TO_EVENT_LOG, parameters=parameters)
+
     business_hours = parameters["business_hours"] if "business_hours" in parameters else False
     business_hours_slots = parameters["business_hour_slots"] if "business_hour_slots" in parameters else constants.DEFAULT_BUSINESS_HOUR_SLOTS
     count_once_per_trace = parameters["count_once_per_trace"] if "count_once_per_trace" in parameters else False
@@ -223,8 +226,8 @@ def single_element_statistics(log, net, initial_marking, aligned_traces, variant
                     for perf_couple in annotations_places_trans[el]["performance"]:
                         if timestamp_key in trace[perf_couple[0]] and timestamp_key in trace[perf_couple[1]]:
                             if business_hours:
-                                bh = BusinessHours(trace[perf_couple[1]][timestamp_key].replace(tzinfo=None),
-                                                   trace[perf_couple[0]][timestamp_key].replace(tzinfo=None),
+                                bh = BusinessHours(trace[perf_couple[1]][timestamp_key],
+                                                   trace[perf_couple[0]][timestamp_key],
                                                    business_hour_slots=business_hours_slots)
                                 perf = bh.get_seconds()
                             else:
@@ -243,8 +246,8 @@ def single_element_statistics(log, net, initial_marking, aligned_traces, variant
                 for perf_couple in annotations_arcs[el]["performance"]:
                     if timestamp_key in trace[perf_couple[0]] and timestamp_key in trace[perf_couple[1]]:
                         if business_hours:
-                            bh = BusinessHours(trace[perf_couple[1]][timestamp_key].replace(tzinfo=None),
-                                               trace[perf_couple[0]][timestamp_key].replace(tzinfo=None),
+                            bh = BusinessHours(trace[perf_couple[1]][timestamp_key],
+                                               trace[perf_couple[0]][timestamp_key],
                                                business_hour_slots=business_hours_slots)
                             perf = bh.get_seconds()
                         else:

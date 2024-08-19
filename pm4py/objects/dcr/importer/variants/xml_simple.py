@@ -1,5 +1,6 @@
 import copy
 
+from datetime import timedelta
 import isodate
 
 from pm4py.util import constants
@@ -12,55 +13,6 @@ R = Relations.R.value
 N = Relations.N.value
 C = Relations.C.value
 M = Relations.M.value
-
-
-def parse_element(curr_el, parent, dcr):
-    # Create the DCR graph
-    tag = curr_el.tag.lower()
-    match tag:
-        case 'events':
-            id = curr_el.find('id').text
-            dcr['events'].add(id)
-            label = curr_el.find('label').text
-            dcr['labels'].add(label)
-            dcr['labelMapping'][label] = {id}
-        case 'rules':
-            type = curr_el.find('type').text
-            source = curr_el.find('source').text
-            target = curr_el.find('target').text
-            match type:
-                case 'condition':
-                    if not dcr['conditionsFor'].get(target):
-                        dcr['conditionsFor'][target] = set()
-                    dcr['conditionsFor'][target].add(source)
-                case 'response':
-                    if not dcr['responseTo'].get(source):
-                        dcr['responseTo'][source] = set()
-                    dcr['responseTo'][source].add(target)
-                case 'exclude':
-                    if not dcr['excludesTo'].get(source):
-                        dcr['excludesTo'][source] = set()
-                    dcr['excludesTo'][source].add(target)
-                case 'include':
-                    if not dcr['includesTo'].get(source):
-                        dcr['includesTo'][source] = set()
-                    dcr['includesTo'][source].add(target)
-        case _:
-            pass
-    for child in curr_el:
-        dcr = parse_element(child, curr_el, dcr)
-
-    return dcr
-
-
-def import_xml_tree_from_root(root):
-    dcr = copy.deepcopy(dcr_template)
-    dcr = parse_element(root, None, dcr)
-    '''
-    Transform the dictionary into a DCR_Graph object
-    '''
-    graph = DcrGraph(dcr)
-    return graph
 
 
 def apply(path, parameters=None):
@@ -86,6 +38,88 @@ def apply(path, parameters=None):
     xml_tree = objectify.parse(path, parser=parser)
 
     return import_xml_tree_from_root(xml_tree.getroot())
+
+
+def import_xml_tree_from_root(root, replace_whitespace=' ', **kwargs):
+    '''
+    Transform the dictionary into a DCR_Graph object
+    '''
+
+    dcr = copy.deepcopy(dcr_template)
+    for event_elem in root.findall('.//events'):
+        event_id = event_elem.find('id').text.replace(' ', replace_whitespace)
+        dcr['events'].add(event_id)
+        dcr['marking']['included'].add(event_id)
+
+    for rule_elem in root.findall('.//rules'):
+        rule_type = rule_elem.find('type').text
+        source = rule_elem.find('source').text.replace(' ', replace_whitespace)
+        target = rule_elem.find('target').text.replace(' ', replace_whitespace)
+
+        if rule_type == 'condition':
+            if 'conditionsFor' not in dcr:
+                dcr['conditionsFor'] = {}
+            if target not in dcr['conditionsFor']:
+                dcr['conditionsFor'][target] = set()
+            dcr['conditionsFor'][target].add(source)
+
+            # Handle duration
+            duration_elem = rule_elem.find('duration')
+            if duration_elem is not None:
+                duration = timedelta(seconds=float(duration_elem.text))
+                if 'conditionsForDelays' not in dcr:
+                    dcr['conditionsForDelays'] = {}
+                if target not in dcr['conditionsForDelays']:
+                    dcr['conditionsForDelays'][target] = {}
+                dcr['conditionsForDelays'][target][source] = duration
+
+        elif rule_type == 'response':
+            if 'responseTo' not in dcr:
+                dcr['responseTo'] = {}
+            if source not in dcr['responseTo']:
+                dcr['responseTo'][source] = set()
+            dcr['responseTo'][source].add(target)
+
+            # Handle duration
+            duration_elem = rule_elem.find('duration')
+            if duration_elem is not None:
+                duration = timedelta(seconds=float(duration_elem.text))
+                if 'responseToDeadlines' not in dcr:
+                    dcr['responseToDeadlines'] = {}
+                if source not in dcr['responseToDeadlines']:
+                    dcr['responseToDeadlines'][source] = {}
+                dcr['responseToDeadlines'][source][target] = duration
+
+        elif rule_type == 'include':
+            if 'includesTo' not in dcr:
+                dcr['includesTo'] = {}
+            if source not in dcr['includesTo']:
+                dcr['includesTo'][source] = set()
+            dcr['includesTo'][source].add(target)
+
+        elif rule_type == 'exclude':
+            if 'excludesTo' not in dcr:
+                dcr['excludesTo'] = {}
+            if source not in dcr['excludesTo']:
+                dcr['excludesTo'][source] = set()
+            dcr['excludesTo'][source].add(target)
+
+        elif rule_type == 'milestone':
+            if 'milestonesFor' not in dcr:
+                dcr['milestonesFor'] = {}
+            if target not in dcr['milestonesFor']:
+                dcr['milestonesFor'][target] = set()
+            dcr['milestonesFor'][target].add(source)
+
+        elif rule_type == 'coresponse':
+            if 'noResponseTo' not in dcr:
+                dcr['noResponseTo'] = {}
+            if source not in dcr['noResponseTo']:
+                dcr['noResponseTo'][source] = set()
+            dcr['noResponseTo'][source].add(target)
+
+    graph = DcrGraph(dcr)
+    return graph
 
 
 def import_from_string(dcr_string, parameters=None):
