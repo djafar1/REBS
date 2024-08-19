@@ -38,6 +38,7 @@ from pm4py.objects.trie.obj import Trie
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.objects.org.sna.obj import SNA
 from pm4py.util import constants
+from pm4py.objects.dcr.obj import DcrGraph
 
 
 def view_petri_net(petri_net: PetriNet, initial_marking: Optional[Marking] = None,
@@ -1380,3 +1381,23 @@ def save_vis_object_graph(ocel: OCEL, graph: Set[Tuple[str, str]], file_path: st
     from pm4py.visualization.ocel.object_graph import visualizer as obj_graph_vis
     gviz = obj_graph_vis.apply(ocel, graph, parameters={"format": format, "bgcolor": bgcolor, "rankdir": rankdir})
     return obj_graph_vis.save(gviz, file_path)
+
+def view_dcr(dcr: DcrGraph, format: str = constants.DEFAULT_FORMAT_GVIZ_VIEW, bgcolor: str = "white", rankdir: str = constants.DEFAULT_RANKDIR_GVIZ):
+    """
+    Views a DCR graph
+
+    :param dcr_graph: DCR graph
+    :param format: format of the visualization (default: png)
+    :param bgcolor: Background color of the visualization (default: white)
+    :param rankdir: sets the direction of the graph ("LR" for left-to-right; "TB" for top-to-bottom)
+
+    .. code-block:: python3
+
+        import pm4py
+
+        dcr = pm4py.discover_dcr(dataframe)
+        pm4py.view_dcr(dcr, format='svg')
+    """
+    from pm4py.visualization.dcr import visualizer as dcr_visualizer
+    dcr_visualizer.apply(dcr)
+
