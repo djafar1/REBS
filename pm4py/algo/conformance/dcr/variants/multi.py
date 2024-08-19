@@ -6,9 +6,9 @@ import pm4py
 from pm4py.util import exec_utils, constants, xes_constants
 from typing import Optional, Dict, Any, Union, List, Tuple
 from pm4py.objects.log.obj import EventLog
-from pm4py.objects.dcr.semantics import DCRSemantics
+from pm4py.objects.dcr.semantics import DcrSemantics
 from pm4py.objects.dcr.obj import DcrGraph
-from pm4py.objects.dcr.roles.obj import RoledcrGraph
+from pm4py.objects.dcr.roles.obj import RoleDcrGraph
 from pm4py.algo.conformance.dcr.variants.classic import RuleBasedConformance
 from pm4py.analysis import cluster_log
 from pm4py.objects.log.obj import EventLog
@@ -81,7 +81,7 @@ def transform_eventlog(input_log: Union[EventLog, pd.DataFrame], case_id_key: st
     return logs
 
 
-def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, RoledcrGraph],
+def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, RoleDcrGraph],
           parameters: Optional[Dict[Any, Any]] = None):
 
     global conf_case

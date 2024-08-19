@@ -141,7 +141,7 @@ class RuleBasedConformance:
                                                    parameters=self.__parameters)
 
                 # execute the event
-                self.__semantics.execute(e, self.__g)
+                self.__semantics.execute(self.__g, e)
 
                 if len(response_origin) > 0:
                     for i in response_origin:

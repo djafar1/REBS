@@ -28,7 +28,6 @@ class Relations(Enum):
 
 
 class TemplateRelations(Enum):
->>>>>>>>> Temporary merge branch 2
     I = 'includesTo'
     E = 'excludesTo'
     R = 'responseTo'

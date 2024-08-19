@@ -1,5 +1,5 @@
 import math
-from pm4py.objects.dcr.semantics import DCRSemantics
+from pm4py.objects.dcr.semantics import DcrSemantics
 from copy import deepcopy
 from typing import Tuple
 
@@ -108,7 +108,7 @@ class ComplianceChecker:
 
     def compliant_traces(self, graph, test_log, ground_truth_log):
         #Eventlog and pandas dataframe requires two different approaches
-        sem = DCRSemantics()
+        sem = DcrSemantics()
         initial_marking = deepcopy(graph.marking)
         for trace, gt_trace in zip(test_log,ground_truth_log):
             actual_value = True

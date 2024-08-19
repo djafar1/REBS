@@ -17,6 +17,14 @@ def remove_files(path, folder):
     extract_path = os.path.join(path, folder)
     rmtree(extract_path)
 
+def write_csv(temp, res_file):
+    data = pd.DataFrame(temp)
+    if os.path.isfile(res_file):
+        data.to_csv(res_file, sep=",", mode="a", header=False,
+                    index=False)
+    else:
+        data.to_csv(res_file, sep=";", index=False)
+
 def benchmark_discover_run_time_2019(test_path: str,training_logs, repeat: int):
     log_path = os.path.join(test_path,training_logs)
 
@@ -50,13 +58,9 @@ def benchmark_discover_run_time_2019(test_path: str,training_logs, repeat: int):
         no_event.append(len(log))
         final_times.append(final_time)
         temp = {"process": [file], "avg_time": [final_time], "no events": [len(log)]}
-        data = pd.DataFrame(temp)
 
-        if os.path.isfile("results/"+str(test_path)+" run time.csv"):
-            data.to_csv("results/"+str(test_path)+" run time.csv", sep=";", mode="a", header=False,
-                        index=False)
-        else:
-            data.to_csv("results/"+str(test_path)+" run time.csv", sep=";", index=False)
+        write_csv(temp,"results/"+str(test_path)+"_run_time.csv")
+        data = pd.DataFrame(temp)
 
     return graphs
 
@@ -78,18 +82,22 @@ def test_ground_truth_compliance(graphs, test_path, test_log_path, gt_log_path):
         # for individual traces
         res = com.compliant_traces(graph,test_log,gt_log)
         f = res.get_classification_values()
-        print(test_file+" has "+" tp: "+str(f[0])+" fp: "+str(f[1])+" tn: "+str(f[2])+" fn: "+str(f[3]))
 
-    print(ct_values.get_classification_values())
-    print("collective binary classification results:")
-    print("positive precision: " + str(round(ct_values.compute_positive_precision(), 2)))
-    print("negative precision: " + str(round(ct_values.compute_negative_precision(), 2)))
-    print("positive recall: " + str(round(ct_values.compute_positive_recall(), 2)))
-    print("negative recall: " + str(round(ct_values.compute_negative_recall(), 2)))
-    print("positive f_1 score: " + str(round(ct_values.get_positive_f_score(), 2)))
-    print("negative f_1 score: " + str(round(ct_values.get_negative_f_score(), 2)))
-    print("accuracy: " + str(round(ct_values.compute_accuracy() * 100, 1)))
-    print("mcc: " + str(round(ct_values.mcc(), 2)))
+        temp = {"process": [test_file], "tp": f[0],"fp":f[1], "tn":f[2], "fn": f[3]}
+        write_csv(temp,"results/"+test_path+"_bin_classification.csv")
+
+    ct_values.get_classification_values()
+    temp = {
+        "positive_precision": [round(ct_values.compute_positive_precision(), 2)],
+        "negative_precision": [round(ct_values.compute_negative_precision(), 2)],
+        "positive_recall": [round(ct_values.compute_positive_recall(), 2)],
+        "negative_recall": [round(ct_values.compute_negative_recall(), 2)],
+        "positive_f1": [round(ct_values.get_positive_f_score(), 2)],
+        "negative_f1": [round(ct_values.get_negative_f_score(), 2)],
+        "accuracy": [round(ct_values.compute_accuracy() * 100, 1)],
+        "mcc": [round(ct_values.mcc(), 2)]
+    }
+    write_csv(temp,"results/"+test_path+"_bin_classification_computation.csv")
 
 def initiate_run_time_test(test_path:str, repeat: int):
     training_logs = "Training Logs"
