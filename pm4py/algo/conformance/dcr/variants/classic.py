@@ -52,7 +52,7 @@ class RuleBasedConformance:
             DCR Graph: The DCR graph to be checked
             Event log: The event log to be replayed
             Checker (HandleChecker): handler for the conformance checkers for each rule.
-            Semantics (DCRSemantics()): The semantics used executing events from the event log
+            Semantics (DcrSemantics()): The semantics used executing events from the event log
             Parameters: optinal parameters given by the user
 
         Methods:
@@ -141,7 +141,7 @@ class RuleBasedConformance:
                                                    parameters=self.__parameters)
 
                 # execute the event
-                self.__semantics.execute(self.__g, e)
+                self.__semantics.execute(e, self.__g)
 
                 if len(response_origin) > 0:
                     for i in response_origin:
