@@ -1,3 +1,5 @@
+from typing import Union
+
 import pm4py
 import pandas as pd
 
@@ -5,9 +7,25 @@ from copy import deepcopy
 
 from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.objects.dcr.semantics import DcrSemantics
+from pm4py.objects.log.obj import EventLog
 
 
-def apply(log, graph: DcrGraph, ignore_lifecycle=True):
+def apply(log: Union[pd.DataFrame,EventLog], graph: DcrGraph, ignore_lifecycle: bool=True):
+    """
+    An extension to the DCR Graphs discovery algorithm for the discovery of initially pending events
+    Parameters
+    ----------
+    log
+        Event log / Pandas dataframe
+    graph
+        DCR Graph
+    ignore_lifecycle
+        If True it does not take into account the 'lifecycle:transition'  attribute of the log event else False
+
+    Returns
+    ----------
+    An updated DCR Graph with the Pending Marking updated to contain initially pending events
+    """
     if isinstance(log, pd.DataFrame):
         log = pm4py.convert_to_event_log(log)
 

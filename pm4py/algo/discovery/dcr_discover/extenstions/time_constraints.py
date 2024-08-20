@@ -53,12 +53,12 @@ class TimeMining:
     def __init__(self):
         self.timing_dict = {"conditionsForDelays": {}, "responseToDeadlines": {}}
 
+
     def get_log_with_pair(self, event_log, e1, e2):
         '''
-        when selecting the cids here there is a difference when taking
-        strictly less than <
-        and strictly less than or equal <=
-        The equal addition allows for instant durations (so a time of 0 between events e1 and e2)
+        when selecting the case ids (cids) here there is a difference when taking
+        strictly less than < and strictly less than or equal <=
+        Less than or equal <= allows for instant executions (so a time of 0 between events e1 and e2)
         '''
         first_e1 = event_log[event_log['concept:name'] == e1].groupby('case:concept:name')[
             ['case:concept:name', 'time:timestamp']].first().reset_index(drop=True)
@@ -67,6 +67,7 @@ class TimeMining:
             ((subset_is_in['time:timestamp_e1'] <= subset_is_in['time:timestamp']) & (subset_is_in['concept:name'] == e2))][
             'case:concept:name'].unique()
         return event_log[event_log['case:concept:name'].isin(cids)].copy(deep=True)
+
 
     def get_delta_between_events(self, filtered_df, event_pair, rule=None):
         e1 = event_pair[0]
@@ -106,13 +107,10 @@ class TimeMining:
             deltas.extend(res)
         return deltas
 
-    def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
-        """
-        """
 
+    def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
         activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, parameters,
                                                   xes_constants.DEFAULT_NAME_KEY)
-
         # perform mining on event logs
         if not isinstance(log, pd.DataFrame):
             log = pm4py.convert_to_dataframe(log)
@@ -135,7 +133,7 @@ class TimeMining:
                     data = self.get_delta_between_events(filtered_df, event_pair, rule)
                     timings[(rule, event_pair[0], event_pair[1])] = data
 
-        # these should be a dict with events as keys and tuples as values
+        # these are a dict with events as keys and tuples as values
         for timing, value in timings.items():
             if timing[0] == 'CONDITION':
                 e1 = timing[2]

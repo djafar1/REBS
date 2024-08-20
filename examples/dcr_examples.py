@@ -1,5 +1,6 @@
 import pm4py
 import os
+
 def execute_discover():
     """
     example script to discover dcr graph from event log
@@ -18,7 +19,7 @@ def execute_discover_roles():
     log = pm4py.read_xes(os.path.join("..","tests","input_data","running-example.xes"))
     # is initaitad with the set of wanted post process types after the original discover miner
     # if no standard default group key is present, but org:resource is present, can specify
-    graph, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key='org:resource')
+    graph, _ = pm4py.discover_dcr(log, post_process={'roles'}, group_key='org:resource')
     print(graph)
 
 def execute_dcr_conformance():
@@ -30,7 +31,7 @@ def execute_dcr_conformance():
     # is initaitad with the set of wanted post process types after the original discover miner
     # if no standard default group key is present, but org:resource is present, can specify to mine org:resource as roles
     graph_base, _ = pm4py.discover_dcr(log)
-    graph_roles, _ = pm4py.discover_dcr(log, process_type={'roles'})
+    graph_roles, _ = pm4py.discover_dcr(log, post_process={'roles'})
 
     #DisCoveR discovers a perfect fitting graph from event log
     conf_res_base = pm4py.conformance_dcr(log, graph_base, return_diagnostics_dataframe=True)

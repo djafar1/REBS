@@ -27,7 +27,7 @@ def apply(graph, parameters) -> GroupSubprocessDcrGraph:
         Dcr graph to apply additional attributes to
     parameters
         Parameters of the algorithm, including:
-            nest_variant : the nesting algorithm to use from the enum above
+            nest_variant : the nesting algorithm to use from the enum above: CHOICE|NEST|CHOICE_NEST
     Returns
     -------
     :class:´GroupSubprocessDcrGraph`
@@ -43,6 +43,8 @@ class NestingMining:
 
     After initialization, user can call mine(log, G, parameters), which will return a DCR Graph with nested groups.
 
+    Reference paper:
+    Cosma et al. "Improving Simplicity by Discovering Nested Groups in Declarative Models" https://doi.org/10.1007/978-3-031-61057-8_26
     Attributes
     ----------
     graph: Dict[str,Any]
@@ -71,8 +73,7 @@ class NestingMining:
         Returns
         -------
         NestedDCRGraph(G, dcr)
-            returns a DCR graph with organizational attributes, store in a variant of DCR
-            :class:`pm4py.objects.dcr.roles.obj.RoleDCR_Graph`
+            returns a DCR graph with nested groups
         """
 
         nest_variant = parameters['nest_variant']
@@ -140,16 +141,15 @@ class Choice(object):
                         getattr(core_dcr, rel)[e] = getattr(core_dcr, rel)[e].difference(me_events)
         return GroupSubprocessDcrGraph({**core_dcr.obj_to_template(), **self.nesting_template})
 
-    def get_mutual_exclusions(self, core_dcr: DcrGraph, i=0):
+    def get_mutual_exclusions(self, core_dcr: DcrGraph, i:Optional[int]=0):
         """
-        Get nestings based on cliques. Now we naively get the largest clique.
-        TODO: Get cliques smartly by taking the cliques that jointly use the highest number of events.
-        It should be solved as a search space problem.
+        Get nested groups based on cliques. Updates the self.nesting_template dict
         Parameters
         ----------
-        dcr
+        core_dcr
+            A core Dcr Graph as mined from the DisCoveR miner
         i
-
+            An integer seed for the naming of choice groups
         Returns
         -------
 

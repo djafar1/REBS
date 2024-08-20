@@ -868,7 +868,7 @@ def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 1
     return batches_discovery.apply(log, parameters=properties)
 
 
-def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[ExtensionVariants] = None, activity_key: str = "concept:name",
+def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[Union[ExtensionVariants,str]] = None, activity_key: str = "concept:name",
                  timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name",
                  resource_key: str = "org:resource", group_key: str = "org:group",
                  finaAdditionalConditions: bool = True) -> Tuple[Any, Dict[str, Any]]:

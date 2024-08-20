@@ -1,6 +1,7 @@
 import os
 
 from pm4py.objects.petri_net.obj import *
+from pm4py.objects.petri_net.timed_arc_net.obj import TimedArcNet
 from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 from pm4py.objects.dcr.group_subprocess.util import nested_groups_and_sps_to_flat_dcr
@@ -13,7 +14,7 @@ from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules imp
 
 class Dcr2TimedArcPetri(object):
 
-    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False) -> None:
+    def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False, **kwargs) -> None:
         self.in_t_types = ['event', 'init', 'initpend', 'pend']
         self.helper_struct = {}
         self.preoptimize = preoptimize
@@ -160,7 +161,6 @@ class Dcr2TimedArcPetri(object):
 
     def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> PetriNet:
         from pm4py.objects.petri_net.utils import reachability_graph
-        # from pm4py.visualization.transition_system import visualizer as ts_visualizer
         from pm4py.objects.petri_net.timed_arc_net import semantics as tapn_semantics
         max_elab_time = 2 * 60 * 60  # 2 hours
         if self.reachability_timeout:
@@ -194,7 +194,6 @@ class Dcr2TimedArcPetri(object):
             for event in G['events']:
                 for type, event_place in self.helper_struct[event]['places'].items():
                     for type_prime, event_place_prime in self.helper_struct[event]['places'].items():
-                        # TODO: if type is (pending or pending_excluded) then event_place is a set
                         # if type_prime is (pending or pending_excluded) then event_place_prime is a set
                         if type in ['pending', 'pending_excluded'] and type_prime in ['pending', 'pending_excluded']:
                             for ep,_ in event_place:
@@ -250,7 +249,8 @@ class Dcr2TimedArcPetri(object):
         debug_save_path = f'{path_without_extension}_{step}{extens}'
         pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
 
-    def dcr2tapn(self, G, tapn_path) -> (PetriNet, Marking):
+
+    def apply(self, G, tapn_path,**kwargs) -> (PetriNet, Marking):
         G = nested_groups_and_sps_to_flat_dcr(G)
         self.basic = False  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
         self.timed = True  # False = untimed | True = timed cond (delay) and resp (deadline)
@@ -358,32 +358,8 @@ class Dcr2TimedArcPetri(object):
 
         return tapn, m
 
-
-def run_specific_dcr():
-    '''
-    here you can write your own graph and run it
-    '''
-    dcr = {
-        'events': {'B'},
-        'conditionsFor': {},
-        'milestonesFor': {},
-        'responseTo': {},
-        'noResponseTo': {},
-        'includesTo': {},
-        'excludesTo': {},
-        'conditionsForDelays': {},
-        'responseToDeadlines': {},
-        'marking': {'executed': set(),
-                    'included': {'B'},
-                    'pending': {'B'},
-                    'pendingDeadline': {'B': 10}
-                    }
-    }
-
-    d2p = Dcr2TimedArcPetri(preoptimize=True, postoptimize=True, map_unexecutable_events=False)
-    print('[i] dcr')
-    tapn, m = d2p.dcr2tapn(dcr, tapn_path="/home/vco/Projects/pm4py-dcr/models/one_petri_timed.tapn")
-
-
-if __name__ == "__main__":
-    run_specific_dcr()
+def apply(dcr, parameters):
+    d2p = Dcr2TimedArcPetri(**parameters)
+    G = deepcopy(dcr)
+    tapn, m = d2p.apply(G, **parameters)
+    return tapn, m

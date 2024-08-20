@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from pm4py.objects.log.obj import EventLog
 from pm4py.util import exec_utils
 from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
@@ -55,7 +53,7 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAddition
 
     Returns
     ---------------
-    DCR_GRAPH | RoleDCR_Graph:
+    DcrGraph | RoleDcrGraph | GroupSubprocessDcrGraph | TimeDcrGraph:
         DCR graph (as an object) containing eventId, set of activities, mapping of event to activities,
             condition relations, response relation, include relations and exclude relations.
         possible to return variant of different dcr graph depending on which variant, basic, roles, etc.
@@ -65,7 +63,6 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAddition
     .. [1]
         C. O. Back et al. "DisCoveR: accurate and efficient discovery of declarative process models",
         International Journal on Software Tools for Technology Transfer, 2022, 24:563–587. 'DOI' <https://doi.org/10.1007/s10009-021-00616-0>_.
-
     """
 
     input_log = log  # deepcopy(log)

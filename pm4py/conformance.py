@@ -891,6 +891,8 @@ def optimal_alignment_dcr(
 ) -> pd.DataFrame | Any:
     """
     Applies optimal alignment against a DCR model.
+    Reference paper:
+    Axel Kjeld Fjelrad Christfort & Tijs Slaats. "Efficient Optimal Alignment Between Dynamic Condition Response Graphs and Traces" https://doi.org/10.1007/978-3-031-41620-0_1
     Parameters
     ----------
     log : EventLog | pd.DataFrame | Trace
