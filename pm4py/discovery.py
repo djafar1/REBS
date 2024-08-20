@@ -881,7 +881,7 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[Union[Ext
     log : Union[EventLog, pd.DataFrame]
         The event log or Pandas dataframe containing the event data.
     post_process : Optional[str]
-        Specifies the type of post-processing for the event log, currently supports ROLES, TIMED and NESTINGS.
+        Specifies the type of post-processing for the event log, currently supports ROLES, PENDING, TIMED and NESTINGS.
     activity_key : str, optional
         The attribute to be used for the activity, defaults to "concept:name".
     timestamp_key : str, optional

@@ -7,7 +7,7 @@ def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py'):
     '''
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
     The file is to be visualised using the following link: https://hugoalopez-dtu.github.io/dcr-js/
-
+    Tamo et al. "An Open-Source Modeling Editor for Declarative Process Models" https://ceur-ws.org/Vol-3552/paper-5.pdf
     Parameters
     -----------
     dcr

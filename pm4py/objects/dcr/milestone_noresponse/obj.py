@@ -23,6 +23,7 @@ class MilestoneNoResponseDcrGraph(RoleDcrGraph):
     This class extends the RoleDcrGraph to include milestone and no-response
     relations, allowing for more expressive DCR Graphs with additional constraints.
 
+
     Attributes
     ----------
     self.__milestonesFor: Dict[str, Set[str]]

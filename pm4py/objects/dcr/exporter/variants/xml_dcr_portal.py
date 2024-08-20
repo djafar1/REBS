@@ -6,7 +6,7 @@ from pm4py.objects.dcr.obj import DcrGraph
 def export_dcr_xml(graph:DcrGraph, output_file_name, dcr_title='DCR from pm4py'):
     '''
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
-
+    Marquard et al. "Web-Based Modelling and Collaborative Simulation of Declarative Processes" https://doi.org/10.1007/978-3-319-23063-4_15
     Parameters
     -----------
     dcr

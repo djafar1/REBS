@@ -79,5 +79,4 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAddition
         graph = exec_utils.get_variant(DCR_TIMED).apply(input_log, graph, parameters=parameters)
     if DCR_NESTING in post_process:
         graph = exec_utils.get_variant(DCR_NESTING).apply(graph, parameters=parameters)
-
     return graph, la

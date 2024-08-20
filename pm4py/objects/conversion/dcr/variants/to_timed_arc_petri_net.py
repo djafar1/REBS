@@ -2,7 +2,6 @@ import os
 from copy import deepcopy
 
 from pm4py.objects.petri_net.timed_arc_net.obj import *
-from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 from pm4py.objects.petri_net import properties as pn_props
 
@@ -172,14 +171,15 @@ class Dcr2TimedArcPetri(object):
         return tapn, m
 
     def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> TimedArcNet:
-        from pm4py.objects.petri_net.utils import reachability_graph
+        from pm4py.objects.petri_net.utils import petri_utils
+        from pm4py.objects.conversion.dcr.variants import reachability_analysis
         # from pm4py.visualization.transition_system import visualizer as ts_visualizer
         from pm4py.objects.petri_net.timed_arc_net import semantics as tapn_semantics
         from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
         max_elab_time = 2 * 60 * 60  # 2 hours
         if self.reachability_timeout:
             max_elab_time = self.reachability_timeout
-        trans_sys = reachability_graph.construct_reachability_graph(tapn, m, use_trans_name=True,
+        trans_sys = reachability_analysis.construct_reachability_graph(tapn, m, use_trans_name=True,
                                                                     parameters={
                                                                         # 'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
                                                                         'petri_semantics': tapn_semantics.TimedArcSemantics(),
@@ -195,7 +195,7 @@ class Dcr2TimedArcPetri(object):
             if t.name not in fired_transitions:
                 ts_to_remove.add(t)
         for t in ts_to_remove:
-            tapn = pn_utils.remove_transition(tapn, t)
+            tapn = petri_utils.remove_transition(tapn, t)
 
         changed_places = set()
         for state_list in trans_sys.states:
@@ -225,7 +225,7 @@ class Dcr2TimedArcPetri(object):
 
         ps_to_remove = ps_to_remove.union(parallel_places)
         for p in ps_to_remove:
-            tapn = pn_utils.remove_place(tapn, p)
+            tapn = petri_utils.remove_place(tapn, p)
 
         for p, name in places_to_rename.items():
             p.name = name

@@ -848,7 +848,7 @@ class TestAlignment(unittest.TestCase):
         self.assertIsInstance(align_res,pd.DataFrame)
 
         for index,row in align_res.iterrows():
-            self.assertTrue(row['align_fitness'] == 1.0)
+            self.assertTrue(row['fitness'] == 1.0)
         del log_path
         del align_res
 
@@ -897,7 +897,7 @@ class TestAlignment(unittest.TestCase):
         res = pm4py.optimal_alignment_dcr(self.log, self.dcr, return_diagnostics_dataframe=True)
         self.assertIsInstance(res,pd.DataFrame)
         for index,row in res.iterrows():
-            self.assertTrue(row['align_fitness'] == 1.0)
+            self.assertTrue(row['fitness'] == 1.0)
 
 class TestImportExportDCR(unittest.TestCase):
 

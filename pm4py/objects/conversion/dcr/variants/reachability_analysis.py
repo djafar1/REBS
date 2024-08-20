@@ -1,24 +1,9 @@
-'''
-    This file is part of PM4Py (More Info: https://pm4py.fit.fraunhofer.de).
-
-    PM4Py is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    PM4Py is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
-'''
 import re
+from copy import copy
 
 from pm4py.objects import petri_net
 from pm4py.objects.transition_system.obj import TransitionSystem
-from pm4py.objects.petri_net.utils import align_utils
+# from pm4py.objects.petri_net.utils import align_utils
 from pm4py.objects.transition_system import obj as ts
 from pm4py.objects.transition_system import utils
 from pm4py.util import exec_utils
@@ -47,6 +32,48 @@ def staterep(name):
     """
     return re.sub(r'\W+', '', name)
 
+def get_visible_transitions_eventually_enabled_by_marking(net, marking, semantics):
+    """
+    Get visible transitions eventually enabled by marking (passing possibly through hidden transitions)
+    Parameters
+    ----------
+    net
+        Petri net
+    marking
+        Current marking
+    semantics
+        Petri net semantics
+    """
+    all_enabled_transitions = sorted(list(semantics.enabled_transitions(net, marking)),
+                                     key=lambda x: (str(x.name), id(x)))
+    initial_all_enabled_transitions_marking_dictio = {}
+    all_enabled_transitions_marking_dictio = {}
+    for trans in all_enabled_transitions:
+        all_enabled_transitions_marking_dictio[trans] = marking
+        initial_all_enabled_transitions_marking_dictio[trans] = marking
+    visible_transitions = set()
+    visited_transitions = set()
+
+    i = 0
+    while i < len(all_enabled_transitions):
+        t = all_enabled_transitions[i]
+        marking_copy = copy(all_enabled_transitions_marking_dictio[t])
+
+        if repr([t, marking_copy]) not in visited_transitions:
+            if t.label is not None:
+                visible_transitions.add(t)
+            else:
+                if semantics.is_enabled(t, net, marking_copy):
+                    new_marking = semantics.execute(t, net, marking_copy)
+                    new_enabled_transitions = sorted(list(semantics.enabled_transitions(net, new_marking)),
+                                                     key=lambda x: (str(x.name), id(x)))
+                    for t2 in new_enabled_transitions:
+                        all_enabled_transitions.append(t2)
+                        all_enabled_transitions_marking_dictio[t2] = new_marking
+            visited_transitions.add(repr([t, marking_copy]))
+        i = i + 1
+
+    return visible_transitions
 
 def marking_flow_petri(net, im, return_eventually_enabled=False, parameters=None):
     """
@@ -82,7 +109,7 @@ def marking_flow_petri(net, im, return_eventually_enabled=False, parameters=None
         m = active.pop()
         enabled_transitions = semantics.enabled_transitions(net, m)
         if return_eventually_enabled:
-            eventually_enabled[m] = align_utils.get_visible_transitions_eventually_enabled_by_marking(net, m)
+            eventually_enabled[m] = get_visible_transitions_eventually_enabled_by_marking(net, m, semantics)
         outgoing_transitions[m] = {}
         for t in enabled_transitions:
             nm = semantics.weak_execute(t, net, m)
@@ -122,7 +149,10 @@ def construct_reachability_graph_from_flow(incoming_transitions, outgoing_transi
 
     map_states = {}
     for s in incoming_transitions:
-        map_states[s] = ts.TransitionSystem.State(staterep(repr(s)))
+        if use_trans_name:
+            map_states[s] = ts.TransitionSystem.State(s)
+        else:
+            map_states[s] = ts.TransitionSystem.State(staterep(repr(s)))
         re_gr.states.add(map_states[s])
 
     for s1 in outgoing_transitions:

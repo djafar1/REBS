@@ -9,7 +9,7 @@ from copy import deepcopy
 from pm4py.algo.discovery.dcr_discover import algorithm as dcr_discover_alg
 from pm4py.algo.evaluation.declarative_complexity.algorithm import *
 from pm4py.objects.dcr import semantics as dcr_semantics
-from pm4py.objects.dcr.group_subprocess.util import nested_groups_and_sps_to_flat_dcr
+from pm4py.objects.dcr.nesting_subprocess.util import nested_groups_and_sps_to_flat_dcr
 
 
 def pdc_f_score(tp, fp, tn, fn):

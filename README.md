@@ -1,3 +1,16 @@
+# Dcr4py: An extension of pm4py for declarative Dynamic Condition Response Graphs
+
+New features added compared to pm4py:
+* DcrGraph objects: Role, MilestoneNoResponse, NestingSubprocess, Timed, Import (from DCR Portal[1] and DCR js[2]), Export (to DCR Portal[2] and DCR js[2])
+* Conformance: Alignments, Rule based
+* Discovery with extensions: Role, Pending, Timed
+* Visualization: DcrGraph visualization with graphviz
+ 
+Example usage:
+```python
+
+```
+
 # pm4py
 pm4py is a python library that supports (state-of-the-art) process mining algorithms in python. 
 It is open source (licensed under GPL) and intended to be used in both academia and industry projects.

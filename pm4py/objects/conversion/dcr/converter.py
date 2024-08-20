@@ -2,7 +2,7 @@ from copy import deepcopy
 from enum import Enum
 from typing import Union, Tuple
 
-from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
+from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
 from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph
 from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 from pm4py.objects.dcr.utils.utils import nested_groups_and_sps_to_flat_dcr
@@ -20,7 +20,7 @@ class Variants(Enum):
 DEFAULT_VARIANT = Variants.TO_INHIBITOR_NET
 
 
-def apply(obj: Union[DcrGraph,MilestoneNoResponseDcrGraph,GroupSubprocessDcrGraph,TimedDcrGraph],
+def apply(obj: Union[DcrGraph,MilestoneNoResponseDcrGraph,NestingSubprocessDcrGraph,TimedDcrGraph],
           variant=DEFAULT_VARIANT, parameters=None) -> Tuple[PetriNet, Marking, Marking|None]:
     """
     Converts a DCR Graph to a Petri Net
@@ -52,7 +52,7 @@ def apply(obj: Union[DcrGraph,MilestoneNoResponseDcrGraph,GroupSubprocessDcrGrap
     """
     if parameters is None:
         parameters = {}
-    if isinstance(obj, GroupSubprocessDcrGraph):
+    if isinstance(obj, NestingSubprocessDcrGraph):
         obj = nested_groups_and_sps_to_flat_dcr(obj)
     obj = deepcopy(obj).obj_to_template()
     net, im = exec_utils.get_variant(variant).apply(obj, parameters=parameters)

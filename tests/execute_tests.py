@@ -403,7 +403,8 @@ def main():
 if __name__ == "__main__":
     import warnings
     from pandas.errors import SettingWithCopyWarning, PerformanceWarning
-
+    import pandas as pd
+    pd.set_option('future.no_silent_downcasting', True)
     warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
     warnings.simplefilter(action="ignore", category=PerformanceWarning)
     warnings.filterwarnings(

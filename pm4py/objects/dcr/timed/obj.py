@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from pm4py.objects.dcr.obj import Marking
-from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
+from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
 
 from typing import Dict
 
@@ -22,7 +22,7 @@ class TimedMarking(Marking):
         return self.__pending_deadline
 
 
-class TimedDcrGraph(GroupSubprocessDcrGraph):
+class TimedDcrGraph(NestingSubprocessDcrGraph):
 
     def __init__(self, template=None, timing_dict=None):
         super().__init__(template)

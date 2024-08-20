@@ -1,8 +1,6 @@
 import os
 
-from pm4py import DcrGraph
 from pm4py.objects.petri_net.obj import *
-from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 
 from pm4py.objects.conversion.dcr.variants.to_petri_net_submodules import exceptional_cases, single_relations, preoptimizer, utils
@@ -137,12 +135,13 @@ class Dcr2PetriNet(object):
         -------
         Reduced petri net
         """
-        from pm4py.objects.petri_net.utils import reachability_graph
+        from pm4py.objects.petri_net.utils import petri_utils
         from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
+        from pm4py.objects.conversion.dcr.variants import reachability_analysis
         max_elab_time = 2 * 60 * 60  # 2 hours
         if self.reachability_timeout:
             max_elab_time = self.reachability_timeout
-        trans_sys = reachability_graph.construct_reachability_graph(net, m, use_trans_name=True,
+        trans_sys = reachability_analysis.construct_reachability_graph(net, m, use_trans_name=True,
                                                                     parameters={
                                                                         'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
                                                                         'max_elab_time': max_elab_time
@@ -161,7 +160,7 @@ class Dcr2PetriNet(object):
             if t.name not in fired_transitions:
                 ts_to_remove.add(t)
         for t in ts_to_remove:
-            net = pn_utils.remove_transition(net, t)
+            net = petri_utils.remove_transition(net, t)
 
         changed_places = set()
         for state_list in trans_sys.states:
@@ -204,7 +203,7 @@ class Dcr2PetriNet(object):
         ps_to_remove = ps_to_remove.union(parallel_places)
 
         for p in ps_to_remove:
-            net = pn_utils.remove_place(net, p)
+            net = petri_utils.remove_place(net, p)
 
         for p, name in places_to_rename.items():
             p.name = name

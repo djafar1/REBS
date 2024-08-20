@@ -16,7 +16,7 @@ from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGra
 from typing import Set, Dict
 
 
-class GroupSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
+class NestingSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
     """
     This class extends the MilestoneNoResponseDcrGraph to include nested groups
     and subprocesses, allowing for more complex hierarchical structures in DCR Graphs.

@@ -18,7 +18,7 @@ M = Relations.M.value
 def apply(path, parameters=None):
     '''
     Reads a DCR graph from an XML file
-
+    Marquard et al. "Web-Based Modelling and Collaborative Simulation of Declarative Processes" https://doi.org/10.1007/978-3-319-23063-4_15
     Parameters
     ----------
     path
