@@ -29,6 +29,8 @@ class Marking(Counter):
         return r
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            print(other)
         if not self.keys() == other.keys():
             return False
         for p in self.keys():

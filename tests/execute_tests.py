@@ -401,4 +401,12 @@ def main():
 
 
 if __name__ == "__main__":
+    import warnings
+    from pandas.errors import SettingWithCopyWarning, PerformanceWarning
+
+    warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
+    warnings.simplefilter(action="ignore", category=PerformanceWarning)
+    warnings.filterwarnings(
+        action='ignore', category=UserWarning, message=r"Boolean Series.*"
+    )
     main()

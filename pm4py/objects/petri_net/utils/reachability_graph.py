@@ -82,7 +82,7 @@ def marking_flow_petri(net, im, return_eventually_enabled=False, parameters=None
         m = active.pop()
         enabled_transitions = semantics.enabled_transitions(net, m)
         if return_eventually_enabled:
-            eventually_enabled[m] = align_utils.get_visible_transitions_eventually_enabled_by_marking(net, m, semantics)
+            eventually_enabled[m] = align_utils.get_visible_transitions_eventually_enabled_by_marking(net, m)
         outgoing_transitions[m] = {}
         for t in enabled_transitions:
             nm = semantics.weak_execute(t, net, m)

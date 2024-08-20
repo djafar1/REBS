@@ -190,7 +190,7 @@ def convert_to_petri_net(obj: Union[BPMN, ProcessTree, HeuristicsNet, DcrGraph, 
     """
     if isinstance(obj, PetriNet):
         # the object is already a Petri net
-        return obj, args[1], args[2]
+        return obj, args[0], args[1]
     elif isinstance(obj, ProcessTree):
         if isinstance(obj, POWL):
             from pm4py.objects.conversion.powl import converter
@@ -207,8 +207,8 @@ def convert_to_petri_net(obj: Union[BPMN, ProcessTree, HeuristicsNet, DcrGraph, 
         # DFG
         from pm4py.objects.conversion.dfg.variants import to_petri_net_activity_defines_place
         return to_petri_net_activity_defines_place.apply(obj, parameters={
-            to_petri_net_activity_defines_place.Parameters.START_ACTIVITIES: args[1],
-            to_petri_net_activity_defines_place.Parameters.END_ACTIVITIES: args[2]})
+            to_petri_net_activity_defines_place.Parameters.START_ACTIVITIES: args[0],
+            to_petri_net_activity_defines_place.Parameters.END_ACTIVITIES: args[1]})
     elif isinstance(obj, TimedDcrGraph):
         from pm4py.objects.conversion.dcr import converter
         return converter.apply(obj,variant=converter.Variants.TO_TIMED_ARC_PETRI_NET, parameters=kwargs)
