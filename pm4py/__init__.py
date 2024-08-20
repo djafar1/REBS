@@ -78,5 +78,6 @@ from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.objects.bpmn.obj import BPMN
+from pm4py.objects.dcr.obj import DcrGraph
 
 time.clock = time.process_time

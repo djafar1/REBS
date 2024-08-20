@@ -23,7 +23,10 @@ class Marking(Counter):
     pass
 
     def __hash__(self):
-        return frozenset(self).__hash__() # credits egrocha
+        r = 0
+        for p in self.items():
+            r += 31 * hash(p[0]) * p[1]
+        return r
 
     def __eq__(self, other):
         if not self.keys() == other.keys():
@@ -74,6 +77,7 @@ class Marking(Counter):
                                                                                          properties=place.properties)
             marking[new_place] = place_occ
         return marking
+
 
 class PetriNet(object):
     class Place(object):
@@ -298,7 +302,7 @@ class PetriNet(object):
         return id(self) == id(other)
 
     def __deepcopy__(self, memodict={}):
-        from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
+        from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
         this_copy = PetriNet(self.name)
         memodict[id(self)] = this_copy
         for place in self.places:
@@ -310,7 +314,7 @@ class PetriNet(object):
             this_copy.transitions.add(trans_copy)
             memodict[id(trans)] = trans_copy
         for arc in self.arcs:
-            add_arc_from_to(memodict[id(arc.source)], memodict[id(arc.target)], this_copy, weight=arc.weight)
+            add_arc_from_to_with_check(memodict[id(arc.source)], memodict[id(arc.target)], this_copy, weight=arc.weight)
         return this_copy
 
     def __repr__(self):

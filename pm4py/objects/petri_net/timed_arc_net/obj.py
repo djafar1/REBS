@@ -40,4 +40,3 @@ class TimedArcNet(InhibitorNet):
             return self.properties[AGE_INVARIANT]
 
         age_invariant = property(__get_age_invariant, __set_age_invariant)
-

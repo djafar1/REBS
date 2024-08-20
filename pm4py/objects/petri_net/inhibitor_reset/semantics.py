@@ -15,6 +15,7 @@
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
 import copy
+from pm4py.objects.petri_net import properties
 from pm4py.objects.petri_net.sem_interface import Semantics
 from pm4py.objects.petri_net.obj import ResetNet
 from pm4py.objects.petri_net.obj import InhibitorNet
@@ -94,7 +95,9 @@ def is_enabled(t, pn, m):
         return False
     else:
         for a in t.in_arcs:
-            if isinstance(a, InhibitorNet.InhibitorArc):
+            if isinstance(a, InhibitorNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
+                                                                                                    a.properties[properties.ARCTYPE] == "tapnInhibitor" or
+                                                                                                    a.properties[properties.ARCTYPE] == "inhibitor")):
                 if m[a.source] > 0:
                     return False
             elif isinstance(a, ResetNet.ResetArc):
@@ -113,7 +116,9 @@ def execute(t, pn, m):
         if isinstance(a, ResetNet.ResetArc):
             m_out[a.source] = 0
             del m_out[a.source]
-        elif isinstance(a, InhibitorNet.InhibitorArc):
+        elif isinstance(a, InhibitorNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
+                                                                                                  a.properties[properties.ARCTYPE] == "tapnInhibitor" or
+                                                                                                  a.properties[properties.ARCTYPE] == "inhibitor")):
             pass
         else:
             m_out[a.source] -= a.weight
@@ -132,7 +137,9 @@ def weak_execute(t, m):
         if isinstance(a, ResetNet.ResetArc):
             m_out[a.source] = 0
             del m_out[a.source]
-        elif isinstance(a, InhibitorNet.InhibitorArc):
+        elif isinstance(a, InhibitorNet.InhibitorArc) or (properties.ARCTYPE in a.properties and (a.properties[properties.ARCTYPE] == properties.INHIBITOR_ARC or
+                                                                                                  a.properties[properties.ARCTYPE] == "tapnInhibitor" or
+                                                                                                  a.properties[properties.ARCTYPE] == "inhibitor")):
             pass
         else:
             m_out[a.source] -= a.weight

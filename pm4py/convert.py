@@ -24,6 +24,8 @@ import pandas as pd
 from copy import deepcopy
 
 from pm4py.objects.bpmn.obj import BPMN
+from pm4py.objects.dcr.obj import DcrGraph
+from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.objects.powl.obj import POWL
 from pm4py.objects.heuristics_net.obj import HeuristicsNet
@@ -169,13 +171,13 @@ def convert_to_bpmn(*args: Union[Tuple[PetriNet, Marking, Marking], ProcessTree]
     raise Exception("unsupported conversion of the provided object to BPMN")
 
 
-def convert_to_petri_net(*args: Union[BPMN, ProcessTree, HeuristicsNet, POWL, dict]) -> Tuple[PetriNet, Marking, Marking]:
+def convert_to_petri_net(obj: Union[BPMN, ProcessTree, HeuristicsNet, DcrGraph, POWL, dict], *args, **kwargs) -> Tuple[PetriNet, Marking, Marking]:
     """
     Converts an input model to an (accepting) Petri net.
-    The input objects can either be a process tree, BPMN model or a Heuristic net.
+    The input objects can either be a process tree, BPMN model, a Heuristic net or a Dcr Graph.
     The output is a triple, containing the Petri net and the initial and final markings. The markings are only returned if they can be reasonable derived from the input model.
 
-    :param args: process tree, Heuristics net, BPMN or POWL model
+    :param args: process tree, Heuristics net, BPMN, POWL model or Dcr Graph
     :rtype: ``Tuple[PetriNet, Marking, Marking]``
     
     .. code-block:: python3
@@ -186,27 +188,33 @@ def convert_to_petri_net(*args: Union[BPMN, ProcessTree, HeuristicsNet, POWL, di
        process_tree = pm4py.read_ptml("tests/input_data/running-example.ptml")
        net, im, fm = pm4py.convert_to_petri_net(process_tree)
     """
-    if isinstance(args[0], PetriNet):
+    if isinstance(obj, PetriNet):
         # the object is already a Petri net
-        return args[0], args[1], args[2]
-    elif isinstance(args[0], ProcessTree):
-        if isinstance(args[0], POWL):
+        return obj, args[1], args[2]
+    elif isinstance(obj, ProcessTree):
+        if isinstance(obj, POWL):
             from pm4py.objects.conversion.powl import converter
-            return converter.apply(args[0])
+            return converter.apply(obj)
         from pm4py.objects.conversion.process_tree.variants import to_petri_net
-        return to_petri_net.apply(args[0])
-    elif isinstance(args[0], BPMN):
+        return to_petri_net.apply(obj)
+    elif isinstance(obj, BPMN):
         from pm4py.objects.conversion.bpmn.variants import to_petri_net
-        return to_petri_net.apply(args[0])
-    elif isinstance(args[0], HeuristicsNet):
+        return to_petri_net.apply(obj)
+    elif isinstance(obj, HeuristicsNet):
         from pm4py.objects.conversion.heuristics_net.variants import to_petri_net
-        return to_petri_net.apply(args[0])
-    elif isinstance(args[0], dict):
+        return to_petri_net.apply(obj)
+    elif isinstance(obj, dict):
         # DFG
         from pm4py.objects.conversion.dfg.variants import to_petri_net_activity_defines_place
-        return to_petri_net_activity_defines_place.apply(args[0], parameters={
+        return to_petri_net_activity_defines_place.apply(obj, parameters={
             to_petri_net_activity_defines_place.Parameters.START_ACTIVITIES: args[1],
             to_petri_net_activity_defines_place.Parameters.END_ACTIVITIES: args[2]})
+    elif isinstance(obj, TimedDcrGraph):
+        from pm4py.objects.conversion.dcr import converter
+        return converter.apply(obj,variant=converter.Variants.TO_TIMED_ARC_PETRI_NET, parameters=kwargs)
+    elif isinstance(obj, DcrGraph):
+        from pm4py.objects.conversion.dcr import converter
+        return converter.apply(obj,variant=converter.Variants.TO_INHIBITOR_NET , parameters=kwargs)
     # if no conversion is done, then the format of the arguments is unsupported
     raise Exception("unsupported conversion of the provided object to Petri net")
 

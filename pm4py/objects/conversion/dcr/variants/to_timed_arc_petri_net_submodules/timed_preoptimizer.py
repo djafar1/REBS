@@ -8,7 +8,6 @@ class TimedPreoptimizer(object):
     un_executable_events = set()
 
     def pre_optimize_based_on_dcr_behaviour(self, G):
-        need_pending_excluded_place = set()
 
         inclusion_events = set()
         exclusion_events = set()
@@ -24,10 +23,10 @@ class TimedPreoptimizer(object):
             exclusion_events = exclusion_events.union(set(G['excludesTo'][event] if event in G['excludesTo'] else set()))
 
             condition_events = condition_events.union(set(G['conditionsFor'][event] if event in G['conditionsFor'] else set()))
+            milestone_events = milestone_events.union(set(G['milestonesFor'][event] if event in G['milestonesFor'] else set()))
 
             response_events = response_events.union(set(G['responseTo'][event] if event in G['responseTo'] else set()))
             no_response_events = no_response_events.union(set(G['noResponseTo'][event] if event in G['noResponseTo'] else set()))
-            milestone_events = milestone_events.union(set(G['milestonesFor'][event] if event in G['milestonesFor'] else set()))
 
         not_included_events = set(G['events']).difference(set(G['marking']['included']))
         not_pending_events = set(G['events']).difference(set(G['marking']['pending']))

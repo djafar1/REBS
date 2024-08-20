@@ -314,15 +314,7 @@ class DcrGraph(object):
         """
         for event, label in self.label_map.items():
             if activity == label:
-                # returns only the first event matched
-                # if the intention is to return all events matched then it needs to return a list of strings
                 return event
-        # event = self.__labelMap.get(activity, None)
-        # if event is None:
-        #     return activity
-        # event = event.pop()
-        # self.__labelMap[activity].add(event)
-        # return event
 
     def get_activity(self, event: str) -> str:
         """
@@ -339,13 +331,6 @@ class DcrGraph(object):
             the activity of the event
         """
         return self.label_map[event]
-        # for activity in self.__labelMap:
-        #     event_prime = self.__labelMap[activity]
-        #     event_prime = event_prime.pop()
-        #     self.__labelMap[activity].add(event_prime)
-        #     if event == event_prime:
-        #         return activity
-        # return event
 
     def get_constraints(self) -> int:
         """

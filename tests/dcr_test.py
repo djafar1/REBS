@@ -343,8 +343,8 @@ class TestConformanceDCR(unittest.TestCase):
         dcr, _ = pm4py.discover_dcr(log)
         # when running getConstraints
         no = dcr.get_constraints()
-        # then object, should contain 30 constraints
-        self.assertTrue(no == 30)
+        # then object, should contain 28 constraints
+        self.assertTrue(no == 28)
 
         del log
         del dcr
@@ -551,8 +551,8 @@ class TestConformanceDCR(unittest.TestCase):
         # when running getConstraints
         no = dcr.get_constraints()
         # then object, should contain the roleAssignment
-        # 31 original constraints, but also, 19 additional role assignments
-        self.assertTrue(no == 49)
+        # 28 original constraints, but also, 19 additional role assignments
+        self.assertTrue(no == 47)
 
         del log
         del dcr
@@ -848,7 +848,7 @@ class TestAlignment(unittest.TestCase):
         self.assertIsInstance(align_res,pd.DataFrame)
 
         for index,row in align_res.iterrows():
-            self.assertTrue(row['fitness'] == 1.0)
+            self.assertTrue(row['align_fitness'] == 1.0)
         del log_path
         del align_res
 
@@ -875,7 +875,6 @@ class TestAlignment(unittest.TestCase):
 
         alignment_obj = Alignment(graph_handler, trace_handler)
         dcr_trace_result = alignment_obj.apply_trace()
-
         self.assertIsNotNone(dcr_trace_result)
         self.assertIn('alignment', dcr_trace_result)
         self.assertGreaterEqual(len(dcr_trace_result['alignment']),len(trace))
@@ -898,7 +897,7 @@ class TestAlignment(unittest.TestCase):
         res = pm4py.optimal_alignment_dcr(self.log, self.dcr, return_diagnostics_dataframe=True)
         self.assertIsInstance(res,pd.DataFrame)
         for index,row in res.iterrows():
-            self.assertTrue(row['fitness'] == 1.0)
+            self.assertTrue(row['align_fitness'] == 1.0)
 
 class TestImportExportDCR(unittest.TestCase):
 

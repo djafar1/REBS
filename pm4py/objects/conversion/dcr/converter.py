@@ -1,5 +1,6 @@
+from copy import deepcopy
 from enum import Enum
-from typing import Union
+from typing import Union, Tuple
 
 from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
 from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph
@@ -20,7 +21,7 @@ DEFAULT_VARIANT = Variants.TO_INHIBITOR_NET
 
 
 def apply(obj: Union[DcrGraph,MilestoneNoResponseDcrGraph,GroupSubprocessDcrGraph,TimedDcrGraph],
-          variant=DEFAULT_VARIANT, parameters=None) -> (PetriNet, Marking):
+          variant=DEFAULT_VARIANT, parameters=None) -> Tuple[PetriNet, Marking, Marking|None]:
     """
     Converts a DCR Graph to a Petri Net
 
@@ -41,14 +42,18 @@ def apply(obj: Union[DcrGraph,MilestoneNoResponseDcrGraph,GroupSubprocessDcrGrap
             -debug: True if debug information should be displayed and a Petri Net for each step in the conversion should be generated else False
     Returns
     --------
-    A petri net and its initial marking based on the input DCR Graph
+    A Petri Net, an initial marking and None representing that there is no final marking
+
 
     References:
-    [1] Lasse Jacobsen, Morten Jacobsen, Mikael H. Møller, and Jirı Srba. "Verification of Timed-Arc Petri Nets" https://doi.org/10.1007/978-3-642-18381-2_4
+        [1] Lasse Jacobsen, Morten Jacobsen, Mikael H. Møller, and Jirı Srba. "Verification of Timed-Arc Petri Nets" https://doi.org/10.1007/978-3-642-18381-2_4
+    Note:
+        The Petri Net final marking is None as declarative DCR Graphs have no unique accepting state based on its markings
     """
     if parameters is None:
         parameters = {}
     if isinstance(obj, GroupSubprocessDcrGraph):
         obj = nested_groups_and_sps_to_flat_dcr(obj)
-    obj = obj.obj_to_template()
-    return exec_utils.get_variant(variant).apply(obj, parameters=parameters)
+    obj = deepcopy(obj).obj_to_template()
+    net, im = exec_utils.get_variant(variant).apply(obj, parameters=parameters)
+    return net, im, None

@@ -25,8 +25,10 @@ from pm4py.util import constants
 
 def export_petri_tree(petrinet, marking, final_marking=None, export_prom5=False, parameters=None):
     """
-    Export a Petrinet to a XML tree as a TAPN that can be imported to TAPAAL
+    Export a Petrinet to a XML tree as a TAPN that can be imported to the TAPAAL verification tool
 
+    Reference paper:
+    Lasse Jacobsen, Morten Jacobsen, Mikael H. Møller, and Jirı Srba. "Verification of Timed-Arc Petri Nets" https://doi.org/10.1007/978-3-642-18381-2_4
     Parameters
     ----------
     petrinet: :class:`pm4py.entities.petri.petrinet.PetriNet`
@@ -54,7 +56,7 @@ def export_petri_tree(petrinet, marking, final_marking=None, export_prom5=False,
     root = etree.Element("pnml")
     root.set("xmlns", "http://www.informatik.hu-berlin.de/top/pnml/ptNetb")
     net = etree.SubElement(root, "net")
-    net.set("id", "netFromDCR")
+    net.set("id", "net")
     net.set("type", "P/T net")
     net.set("active", "true")
     page = net

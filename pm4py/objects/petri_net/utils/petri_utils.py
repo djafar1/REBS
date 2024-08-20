@@ -153,16 +153,16 @@ def remove_place(net: PetriNet, place: PetriNet.Place) -> PetriNet:
         net.places.remove(place)
     return net
 
+
 def check_arc_exists(source, target, tapn:PetriNet):
     if source in tapn.arc_matrix and target in tapn.arc_matrix[source]:
         return tapn.arc_matrix[source][target]
     else:
         return False
 
-def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False) -> PetriNet.Arc:
+def add_arc_from_to_with_check(fr, to, net: PetriNet, weight=1, type=None, with_check=False) -> PetriNet.Arc:
     """
-    TODO: merge add_arc_from_to into add_arc_from_to_newer
-    Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
+    Adds an arc from a specific element to another element in some net. Will not add the arc if from and to are not in the net!
 
     Parameters
     ----------
@@ -170,7 +170,7 @@ def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False
     to:  transition/place to
     net: net to use
     weight: weight associated to the arc
-
+    with_check: if True will check if an arc already exists, if False it will override the existing arc
     Returns
     -------
     None
@@ -189,9 +189,10 @@ def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None, with_check=False
         net.arc_matrix[fr][to] = True
 
     return a
-def add_arc_from_to_newer(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
+
+
+def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
     """
-    TODO: merge add_arc_from_to into add_arc_from_to_newer
     Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
 
     Parameters
@@ -206,9 +207,7 @@ def add_arc_from_to_newer(fr, to, net: PetriNet, weight=1, type=None) -> PetriNe
     None
     """
     if type == properties.INHIBITOR_ARC:
-        if isinstance(net, InhibitorNet) or isinstance(net, TimedArcNet):
-            if isinstance(fr, PetriNet.Transition):
-                raise Exception("trying to add an inhibitor arc from a Transition object is prohibited.")
+        if isinstance(net, InhibitorNet):
             a = InhibitorNet.InhibitorArc(fr, to, weight)
             a.properties[properties.ARCTYPE] = type
         else:
@@ -225,12 +224,6 @@ def add_arc_from_to_newer(fr, to, net: PetriNet, weight=1, type=None) -> PetriNe
             #a.properties[properties.ARCTYPE] = type
         else:
             raise Exception("trying to add a stochastic arc on a traditional Petri net object.")
-    elif type == properties.TRANSPORT_ARC:
-        if isinstance(net, TimedArcNet):
-            a = TimedArcNet.TransportArc(fr, to, weight)
-            a.properties[properties.ARCTYPE] = type
-        else:
-            raise Exception("trying to add a transport arc on a traditional Petri net object.")
     else:
         a = PetriNet.Arc(fr, to, weight)
     net.arcs.add(a)
@@ -268,8 +261,8 @@ def construct_trace_net(trace, trace_name_key=xes_util.DEFAULT_NAME_KEY, activit
         # 16/02/2021: set the place index as property of the place of the trace net
         place_map[i + 1].properties[properties.TRACE_NET_PLACE_INDEX] = i + 1
         net.places.add(place_map[i + 1])
-        add_arc_from_to(place_map[i], t, net)
-        add_arc_from_to(t, place_map[i + 1], net)
+        add_arc_from_to_with_check(place_map[i], t, net)
+        add_arc_from_to_with_check(t, place_map[i + 1], net)
     return net, Marking({place_map[0]: 1}), Marking({place_map[len(trace)]: 1})
 
 
@@ -306,8 +299,8 @@ def construct_trace_net_cost_aware(trace, costs, trace_name_key=xes_util.DEFAULT
         # 16/02/2021: set the place index as property of the place of the trace net
         place_map[i + 1].properties[properties.TRACE_NET_PLACE_INDEX] = i + 1
         net.places.add(place_map[i + 1])
-        add_arc_from_to(place_map[i], t, net)
-        add_arc_from_to(t, place_map[i + 1], net)
+        add_arc_from_to_with_check(place_map[i], t, net)
+        add_arc_from_to_with_check(t, place_map[i + 1], net)
     return net, Marking({place_map[0]: 1}), Marking({place_map[len(trace)]: 1}), cost_map
 
 
