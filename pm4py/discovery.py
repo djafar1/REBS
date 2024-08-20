@@ -868,10 +868,10 @@ def discover_batches(log: Union[EventLog, pd.DataFrame], merge_distance: int = 1
     return batches_discovery.apply(log, parameters=properties)
 
 
-def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[Union[ExtensionVariants,str]] = None, activity_key: str = "concept:name",
+def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[str] = None, activity_key: str = "concept:name",
                  timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name",
                  resource_key: str = "org:resource", group_key: str = "org:group",
-                 finaAdditionalConditions: bool = True) -> Tuple[Any, Dict[str, Any]]:
+                 finaAdditionalConditions: bool = True, **kwargs) -> Tuple[Any, Dict[str, Any]]:
     """
     Discovers a DCR graph from an event log based on the DisCoveR algorithm.
     This method implements the DCR discovery algorithm as described in:
@@ -914,6 +914,7 @@ def discover_dcr(log: Union[EventLog, pd.DataFrame], post_process: Set[Union[Ext
     properties = get_properties(
         log, activity_key=activity_key, case_id_key=case_id_key, timestamp_key=timestamp_key,
         resource_key=resource_key, group_key=group_key)
+    properties = {**properties, **kwargs}
 
     from pm4py.algo.discovery.dcr_discover import algorithm as dcr_alg
     from pm4py.algo.discovery.dcr_discover.variants import dcr_discover

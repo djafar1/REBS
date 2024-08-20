@@ -4,7 +4,7 @@ import pandas as pd
 import networkx as nx
 from typing import Optional, Any, Union, Dict
 
-from pm4py.objects.dcr.obj import dcr_template, Relations, DcrGraph
+from pm4py.objects.dcr.obj import dcr_template, DcrGraph, TemplateRelations as Relations
 from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
 from pm4py.objects.log.obj import EventLog
 
@@ -75,8 +75,9 @@ class NestingMining:
         NestedDCRGraph(G, dcr)
             returns a DCR graph with nested groups
         """
-
-        nest_variant = parameters['nest_variant']
+        nest_variant = NestVariants.CHOICE_NEST
+        if 'nest_variant' in parameters:
+            nest_variant = parameters['nest_variant']
         # from the parameters ask which type of nesting do you want
         match nest_variant.value:
             case NestVariants.CHOICE.value:
@@ -112,13 +113,14 @@ class Choice(object):
             for me_event in me_events:
                 self.nesting_template['nestedgroupsMap'][me_event] = name
                 for me_prime in me_events:
-                    core_dcr[Relations.E.value][me_event].discard(me_prime)
-                    core_dcr[Relations.E.value][me_prime].discard(me_event)
-            core_dcr[Relations.E.value][name] = set([name])
+                    core_dcr.excludes[me_event].discard(me_prime)
+                    core_dcr.excludes[me_prime].discard(me_event)
+            core_dcr.excludes[name] = set([name])
 
+        from pm4py.objects.dcr.obj import Relations as ObjRel
         for name, me_events in self.nesting_template['nestedgroups'].items():
             external_events_to_check = core_dcr.events.difference(me_events.union(set(name)))
-            for r in Relations:
+            for r in [ObjRel.C,ObjRel.R,ObjRel.I,ObjRel.E]:
                 rel = r.value
                 for e in external_events_to_check:
                     all_internal_same_relation = True

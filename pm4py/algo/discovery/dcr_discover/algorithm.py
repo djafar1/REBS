@@ -8,7 +8,7 @@ from typing import Union, Any, Optional, Dict, Tuple, Set
 
 
 class ExtensionVariants(Enum):
-    DCR_ROLES = roles
+    ROLES = roles
     PENDING = pending
     TIMED = time_constraints
     NESTING = nesting
@@ -19,7 +19,7 @@ class Variants(Enum):
 
 
 DCR_DISCOVER = Variants.DCR_DISCOVER
-DCR_ROLES = ExtensionVariants.DCR_ROLES
+ROLES = ExtensionVariants.ROLES
 DCR_PENDING = ExtensionVariants.PENDING
 DCR_TIMED = ExtensionVariants.TIMED
 DCR_NESTING = ExtensionVariants.NESTING
@@ -27,7 +27,7 @@ VERSIONS = {DCR_DISCOVER}
 
 
 def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAdditionalConditions: bool = True,
-          post_process: Optional[Set[ExtensionVariants]] = None, parameters: Optional[Dict[Any, Any]] = None) -> Tuple[Any, dict]:
+          post_process: Optional[Set[str]] = None, parameters: Optional[Dict[Any, Any]] = None) -> Tuple[Any, dict]:
     """
     discover a DCR graph from a provided event log, implemented the DisCoveR algorithm presented in [1]_.
     Allows for mining for additional attribute currently implemented mining of organisational attributes.
@@ -71,12 +71,12 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAddition
     if post_process is None:
         post_process = set()
 
-    if DCR_ROLES in post_process:
-        graph = exec_utils.get_variant(DCR_ROLES).apply(input_log, graph, parameters=parameters)
-    if DCR_PENDING in post_process:
+    if 'roles' in post_process:
+        graph = exec_utils.get_variant(ROLES).apply(input_log, graph, parameters=parameters)
+    if 'pending' in post_process:
         graph = exec_utils.get_variant(DCR_PENDING).apply(input_log, graph, parameters=parameters)
-    if DCR_TIMED in post_process:
+    if 'timed' in post_process:
         graph = exec_utils.get_variant(DCR_TIMED).apply(input_log, graph, parameters=parameters)
-    if DCR_NESTING in post_process:
+    if 'nesting' in post_process:
         graph = exec_utils.get_variant(DCR_NESTING).apply(graph, parameters=parameters)
     return graph, la

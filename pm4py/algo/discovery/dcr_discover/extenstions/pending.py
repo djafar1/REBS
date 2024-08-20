@@ -10,7 +10,7 @@ from pm4py.objects.dcr.semantics import DcrSemantics
 from pm4py.objects.log.obj import EventLog
 
 
-def apply(log: Union[pd.DataFrame,EventLog], graph: DcrGraph, ignore_lifecycle: bool=True):
+def apply(log: Union[pd.DataFrame,EventLog], graph: DcrGraph, parameters):
     """
     An extension to the DCR Graphs discovery algorithm for the discovery of initially pending events
     Parameters
@@ -26,6 +26,10 @@ def apply(log: Union[pd.DataFrame,EventLog], graph: DcrGraph, ignore_lifecycle: 
     ----------
     An updated DCR Graph with the Pending Marking updated to contain initially pending events
     """
+    ignore_lifecycle = True
+    if 'ignore_lifecycle' in parameters:
+        ignore_lifecycle = parameters["ignore_lifecycle"]
+
     if isinstance(log, pd.DataFrame):
         log = pm4py.convert_to_event_log(log)
 

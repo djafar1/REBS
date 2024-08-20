@@ -1398,6 +1398,34 @@ def view_dcr(dcr: DcrGraph, format: str = constants.DEFAULT_FORMAT_GVIZ_VIEW, bg
         dcr = pm4py.discover_dcr(dataframe)
         pm4py.view_dcr(dcr, format='svg')
     """
+    format = str(format).lower()
     from pm4py.visualization.dcr import visualizer as dcr_visualizer
-    dcr_visualizer.apply(dcr)
+    gviz = dcr_visualizer.apply(dcr,parameters={"format": format, "bgcolor": bgcolor, "set_rankdir": rankdir})
+    dcr_visualizer.view(gviz)
 
+def save_vis_dcr(dcr: DcrGraph, file_path: str, bgcolor: str = "white",
+                   decorations: Dict[Any, Any] = None, debug: bool = False, rankdir: str = constants.DEFAULT_RANKDIR_GVIZ, **kwargs):
+    """
+    Saves a Petri net visualization to a file
+
+    :param petri_net: Petri net
+    :param initial_marking: Initial marking
+    :param final_marking: Final marking
+    :param file_path: Destination path
+    :param bgcolor: Background color of the visualization (default: white)
+    :param decorations: Decorations (color, label) associated to the elements of the Petri net
+    :param debug: Boolean enabling/disabling the debug mode (show place and transition's names)
+    :param rankdir: sets the direction of the graph ("LR" for left-to-right; "TB" for top-to-bottom)
+
+    .. code-block:: python3
+
+        import pm4py
+
+        net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        pm4py.save_vis_petri_net(net, im, fm, 'petri_net.png')
+    """
+    file_path = str(file_path)
+    format = os.path.splitext(file_path)[1][1:].lower()
+    from pm4py.visualization.dcr import visualizer as dcr_visualizer
+    gviz = dcr_visualizer.apply(dcr, parameters={"format": format, "bgcolor": bgcolor, "set_rankdir": rankdir})
+    return dcr_visualizer.save(gviz, file_path)
