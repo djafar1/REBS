@@ -14,6 +14,10 @@ Classes:
 This module enhances the DCR Graph model with the ability to represent and
 manage time-based constraints, enabling more accurate modelling of real-world
 processes where timing plays a crucial role.
+
+References
+----------
+.. [1] Hildebrandt, T., Mukkamala, R.R., Slaats, T., Zanitti, F. (2013). Contracts for cross-organizational workflows as timed Dynamic Condition Response Graphs. The Journal of Logic and Algebraic Programming, 82(5-7), 164-185. `DOI <https://doi.org/10.1016/j.jlap.2013.05.005>`_.
 """
 from datetime import timedelta
 
