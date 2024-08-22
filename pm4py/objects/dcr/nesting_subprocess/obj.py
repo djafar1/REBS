@@ -6,11 +6,17 @@ The module adds functionality to handle hierarchical structures in DCR Graphs,
 allowing for more complex process models with nested elements and subprocesses.
 
 Classes:
-    GroupSubprocessDcrGraph: Extends MilestoneNoResponseDcrGraph to include nested groups and subprocesses.
+    NestingSubprocessDcrGraph: Extends MilestoneNoResponseDcrGraph to include nested groups and subprocesses.
 
 This class provides methods to manage and manipulate nested groups and subprocesses
 within a DCR Graph, enhancing the model's ability to represent complex organizational
 structures and process hierarchies.
+
+References
+----------
+.. [1] Hildebrandt, T., Mukkamala, R.R., Slaats, T. (2012). Nested Dynamic Condition Response Graphs. In: Arbab, F., Sirjani, M. (eds) Fundamentals of Software Engineering. FSEN 2011. Lecture Notes in Computer Science, vol 7141. Springer, Berlin, Heidelberg. `DOI <https://doi.org/10.1007/978-3-642-29320-7_23>`_.
+
+.. [2] Normann, H., Debois, S., Slaats, T., Hildebrandt, T.T. (2021). Zoom and Enhance: Action Refinement via Subprocesses in Timed Declarative Processes. In: Polyvyanyy, A., Wynn, M.T., Van Looy, A., Reichert, M. (eds) Business Process Management. BPM 2021. Lecture Notes in Computer Science(), vol 12875. Springer, Cham. `DOI <https://doi.org/10.1007/978-3-030-85469-0_12>`_.
 """
 from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph
 from typing import Set, Dict
