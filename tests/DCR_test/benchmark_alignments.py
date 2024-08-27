@@ -1,221 +1,129 @@
 import os
-
-import pm4py
+import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import time
-import logging
-import cProfile
+from pm4py.objects.log.util.split_train_test import split
+import pm4py
+from pm4py.algo.conformance.alignments.dcr.variants import optimal
+from pm4py.algo.discovery.dfg.variants import performance as dfg_performance
+from pm4py.algo.conformance.alignments.dfg.variants import classic as dfg_alignment
+from pm4py.objects.conversion.log import converter as log_converter
 from collections import Counter
 
-from pm4py.algo.discovery.dcr_discover.algorithm import apply
-from pm4py.algo.discovery.dcr_discover.variants import dcr_discover
-from pm4py.algo.conformance.alignments.dcr.variants import optimal
-from pm4py.objects.conversion.log import converter as log_converter
-from pm4py.algo.conformance.alignments.dfg.variants import classic
-from pm4py.algo.discovery.dfg.variants import performance
-from pm4py.algo.evaluation.compliance.variants.confusion_matrix import ComplianceChecker
+
+def read_log(path, input_log):
+    log = pm4py.read_xes(os.path.join(path, input_log))
+    # Convert DataFrame to EventLog if necessary
+    if isinstance(log, pd.DataFrame):
+        log = log_converter.apply(log)
+    return log
 
 
-def apply_trace_to_log(training_log, G):
-    print("Inside apply_trace_to_log function.")
-    #graph_handler = optimal.DCRGraphHandler(G)
-    #optimal.LogAlignment(training_log,G)
-    #trace_handler = optimal.TraceHandler(training_log, 'concept:name')
-    print("About to create Alignment object.")
-    print("About to call apply_trace on Alignment object.")
-    return optimal.apply(training_log,G)
+def write_csv(temp, res_file):
+    data = pd.DataFrame(temp)
+    if os.path.isfile(res_file):
+        data.to_csv(res_file, sep=",", mode="a", header=False, index=False)
+    else:
+        data.to_csv(res_file, sep=";", index=False)
 
 
-def benchmark_optimal():
-    repeat = 10
-    times = []
-    no_event = []
-    no_of_act = []
-
-    for i in range(1, 11):
-        print(f"Starting iteration {i}")
-        result = []
-        print("Reading and converting log...")
-        training_log = pm4py.read_xes('../input_data/pdc/pdc_2019/Training Logs/pdc_2019_' + str(i) + '.xes')
-        add = pd.date_range('2018-04-09', periods=len(training_log), freq='20min')
-        training_log['time:timestamp'] = add
-        # Convert DataFrame to EventLog
-        if isinstance(training_log, pd.DataFrame):
-            training_log = log_converter.apply(training_log)
-            print(len(training_log))
-        print("Generating DCR graph...")
-        # Generate DCR graph
-        dcr_result = apply(training_log, dcr_discover)
-        G = dcr_result[0]
-
-        # Benchmarking
-        warm_up_runs = 1
-        print("Starting warm-up runs...")
-        for idx in range(warm_up_runs):
-            print(f"Warm-up run {idx + 1}")
-            apply_trace_to_log(training_log, G)
-        print("Completed warm-up runs.")
-
-        test_log = pm4py.read_xes('../input_data/pdc/pdc_2019/Test Logs/pdc_2019_' + str(i) + '.xes')
-        add = pd.date_range('2018-04-09', periods=len(test_log), freq='20min')
-        test_log['time:timestamp'] = add
-        for _ in range(repeat):
-            starttime = time.perf_counter()
-            apply_trace_to_log(test_log, G)
-            endtime = time.perf_counter() - starttime
-            result.append(endtime)
-            print(endtime)
-            print(f"Completed benchmarking for iteration {i}.")
-
-        avg_time = (sum(result) / repeat) * 1000
-        print(f"Result from test {i}: {avg_time} ms")
-
-        # Counting number of events and activities
-        num_events = sum(len(trace) for trace in test_log)
-        activities = set(event['concept:name'] for trace in test_log for event in trace)
-
-        print(f"Length of event log: {num_events}")
-        print(f"Number of activities: {len(activities)}")
-
-        times.append(avg_time)
-        no_event.append(num_events)
-        no_of_act.append(len(activities))
-
-    # Plotting
-    x = [i for i in range(1, 11)]
-    y = times
-    plt.plot(x, times, label='Optimal')
-    plt.ylabel('Run time in ms')
-    plt.xlabel('PDC logs 1 to 10')
-    plt.grid(axis='x')
-    plt.grid(axis='y')
-    plt.show()
-
-
-def benchmark_dfg_alignment():
-    repeat = 10
-
+def benchmark_optimal_alignment(graph, test_log, repeat):
     times = []
 
+    # Warm-up run
+    optimal.apply(test_log, graph)
+
+    for _ in range(repeat):
+        start_time = time.perf_counter()
+        optimal.apply(test_log, graph)
+        end_time = (time.perf_counter() - start_time) * 1000
+        times.append(end_time)
+
+    return sum(times) / len(times)
+
+
+def benchmark_dfg_alignment(dfg, test_log, start_activities, end_activities, repeat):
+    times = []
+
+    # Warm-up run
+    dfg_alignment.apply(test_log, dfg, start_activities, end_activities)
+
+    for _ in range(repeat):
+        start_time = time.perf_counter()
+        dfg_alignment.apply(test_log, dfg, start_activities, end_activities)
+        end_time = (time.perf_counter() - start_time) * 1000
+        times.append(end_time)
+
+    return sum(times) / len(times)
+
+
+def run_benchmark(path, input_log, res_file, repeat):
+    log = read_log(path, input_log)
+    results = []
+
     for i in range(1, 11):
-        result = []
+        percentage = 5 * i
+        graph_log, test_log = split(log, percentage / 100)
 
-        training_log = pm4py.read_xes('../input_data/pdc/pdc_2019/Training Logs/pdc_2019_' + str(i) + '.xes')
-        add = pd.date_range('2018-04-09', periods=len(training_log), freq='20min')
-        training_log['time:timestamp'] = add
+        # For optimal alignment
+        graph, _ = pm4py.discover_dcr(graph_log)
 
-        # Convert DataFrame to EventLog
-        if isinstance(training_log, pd.DataFrame):
-            training_log = log_converter.apply(training_log)
-        print("Generating DFG...")
-        # Generate DFG
+        # For DFG alignment
         params = {}
-        dfg_result = performance.apply(training_log, params)
+        dfg = dfg_performance.apply(graph_log, parameters=params)
 
-        G = dfg_result
-        # print(f"type of dfg: {type(G)}, contents of dfg: {G}")
+        start_activities = Counter(trace[0]['concept:name'] for trace in graph_log)
+        end_activities = Counter(trace[-1]['concept:name'] for trace in graph_log)
+        start_activities = dict(start_activities)
+        end_activities = dict(end_activities)
 
-        start_activities = [trace[0]['concept:name'] for trace in training_log]
-        sa = Counter(start_activities)
-        end_activities = [trace[-1]['concept:name'] for trace in training_log]
-        ea = Counter(end_activities)
-        sa = dict(sa)
-        ea = dict(ea)
+        optimal_time = benchmark_optimal_alignment(graph, test_log, repeat)
+        dfg_time = benchmark_dfg_alignment(dfg, test_log, start_activities, end_activities, repeat)
 
-        # Warm up
-        for _ in range(1):
-            classic.apply(training_log, G, sa, ea)
+        results.append({
+            "percentage": percentage,
+            "optimal_time": optimal_time,
+            "dfg_time": dfg_time
+        })
 
-        # Benchmark classic
-        for _ in range(repeat):
-            starttime = time.perf_counter()
-            classic.apply(training_log, G, sa, ea)
-            endtime = time.perf_counter() - starttime
-            result.append(endtime)
+        print(f"Completed {percentage}% for {path}")
 
-        avg_time_classic = (sum(result) / repeat) * 1000
+    write_csv(results, f"results/{res_file}")
+    return results
 
-        print(f"Result from test {i}: Classic {avg_time_classic} ms")
 
-        times.append(avg_time_classic)
+def plot_results(all_results):
+    plt.figure(figsize=(12, 8))
 
-    # Plotting
-    x = [i for i in range(1, 11)]
-    plt.plot(x, times, label='Classic')
-    plt.ylabel('Run time in ms')
-    plt.xlabel('PDC logs 1 to 10')
+    for dataset, results in all_results.items():
+        percentages = [r['percentage'] for r in results]
+        optimal_times = [r['optimal_time'] for r in results]
+        dfg_times = [r['dfg_time'] for r in results]
+
+        plt.plot(percentages, optimal_times, marker='o', label=f'{dataset} - Optimal')
+        plt.plot(percentages, dfg_times, marker='s', label=f'{dataset} - DFG')
+
+    plt.xlabel('Percentage of Log Used for Training')
+    plt.ylabel('Average Runtime (ms)')
+    plt.title('Benchmark: Optimal Alignment vs DFG Alignment')
     plt.legend()
-    plt.grid(axis='x')
-    plt.grid(axis='y')
-    plt.show()
-
-
-def benchmark_optimal2():
-    repeat = 10
-    times = []
-    no_event = []
-    no_of_act = []
-
-    for i in range(1, 11):
-        logging.info(f"Starting iteration {i}")
-        result = []
-        logging.info("Reading and converting log...")
-
-        training_log = pm4py.read_xes('../input_data/pdc/pdc_2019/Training Logs/pdc_2019_' + str(i) + '.xes')
-        add = pd.date_range('2018-04-09', periods=len(training_log), freq='20min')
-        training_log['time:timestamp'] = add
-
-        # Convert DataFrame to EventLog
-        if isinstance(training_log, pd.DataFrame):
-            training_log = log_converter.apply(training_log)
-
-        logging.info("Generating DCR graph...")
-
-        dcr_result = apply(training_log, dcr_discover)
-        G = dcr_result[0]
-
-        # Benchmarking
-        warm_up_runs = 1
-        logging.info("Starting warm-up runs...")
-        for idx in range(warm_up_runs):
-            logging.info(f"Warm-up run {idx + 1}")
-            apply_trace_to_log(training_log, G)
-        logging.info("Completed warm-up runs.")
-
-        for _ in range(repeat):
-            start_time = time.perf_counter()
-            apply_trace_to_log(training_log, G)
-            end_time = time.perf_counter() - start_time
-            result.append(end_time)
-            logging.info(f"Completed benchmarking for iteration {i}.")
-
-        avg_time = (sum(result) / repeat) * 1000
-        logging.info(f"Result from test {i}: {avg_time} ms")
-
-        num_events = sum(len(trace) for trace in training_log)
-        activities = set(event['concept:name'] for trace in training_log for event in trace)
-
-        times.append(avg_time)
-        no_event.append(num_events)
-        no_of_act.append(len(activities))
-
-    # Plotting
-    x = [i for i in range(1, 11)]
-    y = times
-    plt.plot(x, times, label='Optimal')
-    plt.ylabel('Run time in ms')
-    plt.xlabel('PDC logs 1 to 10')
-    plt.grid(axis='x')
-    plt.grid(axis='y')
+    plt.grid(True)
+    plt.savefig('benchmark_results.png')
     plt.show()
 
 
 if __name__ == "__main__":
-    print("Running benchmark for optimal...")
-    #benchmark_optimal()
-    #benchmark_optimal2()
-    print("Running benchmark for classic")
-    #benchmark_dfg_alignment()
+    datasets = {
+        "sepsis": "Sepsis Cases - Event Log.xes.gz",
+        "traffic_fines": "Road_Traffic_fine_management_Process.xes.gz",
+        "dreyers_fond": "Dreyers Foundation.xes"
+    }
 
+    all_results = {}
 
+    for dataset, log_file in datasets.items():
+        print(f"Running benchmark for {dataset}")
+        results = run_benchmark(dataset, log_file, f"{dataset}_benchmark_results.csv", repeat=5)
+        all_results[dataset] = results
+
+    plot_results(all_results)
