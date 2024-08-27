@@ -96,7 +96,6 @@ class TestDiscoveryDCR(unittest.TestCase):
         del dcr2
 
     def test_role_mining(self):
-        # introduce roles in DCR graphs
         # given a DCR graph
         log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
         # when mined, with post_process roles
@@ -108,6 +107,64 @@ class TestDiscoveryDCR(unittest.TestCase):
         self.assertNotEqual(len(dcr.role_assignments), 0)
         # no roles are given, so principals and roles should be equal
         self.assertEqual(dcr.principals, dcr.roles)
+
+        del log
+        del dcr
+
+    def test_pending_mining(self):
+        # given a DCR graph
+        log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
+        # when mined, with post_process pending
+        parameters = get_properties(log, group_key="org:resource")
+        dcr, _ = apply(log, post_process={'pending'}, parameters=parameters)
+        # these attributes, will not be empty
+        self.assertNotEqual(len(dcr.marking.pending), 0)
+
+        del log
+        del dcr
+
+    def test_nesting_mining(self):
+        # given a DCR graph
+        log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
+        # when mined, with post_process nesting
+        parameters = get_properties(log, group_key="org:resource")
+        dcr, _ = apply(log, post_process={'nesting'}, parameters=parameters)
+        # these attributes, will not be empty
+        self.assertNotEqual(len(dcr.nestedgroups), 0)
+
+        del log
+        del dcr
+
+    def test_time_mining(self):
+        # given a DCR graph
+        log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
+        # when mined, with post_process timed
+        parameters = get_properties(log, group_key="org:resource")
+        dcr, _ = apply(log, post_process={'timed'}, parameters=parameters)
+        # these attributes, will not be empty
+        self.assertNotEqual(len(dcr.timedconditions), 0)
+        self.assertNotEqual(len(dcr.timedresponses), 0)
+
+        del log
+        del dcr
+
+    def test_all_post_process_mining(self):
+        # given a DCR graph
+        log = pm4py.read_xes(os.path.join("input_data", "running-example.xes"))
+        # when mined, with post_process {pending
+        parameters = get_properties(log, group_key="org:resource")
+        dcr, _ = apply(log, post_process={'roles','pending','nesting','timed'}, parameters=parameters)
+        # these attributes, will not be empty
+        self.assertNotEqual(len(dcr.roles), 0)
+        self.assertNotEqual(len(dcr.principals), 0)
+        self.assertNotEqual(len(dcr.role_assignments), 0)
+
+        self.assertNotEqual(len(dcr.marking.pending), 0)
+
+        self.assertNotEqual(len(dcr.nestedgroups), 0)
+
+        self.assertNotEqual(len(dcr.timedconditions), 0)
+        self.assertNotEqual(len(dcr.timedresponses), 0)
 
         del log
         del dcr

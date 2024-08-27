@@ -75,8 +75,8 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAddition
         graph = exec_utils.get_variant(ROLES).apply(input_log, graph, parameters=parameters)
     if 'pending' in post_process:
         graph = exec_utils.get_variant(DCR_PENDING).apply(input_log, graph, parameters=parameters)
-    if 'timed' in post_process:
-        graph = exec_utils.get_variant(DCR_TIMED).apply(input_log, graph, parameters=parameters)
     if 'nesting' in post_process:
         graph = exec_utils.get_variant(DCR_NESTING).apply(graph, parameters=parameters)
+    if 'timed' in post_process:
+        graph = exec_utils.get_variant(DCR_TIMED).apply(input_log, graph, parameters=parameters)
     return graph, la

@@ -108,7 +108,7 @@ class TimeMining:
         return deltas
 
 
-    def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
+    def mine(self, log: Union[pd.DataFrame, EventLog], graph, parameters: Optional[Dict[str, Any]]):
         activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, parameters,
                                                   xes_constants.DEFAULT_NAME_KEY)
         # perform mining on event logs
@@ -148,4 +148,4 @@ class TimeMining:
                     self.timing_dict['responseToDeadlines'][e1] = {}
                 self.timing_dict['responseToDeadlines'][e1][e2] = value
 
-        return TimedDcrGraph(graph.obj_to_template(), self.timing_dict)
+        return TimedDcrGraph({**graph.obj_to_template(), **self.timing_dict})

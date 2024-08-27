@@ -15,7 +15,7 @@ class NestVariants(Enum):
     CHOICE_NEST = auto()
 
 
-def apply(graph, parameters) -> HierarchicalDcrGraph:
+def apply(graph, parameters):
     """
     this method calls the nesting miner
 
@@ -60,7 +60,7 @@ class NestingMining:
     *
     """
 
-    def mine(self, graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
+    def mine(self, graph, parameters: Optional[Dict[str, Any]]):
         """
         Main nested groups mining algorithm
 
@@ -87,17 +87,17 @@ class NestingMining:
             case NestVariants.CHOICE_NEST.value:
                 return self.apply_nest(self.apply_choice(graph))
 
-    def apply_choice(self, core_dcr: DcrGraph) -> HierarchicalDcrGraph:
+    def apply_choice(self, graph):
         choice = Choice()
-        return choice.apply_choice(core_dcr)
+        return choice.apply_choice(graph)
 
-    def apply_nest(self, core_dcr: Union[DcrGraph, HierarchicalDcrGraph]) -> HierarchicalDcrGraph:
+    def apply_nest(self, graph):
+        existing_nestings = deepcopy(graph.nestedgroups) if len(graph.nestedgroups)>0 else None
         nesting = Nesting()
-        nesting.create_encoding(core_dcr.obj_to_template())
-        nesting.nest(core_dcr.events)
+        nesting.create_encoding(graph.obj_to_template())
+        nesting.nest(graph.events)
         nesting.remove_redundant_nestings()
-        nested_dcr = nesting.get_nested_dcr_graph()
-        return HierarchicalDcrGraph(nested_dcr)
+        return nesting.get_nested_dcr_graph(graph,existing_nestings)
 
 
 class Choice(object):
@@ -105,50 +105,50 @@ class Choice(object):
     def __init__(self):
         self.nesting_template = {"nestedgroups": {}, "nestedgroupsMap": {}, "subprocesses": {}}
 
-    def apply_choice(self, core_dcr: DcrGraph) -> HierarchicalDcrGraph:
-        self.get_mutual_exclusions(core_dcr)
+    def apply_choice(self, graph):
+        self.get_mutual_exclusions(graph)
         for name, me_events in self.nesting_template['nestedgroups'].items():
-            core_dcr.events.add(name)
-            core_dcr.marking.included.add(name)
+            graph.events.add(name)
+            graph.marking.included.add(name)
             for me_event in me_events:
                 self.nesting_template['nestedgroupsMap'][me_event] = name
                 for me_prime in me_events:
-                    core_dcr.excludes[me_event].discard(me_prime)
-                    core_dcr.excludes[me_prime].discard(me_event)
-            core_dcr.excludes[name] = set([name])
+                    graph.excludes[me_event].discard(me_prime)
+                    graph.excludes[me_prime].discard(me_event)
+            graph.excludes[name] = set([name])
 
         from pm4py.objects.dcr.obj import Relations as ObjRel
         for name, me_events in self.nesting_template['nestedgroups'].items():
-            external_events_to_check = core_dcr.events.difference(me_events.union(set(name)))
+            external_events_to_check = graph.events.difference(me_events.union(set(name)))
             for r in [ObjRel.C,ObjRel.R,ObjRel.I,ObjRel.E]:
                 rel = r.value
                 for e in external_events_to_check:
                     all_internal_same_relation = True
                     for internal_event in me_events:
-                        all_internal_same_relation &= internal_event in getattr(core_dcr, rel) and e in getattr(core_dcr, rel)[internal_event]
+                        all_internal_same_relation &= internal_event in getattr(graph, rel) and e in getattr(graph, rel)[internal_event]
                     if all_internal_same_relation:
-                        if name not in getattr(core_dcr, rel):
-                            getattr(core_dcr, rel)[name] = set()
-                        getattr(core_dcr, rel)[name].add(e)
+                        if name not in getattr(graph, rel):
+                            getattr(graph, rel)[name] = set()
+                        getattr(graph, rel)[name].add(e)
                         for internal_event in me_events:
-                            getattr(core_dcr, rel)[internal_event].remove(e)
+                            getattr(graph, rel)[internal_event].remove(e)
                 for e in external_events_to_check:
                     all_internal_same_relation = True
                     for internal_event in me_events:
-                        all_internal_same_relation &= e in getattr(core_dcr, rel) and internal_event in getattr(core_dcr, rel)[e]
+                        all_internal_same_relation &= e in getattr(graph, rel) and internal_event in getattr(graph, rel)[e]
                     if all_internal_same_relation:
-                        if name not in getattr(core_dcr, rel):
-                            getattr(core_dcr, rel)[e] = set()
-                        getattr(core_dcr, rel)[e].add(name)
-                        getattr(core_dcr, rel)[e] = getattr(core_dcr, rel)[e].difference(me_events)
-        return HierarchicalDcrGraph({**core_dcr.obj_to_template(), **self.nesting_template})
+                        if name not in getattr(graph, rel):
+                            getattr(graph, rel)[e] = set()
+                        getattr(graph, rel)[e].add(name)
+                        getattr(graph, rel)[e] = getattr(graph, rel)[e].difference(me_events)
+        return HierarchicalDcrGraph({**graph.obj_to_template(), **self.nesting_template})
 
-    def get_mutual_exclusions(self, core_dcr: DcrGraph, i:Optional[int]=0):
+    def get_mutual_exclusions(self, dcr, i:Optional[int]=0):
         """
         Get nested groups based on cliques. Updates the self.nesting_template dict
         Parameters
         ----------
-        core_dcr
+        dcr
             A core Dcr Graph as mined from the DisCoveR miner
         i
             An integer seed for the naming of choice groups
@@ -157,7 +157,7 @@ class Choice(object):
 
         """
 
-        graph = self.get_mutually_excluding_graph(core_dcr)
+        graph = self.get_mutually_excluding_graph(dcr)
         cliques = list(frozenset(s) for s in nx.enumerate_all_cliques(graph) if len(s) > 1)
         cliques = sorted(cliques, key=len, reverse=True)
         used_cliques = {}
@@ -174,7 +174,7 @@ class Choice(object):
                     used_cliques[clique] = True
                     used_events = used_events.union(clique)
 
-    def get_mutually_excluding_graph(self, graph: DcrGraph):
+    def get_mutually_excluding_graph(self, graph):
         ind = pd.Index(sorted(graph.events), dtype=str)
         rel_matrix = pd.DataFrame(0, columns=ind, index=ind, dtype=int)
         for e in graph.events:
@@ -198,6 +198,7 @@ class Choice(object):
 class Nesting(object):
 
     def __init__(self):
+        self.nesting_template = {"nestedgroups": {}, "nestedgroupsMap": {}, "subprocesses": {}}
         self.nesting_ids = set()
         self.nesting_map = {}
         self.nest_id = 0
@@ -347,8 +348,8 @@ class Nesting(object):
     def should_add(self, rel, direction):
         return direction == 'in' if rel in [Relations.C.value, Relations.M.value] else direction == 'out'
 
-    def get_nested_dcr_graph(self, existing_nestings=None):
-        res_dcr = deepcopy(dcr_template)
+    def get_nested_dcr_graph(self, graph, existing_nestings=None):
+        res_dcr = graph.obj_to_template()
         events = set(self.enc.keys())
         res_dcr['events'] = events
         res_dcr['marking']['included'] = events
@@ -389,4 +390,5 @@ class Nesting(object):
 
         res_dcr['nestedgroupsMap'] = deepcopy(self.nesting_map)
 
-        return res_dcr
+        return HierarchicalDcrGraph(res_dcr)
+        # return res_dcr
