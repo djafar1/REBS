@@ -170,8 +170,8 @@ def execute_script():
         print("df working together", pm4py.discover_working_together_network(df2, case_id_key="case:concept:name", resource_key="org:resource", timestamp_key="time:timestamp"))
         print("log similar activities", pm4py.discover_activity_based_resource_similarity(log2))
         print("df similar activities", pm4py.discover_activity_based_resource_similarity(df2, case_id_key="case:concept:name", resource_key="org:resource", timestamp_key="time:timestamp", activity_key="concept:name"))
-        print("log org roles", pm4py.discover_organizational_roles(log2))
-        print("df org roles", pm4py.discover_organizational_roles(df2, case_id_key="case:concept:name", resource_key="org:resource", timestamp_key="time:timestamp", activity_key="concept:name"))
+        print("log org distributed", pm4py.discover_organizational_roles(log2))
+        print("df org distributed", pm4py.discover_organizational_roles(df2, case_id_key="case:concept:name", resource_key="org:resource", timestamp_key="time:timestamp", activity_key="concept:name"))
 
         if ENABLE_VISUALIZATION:
             if importlib.util.find_spec("graphviz") and importlib.util.find_spec("pyvis") and importlib.util.find_spec("networkx"):

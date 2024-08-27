@@ -2,14 +2,14 @@ from typing import Set
 from pm4py.objects.dcr.obj import DcrGraph
 
 
-class RoleDcrGraph(DcrGraph):
+class DistributedDcrGraph(DcrGraph):
     """
     A class representing a Role-based DCR graph.
 
     This class wraps around a DCR graph structure, extending it with role-based features such as principals,
-    roles, role assignments, and principals assignments. It provides an interface to integrate roles into the
+    distributed, role assignments, and principals assignments. It provides an interface to integrate distributed into the
     DCR model and to compute role-based constraints as part of the graph.
-    Attributes derived according to dcr graphs with roles in [1]_.
+    Attributes derived according to dcr graphs with distributed in [1]_.
 
     References
     ----------
@@ -21,7 +21,7 @@ class RoleDcrGraph(DcrGraph):
     g : DCRGraph
         The underlying DCR graph structure.
     template : dict, optional
-        A template dictionary to initialize the roles and assignments from, if provided.
+        A template dictionary to initialize the distributed and assignments from, if provided.
 
     Attributes
     ----------
@@ -33,7 +33,7 @@ class RoleDcrGraph(DcrGraph):
     self.__roles : Set[str]
         A set of role identifiers within the graph.
     self.__roleAssignments : Dict[str, Set[str]]
-        A dictionary where keys are activity identifiers and values are sets of roles assigned to those activities.
+        A dictionary where keys are activity identifiers and values are sets of distributed assigned to those activities.
     self.__principalsAssignment : Dict[str, Set[str]]
         A dictionary where keys are activity identifiers and values are sets of principals assigned to those activities.
 
@@ -54,7 +54,7 @@ class RoleDcrGraph(DcrGraph):
 
     \nAccess role-based attributes\n
     principals = role_graph.principals\n
-    roles = role_graph.roles\n
+    roles = role_graph.distributed\n
     role_assignments = role_graph.roleAssignments\n
     principals_assignment = role_graph.principalsAssignment\n
 

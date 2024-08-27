@@ -194,7 +194,7 @@ class DcrGraph(object):
     Parameters
     ----------
     template : dict, optional
-        A template dictionary to initialize the roles and assignments from, if provided.
+        A template dictionary to initialize the distributed and assignments from, if provided.
 
     Examples
     --------
@@ -206,7 +206,7 @@ class DcrGraph(object):
     * DCR graph can not be initialized with a partially created template, use DCR_template for easy instantiation
     """
 
-    # initiate the objects: contains events ID, activity, the 4 relations, markings, roles and principals
+    # initiate the objects: contains events ID, activity, the 4 relations, markings, distributed and principals
     def __init__(self, template=None):
         # DisCoveR uses bijective labelling, each event has one label
         #

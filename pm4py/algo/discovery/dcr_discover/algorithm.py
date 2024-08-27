@@ -53,10 +53,10 @@ def apply(log: Union[EventLog, pd.DataFrame], variant=DCR_DISCOVER, findAddition
 
     Returns
     ---------------
-    DcrGraph | RoleDcrGraph | GroupSubprocessDcrGraph | TimeDcrGraph:
+    DcrGraph | DistributedDcrGraph | HierarchicalDcrGraph | TimeDcrGraph:
         DCR graph (as an object) containing eventId, set of activities, mapping of event to activities,
             condition relations, response relation, include relations and exclude relations.
-        possible to return variant of different dcr graph depending on which variant, basic, roles, etc.
+        possible to return variant of different dcr graph depending on which variant, basic, distributed, etc.
 
     References
     ----------

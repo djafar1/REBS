@@ -21,10 +21,10 @@ References
 """
 from typing import Dict, Set
 
-from pm4py.objects.dcr.roles.obj import RoleDcrGraph
+from pm4py.objects.dcr.distributed.obj import DistributedDcrGraph
 
 
-class MilestoneNoResponseDcrGraph(RoleDcrGraph):
+class ExtendedDcrGraph(DistributedDcrGraph):
     """
     This class extends the RoleDcrGraph to include milestone and no-response
     relations, allowing for more expressive DCR Graphs with additional constraints.

@@ -30,11 +30,11 @@ class Variants(Enum):
 
 def apply(log: Union[EventLog, EventStream, pd.DataFrame], variant=None, parameters: Optional[Dict[Any, Any]] = None) -> List[Any]:
     """
-    Gets the roles (group of different activities done by similar resources)
+    Gets the distributed (group of different activities done by similar resources)
     out of the log.
 
-    The roles detection is introduced by
-    Burattin, Andrea, Alessandro Sperduti, and Marco Veluscek. "Business models enhancement through discovery of roles." 2013 IEEE Symposium on Computational Intelligence and Data Mining (CIDM). IEEE, 2013.
+    The distributed detection is introduced by
+    Burattin, Andrea, Alessandro Sperduti, and Marco Veluscek. "Business models enhancement through discovery of distributed." 2013 IEEE Symposium on Computational Intelligence and Data Mining (CIDM). IEEE, 2013.
 
 
     Parameters
@@ -50,8 +50,8 @@ def apply(log: Union[EventLog, EventStream, pd.DataFrame], variant=None, paramet
 
     Returns
     ------------
-    roles
-        List of different roles inside the log, including:
+    distributed
+        List of different distributed inside the log, including:
         roles_threshold_parameter => threshold to use with the algorithm
     """
     if parameters is None:

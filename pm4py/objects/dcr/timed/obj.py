@@ -22,7 +22,7 @@ References
 from datetime import timedelta
 
 from pm4py.objects.dcr.obj import Marking
-from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
+from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
 
 from typing import Dict
 
@@ -57,7 +57,7 @@ class TimedMarking(Marking):
         return self.__pending_deadline
 
 
-class TimedDcrGraph(NestingSubprocessDcrGraph):
+class TimedDcrGraph(HierarchicalDcrGraph):
     """
     This class extends the NestingSubprocessDcrGraph to incorporate timed
     conditions and responses, allowing for time-based constraints in DCR Graphs.

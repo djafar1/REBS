@@ -1,6 +1,6 @@
 import re
 
-from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
+from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
 from pm4py.objects.dcr.obj import DcrGraph, TemplateRelations, Relations, dcr_template
 from copy import deepcopy
 
@@ -165,14 +165,14 @@ def cast_to_dcr_object(dcr):
         from pm4py.objects.dcr.timed.obj import TimedDcrGraph
         return TimedDcrGraph(dcr)
     elif len(dcr['subprocesses']) > 0 or len(dcr['nestedgroups']) > 0:
-        from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
-        return NestingSubprocessDcrGraph(dcr)
+        from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
+        return HierarchicalDcrGraph(dcr)
     elif len(dcr['noResponseTo']) > 0 or len(dcr['milestonesFor']):
-        from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph
-        return MilestoneNoResponseDcrGraph(dcr)
+        from pm4py.objects.dcr.extended.obj import ExtendedDcrGraph
+        return ExtendedDcrGraph(dcr)
     elif len(dcr['roles']) > 0:
-        from pm4py.objects.dcr.roles.obj import RoleDcrGraph
-        return RoleDcrGraph(dcr)
+        from pm4py.objects.dcr.distributed.obj import DistributedDcrGraph
+        return DistributedDcrGraph(dcr)
     else:
         return DcrGraph(dcr)
 
@@ -207,7 +207,7 @@ def time_to_int(graph: TimedDcrGraph, precision='days', inplace=False):
         return graph
 
 
-def get_reverse_nesting(graph: NestingSubprocessDcrGraph):
+def get_reverse_nesting(graph: HierarchicalDcrGraph):
     reverse_nesting = {}
     for k, v in graph.nestedgroups_map.items():
         if v not in reverse_nesting:
@@ -216,7 +216,7 @@ def get_reverse_nesting(graph: NestingSubprocessDcrGraph):
     return reverse_nesting
 
 
-def nested_groups_and_sps_to_flat_dcr(graph: NestingSubprocessDcrGraph) -> DcrGraph:
+def nested_groups_and_sps_to_flat_dcr(graph: HierarchicalDcrGraph) -> DcrGraph:
     graph.nestedgroups = {**graph.nestedgroups, **graph.subprocesses}
     for group, events in graph.subprocesses.items():
         for e in events:

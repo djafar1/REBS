@@ -3,7 +3,7 @@ from typing import Set
 from pm4py.objects.dcr.semantics import DcrSemantics
 
 
-class MilestoneNoResponseSemantics(DcrSemantics):
+class ExtendedSemantics(DcrSemantics):
 
     @classmethod
     def enabled(cls, graph) -> Set[str]:

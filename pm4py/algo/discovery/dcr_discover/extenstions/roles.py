@@ -3,11 +3,11 @@ from typing import Optional, Any, Union, Dict
 import pm4py
 from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.util import exec_utils, constants, xes_constants
-from pm4py.objects.dcr.roles.obj import RoleDcrGraph
+from pm4py.objects.dcr.distributed.obj import DistributedDcrGraph
 from pm4py.objects.log.obj import EventLog
 
 
-def apply(log, graph, parameters) -> RoleDcrGraph:
+def apply(log, graph, parameters) -> DistributedDcrGraph:
     """
     this method calls the role miner
 
@@ -36,7 +36,7 @@ class RoleMining:
     """
     The RoleMining provides a simple algorithm to mine for organizational data of an event log for DCR graphs
 
-    After initialization, user can call mine(log, G, parameters), which will return a DCR Graph with roles.
+    After initialization, user can call mine(log, G, parameters), which will return a DCR Graph with distributed.
 
     Attributes
     ----------
@@ -46,7 +46,7 @@ class RoleMining:
     Methods
     -------
     mine(log, G, parameters)
-        calls the main mining function, extract roles and principals from the log and perform rol
+        calls the main mining function, extract distributed and principals from the log and perform rol
 
     Notes
     ------
@@ -59,7 +59,7 @@ class RoleMining:
     def __role_assignment_role_to_activity(self, log: pd.DataFrame, activity_key: str,
                                            group_key: str, resource_key: str) -> None:
         """
-        If log has defined roles, mine for role assignment using a role identifier,
+        If log has defined distributed, mine for role assignment using a role identifier,
         such as a Group key or possible optional parameter.
 
         Parameters
@@ -84,8 +84,8 @@ class RoleMining:
 
     def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
         """
-        Main role mine algorithm, will mine for principals and roles in a DCR graphs, and associated role assignment.
-        determine principals, roles and roleAssignment through unique occurrences in log.
+        Main role mine algorithm, will mine for principals and distributed in a DCR graphs, and associated role assignment.
+        determine principals, distributed and roleAssignment through unique occurrences in log.
 
         Parameters
         ----------
@@ -99,7 +99,7 @@ class RoleMining:
         -------
         RoleDCR_Graph(G, dcr)
             returns a DCR graph with organizational attributes, store in a variant of DCR
-            :class:`pm4py.objects.dcr.roles.obj.RoleDCR_Graph`
+            :class:`pm4py.objects.dcr.distributed.obj.RoleDCR_Graph`
         """
 
         activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, parameters,
@@ -122,7 +122,7 @@ class RoleMining:
         principals = set(filter(lambda x: x == x, principals))
         self.role_template['principals'] = principals
 
-        # if no resources are provided, map roles to activities
+        # if no resources are provided, map distributed to activities
         roles = set(log[group_key].values)
         roles = set(filter(lambda x: x == x, roles))
         self.role_template['roles'] = roles
@@ -131,4 +131,4 @@ class RoleMining:
             self.role_template['principalsAssignments'][i] = set()
 
         self.__role_assignment_role_to_activity(log, activity_key, group_key, resource_key)
-        return RoleDcrGraph({**graph.obj_to_template(), **self.role_template})
+        return DistributedDcrGraph({**graph.obj_to_template(), **self.role_template})

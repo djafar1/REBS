@@ -5,7 +5,7 @@ import networkx as nx
 from typing import Optional, Any, Union, Dict
 
 from pm4py.objects.dcr.obj import dcr_template, DcrGraph, TemplateRelations as Relations
-from pm4py.objects.dcr.nesting_subprocess.obj import NestingSubprocessDcrGraph
+from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
 from pm4py.objects.log.obj import EventLog
 
 
@@ -15,7 +15,7 @@ class NestVariants(Enum):
     CHOICE_NEST = auto()
 
 
-def apply(graph, parameters) -> NestingSubprocessDcrGraph:
+def apply(graph, parameters) -> HierarchicalDcrGraph:
     """
     this method calls the nesting miner
 
@@ -87,17 +87,17 @@ class NestingMining:
             case NestVariants.CHOICE_NEST.value:
                 return self.apply_nest(self.apply_choice(graph))
 
-    def apply_choice(self, core_dcr: DcrGraph) -> NestingSubprocessDcrGraph:
+    def apply_choice(self, core_dcr: DcrGraph) -> HierarchicalDcrGraph:
         choice = Choice()
         return choice.apply_choice(core_dcr)
 
-    def apply_nest(self, core_dcr: Union[DcrGraph, NestingSubprocessDcrGraph]) -> NestingSubprocessDcrGraph:
+    def apply_nest(self, core_dcr: Union[DcrGraph, HierarchicalDcrGraph]) -> HierarchicalDcrGraph:
         nesting = Nesting()
         nesting.create_encoding(core_dcr.obj_to_template())
         nesting.nest(core_dcr.events)
         nesting.remove_redundant_nestings()
         nested_dcr = nesting.get_nested_dcr_graph()
-        return NestingSubprocessDcrGraph(nested_dcr)
+        return HierarchicalDcrGraph(nested_dcr)
 
 
 class Choice(object):
@@ -105,7 +105,7 @@ class Choice(object):
     def __init__(self):
         self.nesting_template = {"nestedgroups": {}, "nestedgroupsMap": {}, "subprocesses": {}}
 
-    def apply_choice(self, core_dcr: DcrGraph) -> NestingSubprocessDcrGraph:
+    def apply_choice(self, core_dcr: DcrGraph) -> HierarchicalDcrGraph:
         self.get_mutual_exclusions(core_dcr)
         for name, me_events in self.nesting_template['nestedgroups'].items():
             core_dcr.events.add(name)
@@ -141,7 +141,7 @@ class Choice(object):
                             getattr(core_dcr, rel)[e] = set()
                         getattr(core_dcr, rel)[e].add(name)
                         getattr(core_dcr, rel)[e] = getattr(core_dcr, rel)[e].difference(me_events)
-        return NestingSubprocessDcrGraph({**core_dcr.obj_to_template(), **self.nesting_template})
+        return HierarchicalDcrGraph({**core_dcr.obj_to_template(), **self.nesting_template})
 
     def get_mutual_exclusions(self, core_dcr: DcrGraph, i:Optional[int]=0):
         """

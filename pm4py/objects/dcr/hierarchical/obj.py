@@ -18,11 +18,11 @@ References
 
 .. [2] Normann, H., Debois, S., Slaats, T., Hildebrandt, T.T. (2021). Zoom and Enhance: Action Refinement via Subprocesses in Timed Declarative Processes. In: Polyvyanyy, A., Wynn, M.T., Van Looy, A., Reichert, M. (eds) Business Process Management. BPM 2021. Lecture Notes in Computer Science(), vol 12875. Springer, Cham. `DOI <https://doi.org/10.1007/978-3-030-85469-0_12>`_.
 """
-from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph
+from pm4py.objects.dcr.extended.obj import ExtendedDcrGraph
 from typing import Set, Dict
 
 
-class NestingSubprocessDcrGraph(MilestoneNoResponseDcrGraph):
+class HierarchicalDcrGraph(ExtendedDcrGraph):
     """
     This class extends the MilestoneNoResponseDcrGraph to include nested groups
     and subprocesses, allowing for more complex hierarchical structures in DCR Graphs.

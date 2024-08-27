@@ -17,17 +17,23 @@ class Parameters(Enum):
     DECORATIONS = "decorations"
 
 
-def create_edge(source, target, relation, viz):
+def create_edge(source, target, relation, viz, time = None):
     viz.edge_attr['labeldistance'] = '0.0'
     match relation:
         case 'condition':
-            viz.edge(source, target, color='#FFA500', arrowhead='dotnormal')
+            if time:
+                viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both', label=time)
+            else:
+                viz.edge(source, target, color='#FFA500', arrowhead='dotnormal')
         case 'exclude':
             viz.edge(source, target, color='#FC0C1B', arrowhead='normal', arrowtail='none', headlabel='%', labelfontcolor='#FC0C1B', labelfontsize='8')
         case 'include':
             viz.edge(source, target, color='#30A627', arrowhead='normal', arrowtail='none', headlabel='+', labelfontcolor='#30A627', labelfontsize='10')
         case 'response':
-            viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both')
+            if time:
+                viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both', label=time)
+            else:
+                viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both')
     return
 
 
