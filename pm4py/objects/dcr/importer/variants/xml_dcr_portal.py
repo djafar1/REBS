@@ -41,7 +41,7 @@ def apply(path, parameters=None):
     return import_xml_tree_from_root(xml_tree.getroot(), **parameters)
 
 
-def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=True, labels_as_ids=True):
+def import_xml_tree_from_root(root, white_space_replacement=' ', as_dcr_object=True, labels_as_ids=True):
     dcr = copy.deepcopy(dcr_template)
     dcr = __parse_element__(root, None, dcr)
     dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
