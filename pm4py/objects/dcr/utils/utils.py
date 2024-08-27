@@ -1,11 +1,32 @@
 import re
 
+from pandas import Timedelta
+
 from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
 from pm4py.objects.dcr.obj import DcrGraph, TemplateRelations, Relations, dcr_template
 from copy import deepcopy
 
 from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 
+
+def time_to_iso_string(time, time_precision='D'):
+    '''
+
+    Parameters
+    ----------
+    time
+    time_precision: valid values are D H M S
+
+    Returns
+    -------
+
+    '''
+    if not isinstance(time,Timedelta):
+        time = Timedelta(time)
+    iso_time = time.floor(freq='s').isoformat()
+    if time_precision:
+        iso_time = iso_time.split(time_precision)[0] + time_precision
+    return iso_time
 
 def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
     pattern = '[^0-9a-zA-Z_]+'

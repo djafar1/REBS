@@ -1,8 +1,11 @@
 import tempfile
 from enum import Enum
 
-import graphviz
+from click import option
 from graphviz import Digraph
+
+from pm4py.objects.dcr.timed.obj import TimedDcrGraph
+from pm4py.objects.dcr.utils.utils import time_to_iso_string
 from pm4py.util import exec_utils, constants
 
 filename = tempfile.NamedTemporaryFile(suffix=".gv")
@@ -17,12 +20,27 @@ class Parameters(Enum):
     DECORATIONS = "decorations"
 
 
-def create_edge(source, target, relation, viz, time = None):
+def create_edge(source, target, relation, viz, time = None, font_size = None,time_precision='D'):
     viz.edge_attr['labeldistance'] = '0.0'
+    if font_size:
+        font_size = int(font_size)
+        font_size = str(int(font_size - 2/3*font_size))
+    if time:
+        time = time_to_iso_string(time, time_precision)
+        match time_precision:
+            case 'D':
+                time = None if time=='P0D' else time
+            case 'H':
+                time = None if time=='P0DT0H' else time
+            case 'M':
+                time = None if time=='P0DT0H0M' else time
+            case 'S':
+                time = None if time=='P0DT0H0M0S' else time
+
     match relation:
         case 'condition':
             if time:
-                viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both', label=time)
+                viz.edge(source, target, color='#FFA500', arrowhead='dotnormal', label=time, labelfontsize=font_size)
             else:
                 viz.edge(source, target, color='#FFA500', arrowhead='dotnormal')
         case 'exclude':
@@ -31,13 +49,17 @@ def create_edge(source, target, relation, viz, time = None):
             viz.edge(source, target, color='#30A627', arrowhead='normal', arrowtail='none', headlabel='+', labelfontcolor='#30A627', labelfontsize='10')
         case 'response':
             if time:
-                viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both', label=time)
+                viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both', label=time, labelfontsize=font_size)
             else:
                 viz.edge(source, target, color='#2993FC', arrowhead='normal', arrowtail='dot', dir='both')
+        case 'noresponse':
+            viz.edge(source, target, color='#7A514D', arrowhead='normal', headlabel='x', labelfontcolor='#7A514D', labelfontsize='8', arrowtail='dot', dir='both')
+        case 'milestone':
+            viz.edge(source, target, color='#A932D0', arrowhead='normal', headlabel='&#9671;', labelfontcolor='#A932D0', labelfontsize='8', arrowtail='dot', dir='both')
     return
 
 
-def apply(dcr, parameters):
+def apply(dcr: TimedDcrGraph, parameters):
     if parameters is None:
         parameters = {}
 
@@ -49,24 +71,40 @@ def apply(dcr, parameters):
     viz = Digraph("", filename=filename.name, engine='dot', graph_attr={'bgcolor': bgcolor, 'rankdir': set_rankdir},
                   node_attr={'shape': 'Mrecord'}, edge_attr={'arrowsize': '0.5'})
 
-    for event in dcr['events']:
-        if event not in dcr['marking']['included']:
-            viz.node(event, ' | ' + dcr['labelMap'][event], style='dashed',font_size=font_size)
+    for event in dcr.events:
+        label = None
+        if event in dcr.label_map:
+            label = ' | ' + dcr.label_map[event]
+        if event not in dcr.marking.included:
+            viz.node(event, label, style='dashed',font_size=font_size)
         else:
-            viz.node(event, ' | ' + dcr['labelMap'][event], style='solid',font_size=font_size)
-
-    for event_prime in dcr['conditionsFor']:
-        for event in dcr['conditionsFor'][event_prime]:
-            create_edge(event, event_prime, 'condition', viz)
-    for event in dcr['responseTo']:
-        for event_prime in dcr['responseTo'][event]:
-            create_edge(event, event_prime, 'response', viz)
-    for event in dcr['includesTo']:
-        for event_prime in dcr['includesTo'][event]:
+            viz.node(event, label, style='solid',font_size=font_size)
+    for event in dcr.conditions:
+        for event_prime in dcr.conditions[event]:
+            time = None
+            if hasattr(dcr,'timedconditions') and event in dcr.timedconditions and event_prime in dcr.timedconditions[event]:
+                time = dcr.timedconditions[event][event_prime]
+            create_edge(event_prime, event, 'condition', viz, time, font_size)
+    for event in dcr.responses:
+        for event_prime in dcr.responses[event]:
+            time = None
+            if hasattr(dcr,'timedresponses') and event in dcr.timedresponses and event_prime in dcr.timedresponses[event]:
+                time = dcr.timedresponses[event][event_prime]
+            create_edge(event, event_prime, 'response', viz, time, font_size)
+    for event in dcr.includes:
+        for event_prime in dcr.includes[event]:
             create_edge(event, event_prime, 'include', viz)
-    for event in dcr['excludesTo']:
-        for event_prime in dcr['excludesTo'][event]:
+    for event in dcr.excludes:
+        for event_prime in dcr.excludes[event]:
             create_edge(event, event_prime, 'exclude', viz)
+    if hasattr(dcr, 'noresponses'):
+        for event in dcr.noresponses:
+            for event_prime in dcr.noresponses[event]:
+                create_edge(event, event_prime, 'noresponse', viz)
+    if hasattr(dcr, 'milestones'):
+        for event in dcr.milestones:
+            for event_prime in dcr.milestones[event]:
+                create_edge(event, event_prime, 'milestone', viz)
 
     viz.attr(overlap='false')
 

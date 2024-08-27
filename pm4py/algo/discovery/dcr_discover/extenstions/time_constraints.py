@@ -76,7 +76,8 @@ class TimeMining:
         filtered_df = filtered_df[filtered_df['concept:name'].isin(event_pair)]
         filtered_df['time:timestamp'] = pd.to_datetime(filtered_df['time:timestamp'], utc=True)
         deltas = []
-        for idx, g in filtered_df[filtered_df['concept:name'].isin([e1, e2])].groupby('case:concept:name'):
+        # for idx, g in filtered_df[filtered_df['concept:name'].isin([e1, e2])].groupby('case:concept:name'):
+        for idx, g in filtered_df.groupby('case:concept:name'):
             g = g.sort_values(by='time:timestamp').reset_index(drop=True)
             g['time:timestamp:to'] = g['time:timestamp'].shift(-1)
             g['concept:name:to'] = g['concept:name'].shift(-1)
@@ -91,17 +92,17 @@ class TimeMining:
                     g_e1['delta'] = g_e1['time:timestamp:to'] - g_e1['time:timestamp']
                     res.extend(g_e1['delta'])
                 temp_df = temp_df[
-                    (temp_df['concept:name'] == event_pair[0]) & (temp_df['concept:name:to'] == event_pair[1])]
+                    (temp_df['concept:name'] == e1) & (temp_df['concept:name:to'] == e2)]
                 temp_df['delta'] = temp_df['time:timestamp:to'] - temp_df['time:timestamp']
                 res.extend(temp_df['delta'])
             elif rule == 'CONDITION':
                 temp_df = temp_df[
-                    (temp_df['concept:name'] == event_pair[0]) & (temp_df['concept:name:to'] == event_pair[1])]
+                    (temp_df['concept:name'] == e1) & (temp_df['concept:name:to'] == e2)]
                 temp_df['delta'] = temp_df['time:timestamp:to'] - temp_df['time:timestamp']
                 res.extend(temp_df['delta'])
             else:
                 temp_df = temp_df[
-                    (temp_df['concept:name'] == event_pair[0]) & (temp_df['concept:name:to'] == event_pair[1])]
+                    (temp_df['concept:name'] == e1) & (temp_df['concept:name:to'] == e2)]
                 temp_df['delta'] = temp_df['time:timestamp:to'] - temp_df['time:timestamp']
                 res.extend(temp_df['delta'])
             deltas.extend(res)
@@ -119,7 +120,7 @@ class TimeMining:
         timing_input_dict = {'CONDITION': set(), 'RESPONSE': set()}
         for e1 in graph.conditions.keys():
             for e2 in graph.conditions[e1]:
-                timing_input_dict['CONDITION'].add((e1, e2))
+                timing_input_dict['CONDITION'].add((e2, e1))
 
         for e1 in graph.responses.keys():
             for e2 in graph.responses[e1]:
@@ -140,12 +141,14 @@ class TimeMining:
                 e2 = timing[1]
                 if e1 not in self.timing_dict['conditionsForDelays']:
                     self.timing_dict['conditionsForDelays'][e1] = {}
-                self.timing_dict['conditionsForDelays'][e1][e2] = value
+                # to have perfect fitness we extract the minimum delay for conditions
+                self.timing_dict['conditionsForDelays'][e1][e2] = min(value)
             elif timing[0] == 'RESPONSE':
                 e1 = timing[1]
                 e2 = timing[2]
                 if e1 not in self.timing_dict['responseToDeadlines']:
                     self.timing_dict['responseToDeadlines'][e1] = {}
-                self.timing_dict['responseToDeadlines'][e1][e2] = value
+                # to have perfect fitness we extract the maximum deadline for responses
+                self.timing_dict['responseToDeadlines'][e1][e2] = max(value)
 
         return TimedDcrGraph({**graph.obj_to_template(), **self.timing_dict})
