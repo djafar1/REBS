@@ -12,6 +12,12 @@ Classes:
 This class provides methods to manage and manipulate milestone and no-response
 relations within a DCR Graph, enhancing the model's ability to represent complex
 process behaviors and dependencies.
+
+References
+----------
+.. [1] Hildebrandt, T., Mukkamala, R.R., Slaats, T. (2012). Nested Dynamic Condition Response Graphs. In: Arbab, F., Sirjani, M. (eds) Fundamentals of Software Engineering. FSEN 2011. Lecture Notes in Computer Science, vol 7141. Springer, Berlin, Heidelberg. `DOI <https://doi.org/10.1007/978-3-642-29320-7_23>`_.
+
+.. [2] Hildebrandt, T.T., Normann, H., Marquard, M., Debois, S., Slaats, T. (2022). Decision Modelling in Timed Dynamic Condition Response Graphs with Data. In: Marrella, A., Weber, B. (eds) Business Process Management Workshops. BPM 2021. Lecture Notes in Business Information Processing, vol 436. Springer, Cham. `DOI <https://doi.org/10.1007/978-3-030-94343-1_28>`_.
 """
 from typing import Dict, Set
 
