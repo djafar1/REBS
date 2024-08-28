@@ -83,12 +83,21 @@ def apply(dcr: TimedDcrGraph, parameters):
             roles = ', '.join(roles)
         except AttributeError:
             roles = ''
+        pending_record = ''
+        if event in dcr.marking.pending:
+            pending_record = '!'
+        executed_record = ''
+        if event in dcr.marking.executed:
+            executed_record = '&#x2713;'
+        label_map = ''
         if event in dcr.label_map:
-            label = roles + ' | ' + dcr.label_map[event]
+            label_map = dcr.label_map[event]
+        label = label_map
+        label = '{ ' + roles  + ' | ' + executed_record + ' ' + pending_record + ' } | { ' + label + ' }'
+        included_style = 'solid'
         if event not in dcr.marking.included:
-            viz.node(event, label, style='dashed',font_size=font_size)
-        else:
-            viz.node(event, label, style='solid',font_size=font_size)
+            included_style = 'dashed'
+        viz.node(event, label, style=included_style,font_size=font_size)
     for event in dcr.conditions:
         for event_prime in dcr.conditions[event]:
             time = None
