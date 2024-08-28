@@ -18,7 +18,7 @@ def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py'):
         title of the DCR graph
     '''
 
-    graph = clean_input(graph, white_space_replacement='', all=True)
+    graph = clean_input(graph, white_space_replacement=None, all=True)
     # event_labels = list(graph.label_map.keys())
     # event_ids = []
     # for event in list(graph.label_map.values()):
