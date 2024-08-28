@@ -92,8 +92,7 @@ def apply(dcr: TimedDcrGraph, parameters):
         label_map = ''
         if event in dcr.label_map:
             label_map = dcr.label_map[event]
-        label = label_map
-        label = '{ ' + roles  + ' | ' + executed_record + ' ' + pending_record + ' } | { ' + label + ' }'
+        label = '{ ' + roles  + ' | ' + executed_record + ' ' + pending_record + ' } | { ' + label_map + ' }'
         included_style = 'solid'
         if event not in dcr.marking.included:
             included_style = 'dashed'
