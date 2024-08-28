@@ -73,8 +73,18 @@ def apply(dcr: TimedDcrGraph, parameters):
 
     for event in dcr.events:
         label = None
+        try:
+            roles = []
+            key_list = list(dcr.role_assignments.keys())
+            value_list = list(dcr.role_assignments.values())
+            for count, value in enumerate(value_list):
+                if event in value:
+                    roles.append(key_list[count])
+            roles = ', '.join(roles)
+        except AttributeError:
+            roles = ''
         if event in dcr.label_map:
-            label = ' | ' + dcr.label_map[event]
+            label = roles + ' | ' + dcr.label_map[event]
         if event not in dcr.marking.included:
             viz.node(event, label, style='dashed',font_size=font_size)
         else:

@@ -146,6 +146,7 @@ def map_labels_to_events(graph):
         dcr = graph
     id_to_label = dcr['labelMapping']
     dcr_res = deepcopy(dcr_template)
+    dcr_res['labelMapping'] = id_to_label
     for k, v in dcr.items():
         if k in id_to_label:
             k = id_to_label[k]

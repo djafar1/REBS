@@ -121,7 +121,7 @@ class DistributedDcrGraph(DcrGraph):
 
     def __getitem__(self, item):
         if hasattr(super(), item):
-            return super()[item]
+            return super().__getitem__(item)
         for key, value in vars(self).items():
             if item == key.split("_")[-1]:
                 return value
