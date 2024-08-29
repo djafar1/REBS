@@ -13,7 +13,7 @@ Follow the steps below:
 4. Unzip in your local machine
 5. Drag all the unzipped files and folders into the left "EXPLORER" box of the Codespace, once you do that it will start uploading quite slowly, so wait for the upload to complete (you can also right click an empty space in the EXPLORER box and select "Upload")
 6. Once at least the new "requirements.txt" file is uploaded, in the bottom box with the "TERMINAL" header type "pip install -r requirements.txt", this will also take some time.
-7. Open the "dcr_tutorial.ipynb" and run the notebook cell by cell using Shift + Ctrl. If a pop up appears telling you to "Select kernel", then go to "Python Environments" and select "Python 3.1X.XX" as your python environment. 
+7. Open the "dcr_tutorial.ipynb" in the notebooks folder and run the notebook cell by cell using Shift + Ctrl. If a pop up appears telling you to "Select kernel", then go to "Python Environments" and select "Python 3.1X.XX" as your python environment. 
 
 Now you should be good to go. Any interactions with the files and folders you need to move between your machine and codespaces should be handled with right click "Upload/Download" from the "EXPLORER" box.
 
