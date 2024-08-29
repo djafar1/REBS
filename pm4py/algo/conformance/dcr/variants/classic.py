@@ -77,9 +77,9 @@ class RuleBasedConformance:
         or if DCR graph contains distributed, if events are executed by the correct distributed.
         Will for each replay of trace check if DCR graph is in an accepting state, if not it determines cause.
 
-        For each replay it computes the fitness of the trace
+        For each replay it computes the fitness of the trace.
 
-        implementation based on the theory provided in [1],
+        Implementation based on the theory provided in [1].
 
         Returns
         ----------
@@ -309,7 +309,7 @@ def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, Distributed
     Applies rule based conformance checking against a DCR graph and an event log.
     Replays the entire log, executing each event and store potential deviations based on set rules associated with the DCR graph.
 
-    implementation based on the theory provided in [1]_.
+    Implementation based on the theory provided in [1]_.
 
     Parameters
     -----------
