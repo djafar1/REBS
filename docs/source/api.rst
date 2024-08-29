@@ -2,6 +2,9 @@ API Reference
 =============
 This page provides an overview the extension ``DCR4Py`` for ``pm4py``.
 
+Note the pm4py.discovery, pm4py.conformance etc. contain the top level api calls for pm4py, in which the function found here have been implemented.
+However the subpackages should only the implemented extension.
+
 Process Discovery (:mod:`pm4py.discovery`)
 ------------------------------------------
 ``DCR4Py`` allows for discovery of DCR graphs.
