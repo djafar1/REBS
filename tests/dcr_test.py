@@ -972,7 +972,7 @@ class TestImportExportDCR(unittest.TestCase):
         self.test_file = os.path.join("test_output_data", "receipt_xml_simple.xml")
         log = pm4py.read_xes(event_log_file)
         dcr, _ = apply(log)
-        pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.XML_SIMPLE, dcr_title='receipt_xml_simple')
+        pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.XML_SIMPLE, dcr_title='receipt_xml_simple', replace_whitespace=' ')
 
         del log
         del dcr
@@ -982,7 +982,7 @@ class TestImportExportDCR(unittest.TestCase):
         self.test_file = os.path.join("test_output_data", "receipt_xml_simple.xml")
         self.export_file_simple(event_log_file)
         dcr = pm4py.read_dcr_xml(self.test_file, variant=dcr_importer.Variants.XML_SIMPLE)
-        pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.Variants.XML_SIMPLE, dcr_title='receipt_xml_simple_exported')
+        pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.Variants.XML_SIMPLE, dcr_title='receipt_xml_simple_exported',replace_whitespace=' ')
         dcr_imported_after_export = pm4py.read_dcr_xml(self.test_file, variant=dcr_importer.Variants.XML_SIMPLE)
         self.assertEqual(len(dcr.__dict__), len(dcr_imported_after_export.__dict__))
 
@@ -999,7 +999,7 @@ class TestImportExportDCR(unittest.TestCase):
         os.remove(self.test_file)
 
         self.test_file = os.path.join("test_output_data", "receipt_xml_simple_to_dcr_js_portal.xml")
-        pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.Variants.DCR_JS_PORTAL, dcr_title='receipt_xml_simple_to_dcr_js_portal')
+        pm4py.write_dcr_xml(dcr_graph=dcr,path=self.test_file,variant=dcr_exporter.Variants.DCR_JS_PORTAL, dcr_title='receipt_xml_simple_to_dcr_js_portal',replace_whitespace=' ')
 
         del dcr
 
@@ -1115,19 +1115,19 @@ class TestImportExportDCR(unittest.TestCase):
         log = pm4py.read_xes(event_log_file)
         dcr, _ = apply(log)
         pm4py.write_dcr_xml(dcr_graph=dcr, path=self.test_file, variant=dcr_exporter.XML_SIMPLE,
-                            dcr_title='xml_simple')
+                            dcr_title='xml_simple',replace_whitespace=' ')
 
     def export_file_dcr_portal(self, event_log_file):
         log = pm4py.read_xes(event_log_file)
         dcr, _ = apply(log)
         pm4py.write_dcr_xml(dcr_graph=dcr, path=self.test_file, variant=dcr_exporter.XML_DCR_PORTAL,
-                            dcr_title='xml_dcr_portal')
+                            dcr_title='xml_dcr_portal',replace_whitespace=' ')
 
     def export_file_dcr_js(self, event_log_file):
         log = pm4py.read_xes(event_log_file)
         dcr, _ = apply(log)
         pm4py.write_dcr_xml(dcr_graph=dcr, path=self.test_file, variant=dcr_exporter.DCR_JS_PORTAL,
-                            dcr_title='xml_dcr_js')
+                            dcr_title='xml_dcr_js',replace_whitespace=' ')
 
     def tearDown(self) -> None:
         os.remove("input_data/Sepsis cases - Event Log.xes.gz")
