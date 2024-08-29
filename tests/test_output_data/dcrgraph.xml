@@ -1,433 +1,180 @@
-<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
-<dcrgraph title="dcrgraph">
-  <specification>
-    <resources>
-      <events>
-        <event id="examinecasually">
-          <custom>
-            <visualization>
-              <location xLoc="0" yLoc="0"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="registerrequest">
-          <custom>
-            <visualization>
-              <location xLoc="300" yLoc="0"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="rejectrequest">
-          <custom>
-            <visualization>
-              <location xLoc="600" yLoc="0"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="reinitiaterequest">
-          <custom>
-            <visualization>
-              <location xLoc="900" yLoc="0"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="examinethoroughly">
-          <custom>
-            <visualization>
-              <location xLoc="1200" yLoc="0"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="checkticket">
-          <custom>
-            <visualization>
-              <location xLoc="0" yLoc="300"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="paycompensation">
-          <custom>
-            <visualization>
-              <location xLoc="300" yLoc="300"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-        <event id="decide">
-          <custom>
-            <visualization>
-              <location xLoc="600" yLoc="300"/>
-              <size width="130" height="150"/>
-            </visualization>
-          </custom>
-        </event>
-      </events>
-      <subProcesses/>
-      <labels>
-        <label id="examinecasually"/>
-        <label id="registerrequest"/>
-        <label id="rejectrequest"/>
-        <label id="reinitiaterequest"/>
-        <label id="examinethoroughly"/>
-        <label id="checkticket"/>
-        <label id="paycompensation"/>
-        <label id="decide"/>
-      </labels>
-      <labelMappings>
-        <labelMapping eventId="examinecasually" labelId="examine casually"/>
-        <labelMapping eventId="registerrequest" labelId="register request"/>
-        <labelMapping eventId="rejectrequest" labelId="reject request"/>
-        <labelMapping eventId="reinitiaterequest" labelId="reinitiate request"/>
-        <labelMapping eventId="examinethoroughly" labelId="examine thoroughly"/>
-        <labelMapping eventId="checkticket" labelId="check ticket"/>
-        <labelMapping eventId="paycompensation" labelId="pay compensation"/>
-        <labelMapping eventId="decide" labelId="decide"/>
-      </labelMappings>
-    </resources>
-    <constraints>
-      <conditions>
-        <condition sourceId="examinecasually" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="130" y="75"/>
-              <waypoint x="365.0" y="75"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="600" y="375"/>
-            </waypoints>
-            <id id="Relation_examinecasually_decide_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="registerrequest" targetId="examinecasually">
-          <custom>
-            <waypoints>
-              <waypoint x="300" y="75"/>
-              <waypoint x="215.0" y="75"/>
-              <waypoint x="215.0" y="75"/>
-              <waypoint x="130" y="75"/>
-            </waypoints>
-            <id id="Relation_registerrequest_examinecasually_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="registerrequest" targetId="examinethoroughly">
-          <custom>
-            <waypoints>
-              <waypoint x="430" y="75"/>
-              <waypoint x="815.0" y="75"/>
-              <waypoint x="815.0" y="75"/>
-              <waypoint x="1200" y="75"/>
-            </waypoints>
-            <id id="Relation_registerrequest_examinethoroughly_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="registerrequest" targetId="checkticket">
-          <custom>
-            <waypoints>
-              <waypoint x="300" y="75"/>
-              <waypoint x="215.0" y="75"/>
-              <waypoint x="215.0" y="375"/>
-              <waypoint x="130" y="375"/>
-            </waypoints>
-            <id id="Relation_registerrequest_checkticket_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="checkticket" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="130" y="375"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="600" y="375"/>
-            </waypoints>
-            <id id="Relation_checkticket_decide_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="decide" targetId="rejectrequest">
-          <custom>
-            <waypoints>
-              <waypoint x="665" y="300"/>
-              <waypoint x="665.0" y="300"/>
-              <waypoint x="665.0" y="150"/>
-              <waypoint x="665" y="150"/>
-            </waypoints>
-            <id id="Relation_decide_rejectrequest_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="decide" targetId="reinitiaterequest">
-          <custom>
-            <waypoints>
-              <waypoint x="730" y="375"/>
-              <waypoint x="815.0" y="375"/>
-              <waypoint x="815.0" y="75"/>
-              <waypoint x="900" y="75"/>
-            </waypoints>
-            <id id="Relation_decide_reinitiaterequest_condition"/>
-          </custom>
-        </condition>
-        <condition sourceId="decide" targetId="paycompensation">
-          <custom>
-            <waypoints>
-              <waypoint x="600" y="375"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="430" y="375"/>
-            </waypoints>
-            <id id="Relation_decide_paycompensation_condition"/>
-          </custom>
-        </condition>
-      </conditions>
-      <responses>
-        <response sourceId="examinecasually" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="130" y="75"/>
-              <waypoint x="365.0" y="75"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="600" y="375"/>
-            </waypoints>
-            <id id="Relation_examinecasually_decide_response"/>
-          </custom>
-        </response>
-        <response sourceId="registerrequest" targetId="checkticket">
-          <custom>
-            <waypoints>
-              <waypoint x="300" y="75"/>
-              <waypoint x="215.0" y="75"/>
-              <waypoint x="215.0" y="375"/>
-              <waypoint x="130" y="375"/>
-            </waypoints>
-            <id id="Relation_registerrequest_checkticket_response"/>
-          </custom>
-        </response>
-        <response sourceId="reinitiaterequest" targetId="checkticket">
-          <custom>
-            <waypoints>
-              <waypoint x="900" y="75"/>
-              <waypoint x="515.0" y="75"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="130" y="375"/>
-            </waypoints>
-            <id id="Relation_reinitiaterequest_checkticket_response"/>
-          </custom>
-        </response>
-        <response sourceId="examinethoroughly" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="1200" y="75"/>
-              <waypoint x="965.0" y="75"/>
-              <waypoint x="965.0" y="375"/>
-              <waypoint x="730" y="375"/>
-            </waypoints>
-            <id id="Relation_examinethoroughly_decide_response"/>
-          </custom>
-        </response>
-        <response sourceId="checkticket" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="130" y="375"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="600" y="375"/>
-            </waypoints>
-            <id id="Relation_checkticket_decide_response"/>
-          </custom>
-        </response>
-      </responses>
-      <excludes>
-        <exclude sourceId="registerrequest" targetId="registerrequest">
-          <custom>
-            <waypoints>
-              <waypoint x="365" y="150"/>
-              <waypoint x="365" y="175"/>
-              <waypoint x="275" y="175"/>
-              <waypoint x="275" y="75"/>
-              <waypoint x="300" y="75"/>
-            </waypoints>
-            <id id="Relation_registerrequest_registerrequest_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="rejectrequest" targetId="examinecasually">
-          <custom>
-            <waypoints>
-              <waypoint x="600" y="75"/>
-              <waypoint x="365.0" y="75"/>
-              <waypoint x="365.0" y="75"/>
-              <waypoint x="130" y="75"/>
-            </waypoints>
-            <id id="Relation_rejectrequest_examinecasually_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="rejectrequest" targetId="rejectrequest">
-          <custom>
-            <waypoints>
-              <waypoint x="665" y="150"/>
-              <waypoint x="665" y="175"/>
-              <waypoint x="575" y="175"/>
-              <waypoint x="575" y="75"/>
-              <waypoint x="600" y="75"/>
-            </waypoints>
-            <id id="Relation_rejectrequest_rejectrequest_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="rejectrequest" targetId="checkticket">
-          <custom>
-            <waypoints>
-              <waypoint x="600" y="75"/>
-              <waypoint x="365.0" y="75"/>
-              <waypoint x="365.0" y="375"/>
-              <waypoint x="130" y="375"/>
-            </waypoints>
-            <id id="Relation_rejectrequest_checkticket_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="rejectrequest" targetId="paycompensation">
-          <custom>
-            <waypoints>
-              <waypoint x="600" y="75"/>
-              <waypoint x="515.0" y="75"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="430" y="375"/>
-            </waypoints>
-            <id id="Relation_rejectrequest_paycompensation_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="rejectrequest" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="665" y="150"/>
-              <waypoint x="665.0" y="150"/>
-              <waypoint x="665.0" y="300"/>
-              <waypoint x="665" y="300"/>
-            </waypoints>
-            <id id="Relation_rejectrequest_decide_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="reinitiaterequest" targetId="reinitiaterequest">
-          <custom>
-            <waypoints>
-              <waypoint x="965" y="150"/>
-              <waypoint x="965" y="175"/>
-              <waypoint x="875" y="175"/>
-              <waypoint x="875" y="75"/>
-              <waypoint x="900" y="75"/>
-            </waypoints>
-            <id id="Relation_reinitiaterequest_reinitiaterequest_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="examinethoroughly" targetId="examinecasually">
-          <custom>
-            <waypoints>
-              <waypoint x="1200" y="75"/>
-              <waypoint x="665.0" y="75"/>
-              <waypoint x="665.0" y="75"/>
-              <waypoint x="130" y="75"/>
-            </waypoints>
-            <id id="Relation_examinethoroughly_examinecasually_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="examinethoroughly" targetId="examinethoroughly">
-          <custom>
-            <waypoints>
-              <waypoint x="1265" y="150"/>
-              <waypoint x="1265" y="175"/>
-              <waypoint x="1175" y="175"/>
-              <waypoint x="1175" y="75"/>
-              <waypoint x="1200" y="75"/>
-            </waypoints>
-            <id id="Relation_examinethoroughly_examinethoroughly_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="paycompensation" targetId="examinecasually">
-          <custom>
-            <waypoints>
-              <waypoint x="300" y="375"/>
-              <waypoint x="215.0" y="375"/>
-              <waypoint x="215.0" y="75"/>
-              <waypoint x="130" y="75"/>
-            </waypoints>
-            <id id="Relation_paycompensation_examinecasually_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="paycompensation" targetId="rejectrequest">
-          <custom>
-            <waypoints>
-              <waypoint x="430" y="375"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="515.0" y="75"/>
-              <waypoint x="600" y="75"/>
-            </waypoints>
-            <id id="Relation_paycompensation_rejectrequest_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="paycompensation" targetId="checkticket">
-          <custom>
-            <waypoints>
-              <waypoint x="300" y="375"/>
-              <waypoint x="215.0" y="375"/>
-              <waypoint x="215.0" y="375"/>
-              <waypoint x="130" y="375"/>
-            </waypoints>
-            <id id="Relation_paycompensation_checkticket_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="paycompensation" targetId="paycompensation">
-          <custom>
-            <waypoints>
-              <waypoint x="365" y="450"/>
-              <waypoint x="365" y="475"/>
-              <waypoint x="275" y="475"/>
-              <waypoint x="275" y="375"/>
-              <waypoint x="300" y="375"/>
-            </waypoints>
-            <id id="Relation_paycompensation_paycompensation_exclude"/>
-          </custom>
-        </exclude>
-        <exclude sourceId="paycompensation" targetId="decide">
-          <custom>
-            <waypoints>
-              <waypoint x="430" y="375"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="515.0" y="375"/>
-              <waypoint x="600" y="375"/>
-            </waypoints>
-            <id id="Relation_paycompensation_decide_exclude"/>
-          </custom>
-        </exclude>
-      </excludes>
-      <includes>
-        <include sourceId="decide" targetId="reinitiaterequest">
-          <custom>
-            <waypoints>
-              <waypoint x="730" y="375"/>
-              <waypoint x="815.0" y="375"/>
-              <waypoint x="815.0" y="75"/>
-              <waypoint x="900" y="75"/>
-            </waypoints>
-            <id id="Relation_decide_reinitiaterequest_include"/>
-          </custom>
-        </include>
-      </includes>
-    </constraints>
-  </specification>
-  <runtime>
-    <marking>
-      <executed/>
-      <included>
-        <event id="examinecasually"/>
-        <event id="registerrequest"/>
-        <event id="rejectrequest"/>
-        <event id="reinitiaterequest"/>
-        <event id="examinethoroughly"/>
-        <event id="checkticket"/>
-        <event id="paycompensation"/>
-        <event id="decide"/>
-      </included>
-      <pendingResponses/>
-    </marking>
-  </runtime>
-</dcrgraph>
+<DCRModel>
+  <title>dcrgraph</title>
+  <graphType>DCRModel</graphType>
+  <roles>
+    <title>User</title>
+    <description>Dummy user</description>
+  </roles>
+  <events>
+    <id>reinitiate request</id>
+    <label>reinitiate request</label>
+  </events>
+  <rules>
+    <type>exclude</type>
+    <source>reinitiate request</source>
+    <target>reinitiate request</target>
+  </rules>
+  <rules>
+    <type>response</type>
+    <source>reinitiate request</source>
+    <target>check ticket</target>
+  </rules>
+  <rules>
+    <type>condition</type>
+    <source>decide</source>
+    <target>reinitiate request</target>
+  </rules>
+  <events>
+    <id>register request</id>
+    <label>register request</label>
+  </events>
+  <rules>
+    <type>exclude</type>
+    <source>register request</source>
+    <target>register request</target>
+  </rules>
+  <rules>
+    <type>response</type>
+    <source>register request</source>
+    <target>check ticket</target>
+  </rules>
+  <events>
+    <id>examine thoroughly</id>
+    <label>examine thoroughly</label>
+  </events>
+  <rules>
+    <type>condition</type>
+    <source>register request</source>
+    <target>examine thoroughly</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>examine thoroughly</source>
+    <target>examine thoroughly</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>examine thoroughly</source>
+    <target>examine casually</target>
+  </rules>
+  <rules>
+    <type>response</type>
+    <source>examine thoroughly</source>
+    <target>decide</target>
+  </rules>
+  <events>
+    <id>check ticket</id>
+    <label>check ticket</label>
+  </events>
+  <rules>
+    <type>condition</type>
+    <source>register request</source>
+    <target>check ticket</target>
+  </rules>
+  <rules>
+    <type>response</type>
+    <source>check ticket</source>
+    <target>decide</target>
+  </rules>
+  <events>
+    <id>reject request</id>
+    <label>reject request</label>
+  </events>
+  <rules>
+    <type>exclude</type>
+    <source>reject request</source>
+    <target>check ticket</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>reject request</source>
+    <target>reject request</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>reject request</source>
+    <target>examine casually</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>reject request</source>
+    <target>pay compensation</target>
+  </rules>
+  <rules>
+    <type>condition</type>
+    <source>decide</source>
+    <target>reject request</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>reject request</source>
+    <target>decide</target>
+  </rules>
+  <events>
+    <id>examine casually</id>
+    <label>examine casually</label>
+  </events>
+  <rules>
+    <type>condition</type>
+    <source>register request</source>
+    <target>examine casually</target>
+  </rules>
+  <rules>
+    <type>response</type>
+    <source>examine casually</source>
+    <target>decide</target>
+  </rules>
+  <events>
+    <id>pay compensation</id>
+    <label>pay compensation</label>
+  </events>
+  <rules>
+    <type>exclude</type>
+    <source>pay compensation</source>
+    <target>check ticket</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>pay compensation</source>
+    <target>reject request</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>pay compensation</source>
+    <target>examine casually</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>pay compensation</source>
+    <target>pay compensation</target>
+  </rules>
+  <rules>
+    <type>condition</type>
+    <source>decide</source>
+    <target>pay compensation</target>
+  </rules>
+  <rules>
+    <type>exclude</type>
+    <source>pay compensation</source>
+    <target>decide</target>
+  </rules>
+  <events>
+    <id>decide</id>
+    <label>decide</label>
+  </events>
+  <rules>
+    <type>include</type>
+    <source>decide</source>
+    <target>reinitiate request</target>
+  </rules>
+  <rules>
+    <type>condition</type>
+    <source>check ticket</source>
+    <target>decide</target>
+  </rules>
+  <rules>
+    <type>condition</type>
+    <source>examine casually</source>
+    <target>decide</target>
+  </rules>
+</DCRModel>

@@ -19,7 +19,6 @@ def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py', replace_
     replace_whitespace
         replace any white space characters with a character of your choice
     '''
-
     graph = clean_input(graph, white_space_replacement=replace_whitespace, all=True)
     # event_labels = list(graph.label_map.keys())
     # event_ids = []

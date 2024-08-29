@@ -2,7 +2,10 @@ import copy
 
 from datetime import timedelta
 import isodate
+from pandas import Timedelta
 
+from pm4py.objects.dcr.extended.obj import ExtendedDcrGraph
+from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 from pm4py.util import constants
 from copy import deepcopy
 from pm4py.objects.dcr.obj import Relations, dcr_template, DcrGraph
@@ -48,8 +51,11 @@ def import_xml_tree_from_root(root, replace_whitespace=' ', **kwargs):
     dcr = copy.deepcopy(dcr_template)
     for event_elem in root.findall('.//events'):
         event_id = event_elem.find('id').text.replace(' ', replace_whitespace)
+        label = event_elem.find('label').text.replace(' ', replace_whitespace)
         dcr['events'].add(event_id)
         dcr['marking']['included'].add(event_id)
+        dcr['labelMapping'][event_id] = label
+        dcr['labels'].add(label)
 
     for rule_elem in root.findall('.//rules'):
         rule_type = rule_elem.find('type').text
@@ -118,7 +124,12 @@ def import_xml_tree_from_root(root, replace_whitespace=' ', **kwargs):
                 dcr['noResponseTo'][source] = set()
             dcr['noResponseTo'][source].add(target)
 
-    graph = DcrGraph(dcr)
+    if len(dcr['noResponseTo'])>0 or len(dcr['milestonesFor'])>0:
+        graph = ExtendedDcrGraph(dcr)
+    elif len(dcr['responseToDeadlines'])>0 or len(dcr['conditionsForDelays'])>0:
+        graph = TimedDcrGraph(dcr)
+    else:
+        graph = DcrGraph(dcr)
     return graph
 
 
