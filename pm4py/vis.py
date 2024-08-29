@@ -1295,7 +1295,7 @@ def view_powl(powl: POWL, format: str = constants.DEFAULT_FORMAT_GVIZ_VIEW, bgco
         variant = POWLVisualizationVariants.NET
 
     format = str(format).lower()
-    parameters = parameters={"format": format, "bgcolor": bgcolor}
+    parameters = parameters = {"format": format, "bgcolor": bgcolor}
 
     from pm4py.visualization.powl import visualizer as powl_visualizer
     gviz = powl_visualizer.apply(powl, variant=variant, parameters=parameters)
@@ -1400,29 +1400,24 @@ def view_dcr(dcr: DcrGraph, format: str = constants.DEFAULT_FORMAT_GVIZ_VIEW, bg
     """
     format = str(format).lower()
     from pm4py.visualization.dcr import visualizer as dcr_visualizer
-    gviz = dcr_visualizer.apply(dcr,parameters={"format": format, "bgcolor": bgcolor, "set_rankdir": rankdir})
+    gviz = dcr_visualizer.apply(dcr, parameters={"format": format, "bgcolor": bgcolor, "set_rankdir": rankdir})
     dcr_visualizer.view(gviz)
 
-def save_vis_dcr(dcr: DcrGraph, file_path: str, bgcolor: str = "white",
-                   decorations: Dict[Any, Any] = None, debug: bool = False, rankdir: str = constants.DEFAULT_RANKDIR_GVIZ, **kwargs):
+def save_vis_dcr(dcr: DcrGraph, file_path: str, bgcolor: str = "white", rankdir: str = constants.DEFAULT_RANKDIR_GVIZ, **kwargs):
     """
-    Saves a Petri net visualization to a file
+    Views a DCR graph
 
-    :param petri_net: Petri net
-    :param initial_marking: Initial marking
-    :param final_marking: Final marking
-    :param file_path: Destination path
+    :param dcr_graph: DCR graph
+    :param file_path: output path for where DCR graph should be saved
     :param bgcolor: Background color of the visualization (default: white)
-    :param decorations: Decorations (color, label) associated to the elements of the Petri net
-    :param debug: Boolean enabling/disabling the debug mode (show place and transition's names)
     :param rankdir: sets the direction of the graph ("LR" for left-to-right; "TB" for top-to-bottom)
 
     .. code-block:: python3
 
         import pm4py
 
-        net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
-        pm4py.save_vis_petri_net(net, im, fm, 'petri_net.png')
+        dcr = pm4py.discover_dcr(dataframe)
+        pm4py.save_vis_dcr(dcr, format='svg')
     """
     file_path = str(file_path)
     format = os.path.splitext(file_path)[1][1:].lower()
