@@ -2,23 +2,17 @@ API Reference
 =============
 This page provides an overview the extension ``DCR4Py`` for ``pm4py``.
 
-Conversion (:mod:`pm4py.convert`)
--------------------------------------
-Conversion of model to petri net has been updated to allow for converting DCR to petri net
-
-  * :meth:`pm4py.convert.convert_to_petri_net` converts a process model to Petri net
-
-
 Process Discovery (:mod:`pm4py.discovery`)
 ------------------------------------------
-``DCR4Py`` allows for discovery of DCR graphs, note that the dcr-discover will discover a perfect fitting graph for the provided event log.
+``DCR4Py`` allows for discovery of DCR graphs.
+Note that the implemented algorithm always discover a perfect fitting graph.
 
   * :meth:`pm4py.discovery.discover_dcr`; discovers a *DCR Graph*.
 
 
 Conformance Checking (:mod:`pm4py.conformance`)
 -----------------------------------------------
-``DCR4Py`` contains two conformance checking methods, a rule-based and alignment-based conformance checking to help provide insight to a dcr graph conformance compared to the event log.
+``DCR4Py`` contains two conformance checking methods:
 
   * :meth:`pm4py.conformance.conformance_dcr`; rule based conformance checking using a *DCR Graph*
   * :meth:`pm4py.conformance.optimal_alignment_dcr`; optimal alignment conformance checking using a *DCR Graph*
@@ -26,15 +20,24 @@ Conformance Checking (:mod:`pm4py.conformance`)
 
 Visualization (:mod:`pm4py.vis`)
 ------------------------------------------
-The ``DCR4Py`` library extension to pm4py implements a visualization for dcr graphs in addtion a method for storing visualization on disk.
+``DCR4Py`` allow visualization of DCR graphs and storing them.
 
   * :meth:`pm4py.vis.view_dcr`; views a *DCR graph*.
+  * :meth:`pm4py.vis.save_vis_dcr`; saves the visualization of a *DCR graph*.
 
-ImWe offer also some methods to store the visualizations on the disk:
+Read (:mod:`pm4py.read` and :mod:`pm4py.write`)
+------------------------------------------
+``DCR4Py`` can import and export dcr graphs as xml.
 
-* :meth:`pm4py.vis.save_vis_dcr`; saves the visualization of a *DCR graph*.
+  * :meth:`pm4py.write.write_dcr_xml`; exports a *DCR graph* to xml.
+  * :meth:`pm4py.read.read_dcr_xml`; imports a *DCR graph* from xml.
 
+Conversion (:mod:`pm4py.convert`)
+-------------------------------------
+``DCR4Py`` also allows for the conversion of a DCR graph to petri net.
+The current existing function within pm4py has been extended to also handle DCR graphs.
 
+  * :meth:`pm4py.convert.convert_to_petri_net` converts a process model to Petri net
 
 Overall List of Methods
 ------------------------------------------
