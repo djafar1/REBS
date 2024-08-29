@@ -1,5 +1,24 @@
 # Dcr4py: An extension of pm4py for declarative Dynamic Condition Response Graphs
 
+## For ICPM 2024 demonstration purposes follow this guide
+
+I recommend you use github codespaces: https://github.com/codespaces
+
+Follow the steps below:
+
+0. Create a github account if you don't already have one.
+1. Got to https://github.com/codespaces
+2. Find the "Jupyter Notebook" start template and click "Use this template"
+3. Download the github code as a zip file: https://github.com/paul-cvp/pm4py-dcr/tree/feature/dcr_in_pm4py_revised (click on the green button and then click "download zip")
+4. Unzip in your local machine
+5. Drag all the unzipped files and folders into the left "EXPLORER" box of the Codespace, once you do that it will start uploading quite slowly, so wait for the upload to complete (you can also right click an empty space in the EXPLORER box and select "Upload")
+6. Once at least the new "requirements.txt" file is uploaded, in the bottom box with the "TERMINAL" header type "pip install -r requirements.txt", this will also take some time.
+7. Open the "dcr_tutorial.ipynb" and run the notebook cell by cell using Shift + Ctrl. If a pop up appears telling you to "Select kernel", then go to "Python Environments" and select "Python 3.1X.XX" as your python environment. 
+
+Now you should be good to go. Any interactions with the files and folders you need to move between your machine and codespaces should be handled with right click "Upload/Download" from the "EXPLORER" box.
+
+## Features
+
 New features added compared to pm4py:
 * DcrGraph objects: Role, MilestoneNoResponse, NestingSubprocess, Timed, Import (from DCR Portal[1] and DCR js[2]), Export (to DCR Portal[2] and DCR js[2])
 * Conformance: Alignments, Rule based
