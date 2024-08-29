@@ -31,8 +31,7 @@ def time_to_iso_string(time, time_precision='D'):
 def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
     pattern = '[^0-9a-zA-Z_]+'
     if white_space_replacement is None:
-        return graph
-        # white_space_replacement = ' '
+        white_space_replacement = ' '
     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
     # for k, v in deepcopy(dcr).items():
     for k in [r.value for r in Relations]:
