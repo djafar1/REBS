@@ -30,7 +30,13 @@ Example usage:
 
 ```
 
-# pm4py
+## DCR4Py contributors
+
+[paul-cvp](https://github.com/paul-cvp),[Timmovich](https://github.com/Timmovich), [Scones111](https://github.com/Scones111), [RagnarLaki](https://github.com/RagnarLaki), 
+[simonhermansen](https://github.com/simonhermansen), [Axel](https://github.com/Axel0087), [Tijs](https://github.com/tslaats)
+
+
+# pm4py (documentation from the source repo)
 pm4py is a python library that supports (state-of-the-art) process mining algorithms in python. 
 It is open source (licensed under GPL) and intended to be used in both academia and industry projects.
 pm4py is managed and developed by Process Intelligence Solutions (https://processintelligence.solutions/).
