@@ -1405,7 +1405,7 @@ def view_dcr(dcr: DcrGraph, format: str = constants.DEFAULT_FORMAT_GVIZ_VIEW, bg
 
 def save_vis_dcr(dcr: DcrGraph, file_path: str, bgcolor: str = "white", rankdir: str = constants.DEFAULT_RANKDIR_GVIZ, **kwargs):
     """
-    Views a DCR graph
+    Saves the visualization of a DCR graph
 
     :param dcr_graph: DCR graph
     :param file_path: output path for where DCR graph should be saved
