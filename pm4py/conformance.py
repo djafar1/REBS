@@ -839,9 +839,10 @@ def conformance_dcr(log: Union[EventLog, pd.DataFrame], dcr_graph: DcrGraph, act
                                                                                                                 Dict[
                                                                                                                     str, Any]]]:
     """
-    Applies conformance checking against a DCR model.
-    inspired by github implementation:
-    https://github.com/fau-is/cc-dcr/tree/master
+    Applies rule based conformance checking against a DCR model.
+    reference:
+    C. Josep et al., "Conformance Checking Software", Springer International Publishing, 65-74, 2018., https://doi.org/10.1007/978-3-319-99414-7.
+
     :param log: event log
     :param dcr_graph: DCR graph
     :param activity_key: attribute to be used for the activity
