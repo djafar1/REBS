@@ -3,7 +3,7 @@ from lxml import etree
 from pm4py.objects.dcr.utils.utils import clean_input
 
 
-def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py', white_space_replacement=' '):
+def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py', replace_whitespace=' '):
     '''
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
     The file is to be visualised using the following link: https://hugoalopez-dtu.github.io/dcr-js/
@@ -16,11 +16,11 @@ def export_dcr_xml(graph, output_file_name, dcr_title='DCR from pm4py', white_sp
         dcrxml file name
     dcr_title
         title of the DCR graph
-    white_space_replacement
+    replace_whitespace
         replace any white space characters with a character of your choice
     '''
 
-    graph = clean_input(graph, white_space_replacement=white_space_replacement, all=True)
+    graph = clean_input(graph, white_space_replacement=replace_whitespace, all=True)
     # event_labels = list(graph.label_map.keys())
     # event_ids = []
     # for event in list(graph.label_map.values()):

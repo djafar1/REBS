@@ -123,6 +123,7 @@ def export_dcr_xml(graph: DcrGraph, output_file_name, dcr_title='DCR from pm4py'
     dcr_description
         description of the DCR graph
     replace_whitespace
+        a character to replace white space
     '''
     root = etree.Element("DCRModel")
     if dcr_title:
@@ -134,7 +135,7 @@ def export_dcr_xml(graph: DcrGraph, output_file_name, dcr_title='DCR from pm4py'
     graph_type = etree.SubElement(root, "graphType")
     graph_type.text = "DCRModel"
     # this needs to exist so it can be imported inside dcr graphs with the app
-    role = etree.SubElement(root, "distributed")
+    role = etree.SubElement(root, "roles")
     role_title = etree.SubElement(role, "title")
     role_title.text = "User"
     role_description = etree.SubElement(role, "description")

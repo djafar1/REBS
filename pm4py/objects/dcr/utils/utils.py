@@ -31,7 +31,8 @@ def time_to_iso_string(time, time_precision='D'):
 def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
     pattern = '[^0-9a-zA-Z_]+'
     if white_space_replacement is None:
-        white_space_replacement = ' '
+        return graph
+        #white_space_replacement = ' '
     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
     # for k, v in deepcopy(dcr).items():
     for k in [r.value for r in Relations]:
@@ -146,7 +147,7 @@ def map_labels_to_events(graph):
         dcr = graph
     id_to_label = dcr['labelMapping']
     dcr_res = deepcopy(dcr_template)
-    dcr_res['labelMapping'] = id_to_label
+    new_label_map = {v:v for k,v in id_to_label.items()}
     for k, v in dcr.items():
         if k in id_to_label:
             k = id_to_label[k]
@@ -176,6 +177,7 @@ def map_labels_to_events(graph):
         else:
             if k not in ['labels', 'roles']:
                 dcr_res[k] = set([id_to_label[i] for i in v])
+    dcr_res['labelMapping'] = new_label_map
     if is_dcr_object:
         return cast_to_dcr_object(dcr_res)
     else:

@@ -18,6 +18,8 @@ __doc__ = """
 The ``pm4py.write`` module contains all funcationality related to writing files/objects to disk.
 """
 
+from copy import deepcopy
+
 from pm4py.objects.bpmn.obj import BPMN
 from pm4py.objects.log.obj import EventLog, EventStream
 from pm4py.objects.ocel.obj import OCEL
@@ -381,14 +383,14 @@ def write_ocel2_xml(ocel: OCEL, file_path: str, encoding: str = constants.DEFAUL
     return xml_exporter.apply(ocel, file_path, variant=xml_exporter.Variants.OCEL20, parameters={"encoding": encoding})
 
 
-def write_dcr_xml(dcr_graph, path, variant, dcr_title, white_space_replacement=' '):
+def write_dcr_xml(dcr_graph, path, variant, dcr_title, replace_whitespace=None):
     """
     Writes a DCR graph object to disk in the ``.xml`` file format (exported as ``.xml`` file).
     :param dcr: DCR graph object
     :param path: target file path to the XML file
     :param variant: variant of the DCR graph
     :param dcr_title: title of the DCR graph
-    :param white_space_replacement: optional replacement for the white space character
+    :param replace_whitespace: optional replacement for the white space character
     .. code-block:: python3
 
         import pm4py
@@ -399,4 +401,4 @@ def write_dcr_xml(dcr_graph, path, variant, dcr_title, white_space_replacement='
         file_path = file_path + ".xml"
 
     from pm4py.objects.dcr.exporter import exporter as dcr_exporter
-    return dcr_exporter.apply(dcr_graph=dcr_graph, path=file_path, variant=variant, dcr_title=dcr_title, white_space_replacement=white_space_replacement)
+    return dcr_exporter.apply(dcr_graph=deepcopy(dcr_graph), path=file_path, variant=variant, dcr_title=dcr_title, replace_whitespace=replace_whitespace)
