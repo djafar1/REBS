@@ -77,10 +77,9 @@ class RuleBasedConformance:
         or if DCR graph contains distributed, if events are executed by the correct distributed.
         Will for each replay of trace check if DCR graph is in an accepting state, if not it determines cause.
 
-        For each replay it compute the fitness of the trace
+        For each replay it computes the fitness of the trace.
 
-        implementation based on the theory provided in [1],
-        and inspired by the Github implementation of conformance checking using trace replay on a DCR graph [2].
+        Implementation based on the theory provided in [1].
 
         Returns
         ----------
@@ -95,8 +94,6 @@ class RuleBasedConformance:
         References
         ----------
         * [1] C. Josep et al., "Conformance Checking Software",  Springer International Publishing, 65-74, 2018. `DOI <https://doi.org/10.1007/978-3-319-99414-7>`_.
-        * [2] Sebastian Dunzer, `<https://github.com/fau-is/cc-dcr/tree/master>`_.
-
         """
 
         # Create list for accumalating each trace data for conformance
@@ -312,8 +309,7 @@ def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, Distributed
     Applies rule based conformance checking against a DCR graph and an event log.
     Replays the entire log, executing each event and store potential deviations based on set rules associated with the DCR graph.
 
-    implementation based on the theory provided in [1]_,
-    and inspired by the Github implementation of conformance checking using trace replay on a DCR graph [2]_.
+    Implementation based on the theory provided in [1]_.
 
     Parameters
     -----------
@@ -340,8 +336,6 @@ def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, Distributed
     ----------
     .. [1] C. Josep et al., "Conformance Checking Software",
       	Springer International Publishing, 65-74, 2018. `DOI <https://doi.org/10.1007/978-3-319-99414-7>`_.
-    .. [2] Sebastian Dunzer, 'Link <https://github.com/fau-is/cc-dcr/tree/master>.
-
     """
     if parameters is None:
         parameters = {}
