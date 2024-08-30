@@ -1,5 +1,13 @@
 # Dcr4py: An extension of pm4py for declarative Dynamic Condition Response Graphs
 
+## Features
+
+New features added compared to pm4py:
+* DcrGraph objects: Role, MilestoneNoResponse, NestingSubprocess, Timed, Import (from DCR Portal[1] and DCR js[2]), Export (to DCR Portal[2] and DCR js[2])
+* Conformance: Alignments, Rule based
+* Discovery with extensions: Role, Pending, Timed
+* Visualization: DcrGraph visualization with graphviz
+
 ## For ICPM 2024 demonstration purposes follow this guide
 
 I recommend you use github codespaces: https://github.com/codespaces
@@ -17,25 +25,25 @@ Follow the steps below:
 
 Now you should be good to go. Any interactions with the files and folders you need to move between your machine and codespaces should be handled with right click "Upload/Download" from the "EXPLORER" box.
 
-## Features
+## For ICPM 2024 demonstration to generate documentation
 
-New features added compared to pm4py:
-* DcrGraph objects: Role, MilestoneNoResponse, NestingSubprocess, Timed, Import (from DCR Portal[1] and DCR js[2]), Export (to DCR Portal[2] and DCR js[2])
-* Conformance: Alignments, Rule based
-* Discovery with extensions: Role, Pending, Timed
-* Visualization: DcrGraph visualization with graphviz
- 
-Example usage:
-```python
-
+1. In your virtual python environment run: 
 ```
+pip install -U sphinx
+pip install sphinx-autodoc-annotation
+pip install pydata-sphinx-theme
+```
+2. Move to the docs folder: ```cd docs```
+3. Generate all the .rst file using: ```python -m setup```
+4. Run ```make html```
+5. Inside "docs/build/html" you can open the ```index.html``` file in your browser and navigate around the documentation
 
 ## DCR4Py contributors
 
 [paul-cvp](https://github.com/paul-cvp),[Timmovich](https://github.com/Timmovich), [Scones111](https://github.com/Scones111), [RagnarLaki](https://github.com/RagnarLaki), 
 [simonhermansen](https://github.com/simonhermansen), [Axel](https://github.com/Axel0087), [Tijs](https://github.com/tslaats)
 
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # pm4py (documentation from the source repo)
 pm4py is a python library that supports (state-of-the-art) process mining algorithms in python. 
 It is open source (licensed under GPL) and intended to be used in both academia and industry projects.
