@@ -8,7 +8,7 @@ New features added compared to pm4py:
 * Discovery with extensions: Role, Pending, Timed
 * Visualization: DcrGraph visualization with graphviz
 
-## For ICPM 2024 demonstration purposes follow this guide
+## Runnning the demo: For ICPM 2024 demonstration purposes follow this guide
 
 I recommend you use github codespaces: https://github.com/codespaces
 
@@ -25,7 +25,11 @@ Follow the steps below:
 
 Now you should be good to go. Any interactions with the files and folders you need to move between your machine and codespaces should be handled with right click "Upload/Download" from the "EXPLORER" box.
 
-## For ICPM 2024 demonstration to generate documentation
+## Documentation: For ICPM 2024 demonstration purposes
+
+Generated documentation available at: https://paul-cvp.github.io/dcr4pydocs/
+
+Optionally you can generate the documentation (step 5 does not work in codespaces unless you install the HTML Preview extension inside the codespace):
 
 1. In your virtual python environment run: 
 ```
