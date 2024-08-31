@@ -4,7 +4,7 @@ from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 
 
-def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespace=' ', time_precision='H'):
+def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespace=None, time_precision='H'):
     '''
 
     Parameters
@@ -19,6 +19,9 @@ def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespa
     -------
 
     '''
+    if replace_whitespace is None:
+        replace_whitespace = ' '
+
     for event in graph.events:
         xml_event = etree.SubElement(root, "events")
         xml_event_id = etree.SubElement(xml_event, "id")
