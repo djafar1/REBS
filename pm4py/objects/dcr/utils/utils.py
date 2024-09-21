@@ -277,4 +277,3 @@ def nested_groups_and_sps_to_flat_dcr(graph: GroupSubprocessDcrGraph) -> DcrGrap
     graph.nestedgroups = {}
     graph.nestedgroups_map = {}
     return graph
-    # return graph.obj_to_template()

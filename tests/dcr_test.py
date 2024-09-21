@@ -875,7 +875,6 @@ class TestAlignment(unittest.TestCase):
 
         alignment_obj = Alignment(graph_handler, trace_handler)
         dcr_trace_result = alignment_obj.apply_trace()
-
         self.assertIsNotNone(dcr_trace_result)
         self.assertIn('alignment', dcr_trace_result)
         self.assertGreaterEqual(len(dcr_trace_result['alignment']),len(trace))

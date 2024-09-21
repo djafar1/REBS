@@ -215,7 +215,7 @@ class Dcr2PetriNet(object):
         for event in G['events']:
             tapn, m = self.create_event_pattern(event, G, tapn, m)
 
-        if self.debug:
+        if self.debug and tapn_path:
             self.export_debug_net(tapn, m, tapn_path, f'{induction_step}event', pn_export_format)
             induction_step += 1
         # all self exceptions have been mapped at this point
@@ -227,14 +227,14 @@ class Dcr2PetriNet(object):
         for event in G['conditionsFor']:
             for event_prime in G['conditionsFor'][event]:
                 tapn = sr.create_condition_pattern(event, event_prime, tapn)
-                if self.debug:
+                if self.debug and tapn_path:
                     self.export_debug_net(tapn, m, tapn_path, f'{induction_step}conditionsFor', pn_export_format)
                     induction_step += 1
         if not self.basic:
             for event in G['milestonesFor']:
                 for event_prime in G['milestonesFor'][event]:
                     tapn = sr.create_milestone_pattern(event, event_prime, tapn)
-                    if self.debug:
+                    if self.debug and tapn_path:
                         self.export_debug_net(tapn, m, tapn_path, f'{induction_step}milestonesFor', pn_export_format)
                         induction_step += 1
 
@@ -244,26 +244,26 @@ class Dcr2PetriNet(object):
         for event in G['includesTo']:
             for event_prime in G['includesTo'][event]:
                 tapn = sr.create_include_pattern(event, event_prime, tapn)
-                if self.debug:
+                if self.debug and tapn_path:
                     self.export_debug_net(tapn, m, tapn_path, f'{induction_step}includesTo', pn_export_format)
                     induction_step += 1
         for event in G['excludesTo']:
             for event_prime in G['excludesTo'][event]:
                 tapn = sr.create_exclude_pattern(event, event_prime, tapn)
-                if self.debug:
+                if self.debug and tapn_path:
                     self.export_debug_net(tapn, m, tapn_path, f'{induction_step}{event}excludesTo{event_prime}', pn_export_format)
                     induction_step += 1
         for event in G['responseTo']:
             for event_prime in G['responseTo'][event]:
                 tapn = sr.create_response_pattern(event, event_prime, tapn)
-                if self.debug:
+                if self.debug and tapn_path:
                     self.export_debug_net(tapn, m, tapn_path, f'{induction_step}responseTo', pn_export_format)
                     induction_step += 1
         if not self.basic:
             for event in G['noResponseTo']:
                 for event_prime in G['noResponseTo'][event]:
                     tapn = sr.create_no_response_pattern(event, event_prime, tapn)
-                    if self.debug:
+                    if self.debug and tapn_path:
                         self.export_debug_net(tapn, m, tapn_path, f'{induction_step}noResponseTo', pn_export_format)
                         induction_step += 1
 
@@ -272,7 +272,7 @@ class Dcr2PetriNet(object):
             print('[i] handle all relation exceptions')
         tapn = self.mapping_exceptions.map_exceptional_cases_between_events(tapn, m)
 
-        if self.debug:
+        if self.debug and tapn_path:
             self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions', pn_export_format)
             induction_step += 1
 

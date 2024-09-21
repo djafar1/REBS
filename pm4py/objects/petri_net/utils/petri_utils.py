@@ -162,7 +162,7 @@ def check_arc_exists(source, target, tapn:PetriNet):
 
 def add_arc_from_to_with_check(fr, to, net: PetriNet, weight=1, type=None, with_check=False) -> PetriNet.Arc:
     """
-    TODO: merge add_arc_from_to into add_arc_from_to_newer
+    TODO: merge add_arc_from_to into add_arc_from_to_apt
     Adds an arc from a specific element to another element in some net. Assumes from and to are in the net!
 
     Parameters

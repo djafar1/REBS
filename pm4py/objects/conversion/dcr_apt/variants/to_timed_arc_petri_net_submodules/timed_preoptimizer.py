@@ -29,7 +29,7 @@ class TimedPreoptimizer(object):
             no_response_events = no_response_events.union(set(G['noResponseTo'][event] if event in G['noResponseTo'] else set()))
 
         not_included_events = set(G['events']).difference(set(G['marking']['included']))
-        not_pending_events = set(G['events']).difference(set(G['marking']['pending']))
+        not_pending_events = set(G['events']).difference(set(G['marking']['pending']).union(set(G['marking']['pendingDeadline'])))
         not_included_become_included = not_included_events.intersection(inclusion_events)
         included_become_excluded = set(G['marking']['included']).intersection(exclusion_events)
         need_included_place = not_included_become_included.union(included_become_excluded)
@@ -37,6 +37,7 @@ class TimedPreoptimizer(object):
 
         need_executed_place = set(G['marking']['executed']).union(condition_events)
         need_pending_place = set(G['marking']['pending']).union(response_events).union(milestone_events).union(no_response_events)
+        need_pending_place = need_pending_place.union(set(G['marking']['pendingDeadline']))
         need_pending_excluded_place = need_pending_place.intersection(need_included_place)
 
         self.no_init_t = set(G['marking']['pending']).difference(no_response_events)

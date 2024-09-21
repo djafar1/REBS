@@ -1,0 +1,11 @@
+    NoArc = 0  #
+    TtoP = 1  # -->
+    PtoT = 2  # <--
+    Read = 3  # <->
+    Both = 3  # <->
+    Inhib = 4  # o--
+    TtoPandInhib = 5  # o->
+    TtP = 6 # --<>
+    PtT = 7 # <>--
+    TRead = 8 # <>-<>
+    TBoth = 8 # <>-<>

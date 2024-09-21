@@ -22,7 +22,9 @@ class Dcr2TimedArcPetri(object):
         self.transitions = {}
         self.mapping_exceptions = None
         self.reachability_timeout = None
-        self.print_steps = debug
+        self.debug = debug
+        if debug:
+            self.aprs = {}
         self.base_case = pd.DataFrame([[3, 3, 4, 0],
                                        [3, 5, 4, 0],
                                        [3, 5, 2, 0],
@@ -51,18 +53,33 @@ class Dcr2TimedArcPetri(object):
         # or self response then we have [event][unique deadline][event]
         for event in G['events']:
             self.unique_deadline[event] = {}
-        for event in G['events']:
-            if event in G['marking']['pendingDeadline']:
-                v = G['marking']['pendingDeadline'][event]
-                do_work(v, 'init', self.unique_deadline[event])
-            if event in G['marking']['pending']:
-                do_work(0, 'init', self.unique_deadline[event])
-            if event in G['responseToDeadlines']:
-                for event_prime, v in G['responseToDeadlines'][event].items():
-                    do_work(v, event, self.unique_deadline[event_prime])
-            elif event in G['responseTo']:
-                for event_prime in G['responseTo'][event]:
+        for event, v in G['marking']['pendingDeadline'].items():
+            do_work(v, 'init', self.unique_deadline[event])
+        for event in set(G['marking']['pending']).difference(set(G['marking']['pendingDeadline'].keys())):
+            do_work(0, 'init', self.unique_deadline[event])
+        resp_with_deadlines = set()
+        for event in G['responseToDeadlines']:
+            for event_prime, v in G['responseToDeadlines'][event].items():
+                do_work(v, event, self.unique_deadline[event_prime])
+                resp_with_deadlines.add(frozenset([event,event_prime]))
+        for event in G['responseTo']:
+            for event_prime in G['responseTo'][event]:
+                if frozenset([event,event_prime]) not in resp_with_deadlines:
                     do_work(0, event, self.unique_deadline[event_prime])
+
+        # for event in G['events']:
+        #     if event in G['marking']['pendingDeadline']:
+        #         v = G['marking']['pendingDeadline'][event]
+        #         do_work(v, 'init', self.unique_deadline[event])
+        #     if event in G['marking']['pending']:
+        #         do_work(0, 'init', self.unique_deadline[event])
+        #     if event in G['responseToDeadlines']:
+        #         for event_prime, v in G['responseToDeadlines'][event].items():
+        #             do_work(v, event, self.unique_deadline[event_prime])
+        #     elif event in G['responseTo']:
+        #         for event_prime in G['responseTo'][event]:
+        #             do_work(0, event, self.unique_deadline[event_prime])
+
         for event in G['conditionsForDelays']:
             for event_prime in G['conditionsForDelays'][event]:
                 delay = G['conditionsForDelays'][event][event_prime]
@@ -267,7 +284,7 @@ class Dcr2TimedArcPetri(object):
         events = G['events']
         base_case_dict = {}
         marking = {}
-        if self.print_steps:
+        if self.debug:
             print('[i] mapping events')
         for event in events:
             event_base_case, m = self.create_event_pattern(event, G)
@@ -293,12 +310,12 @@ class Dcr2TimedArcPetri(object):
         self.timed = True  # False = untimed | True = timed cond (delay) and resp (deadline)
         # self.transport_idx = 0
         self.initialize_helper_struct(G)
-        self.mapping_exceptions = timed_exceptional_cases.TimedExceptionalCases(self.event_to_deadline_map)
+        self.mapping_exceptions = timed_exceptional_cases.TimedExceptionalCases(self.event_to_deadline_map, self.debug)
         self.preoptimizer = timed_preoptimizer.TimedPreoptimizer()
 
         # pre-optimize mapping based on DCR graph behaviour
         if self.preoptimize:
-            if self.print_steps:
+            if self.debug:
                 print('[i] preoptimizing')
             self.preoptimizer.pre_optimize_based_on_dcr_behaviour(G)
             if not self.map_unexecutable_events:
@@ -307,32 +324,38 @@ class Dcr2TimedArcPetri(object):
         # including the handling of exception cases from the induction step
         G, transition_types = self.mapping_exceptions.filter_exceptional_cases(G)
         if self.preoptimize:
-            if self.print_steps:
+            if self.debug:
                 print('[i] finding exceptional behaviour')
             self.preoptimizer.preoptimize_based_on_exceptional_cases(G, self.mapping_exceptions)
 
         # map events
         master_df, marking = self.map_events(G)
+        if self.debug:
+            self.aprs['events'] = deepcopy(master_df)
 
-        if self.print_steps:
+        if self.debug:
             print('[i] handle all relations')
         master_df = self.mapping_exceptions.map_exceptional_cases_between_events(master_df)
+        if self.debug:
+            self.aprs = {**self.aprs, **self.mapping_exceptions.aprs}
 
         # Part 2
         pn_export_format = pnml_exporter.TAPN
         if tapn_path and tapn_path.endswith("pnml"):
             pn_export_format = pnml_exporter.PNML
+
+        master_df = master_df.drop('No', axis=1, level=1, errors='ignore') #19.09.2024 new entry
         tapn, m = self.arc_pattern_table_to_petri(master_df, marking)
         # post-optimize based on the petri net reachability graph
         if self.postoptimize:
-            if self.print_steps:
+            if self.debug:
                 print('[i] post optimizing')
             # for k in tapn.places:
             #     m.timed_dict[k] = 0
             tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, G)
 
         if tapn_path:
-            if self.print_steps:
+            if self.debug:
                 print(f'[i] export to {tapn_path}')
 
             pnml_exporter.apply(tapn, m, tapn_path, variant=pn_export_format, parameters={'isTimed': self.timed})
@@ -402,7 +425,7 @@ class Dcr2TimedArcPetri(object):
                             ptt = pn_utils.add_arc_from_to_apt(self.p_dict[(event_prime, place_type)], t, res_pn, type='transport')
                             ptt.properties['transportindex'] = transport_idx
                             # this should work because only conditions have this type of arc
-                            delay = self.delay_dict[frozenset([event, event_prime])]
+                            delay = self.delay_dict[frozenset([event, event_prime])] if frozenset([event, event_prime]) in self.delay_dict else None
                             if delay and delay > 0:
                                 ptt.properties['agemin'] = delay
                             transport_idx += 1

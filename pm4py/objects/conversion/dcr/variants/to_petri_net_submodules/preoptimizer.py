@@ -1,4 +1,4 @@
-from pm4py.objects.conversion.dcr.variants.to_petri_net_submodules.utils import Relations
+from pm4py.objects.dcr.obj import TemplateRelations as Relations
 
 class Preoptimizer(object):
     need_included_place = set()

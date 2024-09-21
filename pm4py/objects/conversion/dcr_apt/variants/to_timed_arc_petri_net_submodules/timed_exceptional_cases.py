@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pandas as pd
 import numpy as np
 
@@ -15,10 +17,13 @@ M = Relations.M.value
 
 class TimedExceptionalCases(object):
 
-    def __init__(self, event_to_deadline_map) -> None:
+    def __init__(self, event_to_deadline_map, debug) -> None:
         self.event_to_deadline_map = event_to_deadline_map
         self.effect_relations = [I, E, R, N]
         self.constrain_relations = [C, M]
+        self.debug = debug
+        if debug:
+            self.aprs = {}
         self.all_relations = self.effect_relations + self.constrain_relations
 
         self.self_exceptions = {}
@@ -166,14 +171,24 @@ class TimedExceptionalCases(object):
         return G, transition_types
 
     def map_exceptional_cases_between_events(self, master_df):
-        for exception, pairs in self.exceptions.items():
-            if len(pairs) > 0:
-                master_df = self.apply_exceptions[exception](master_df)
-        return master_df
+        if self.debug:
+            exceptions_copy = deepcopy(self.exceptions)
+            for exception, pairs in exceptions_copy.items():
+                key = ''.join(str(item) for item in exception)
+                for pair in pairs:
+                    self.exceptions[exception] = set([pair])
+                    master_df = self.apply_exceptions[exception](master_df)
+                    self.aprs[(key,pair)] = deepcopy(master_df)
+            return master_df
+        else:
+            for exception, pairs in self.exceptions.items():
+                if len(pairs) > 0:
+                    master_df = self.apply_exceptions[exception](master_df)
+            return master_df
 
     def create_exception_condition_milestone_exclude_response_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([E, R, C, M])]:
-            case = pd.DataFrame([[2,8,4,0],
+            case = pd.DataFrame([[2,8,4,1],
                                  [4,0,0,5],
                                  [4,0,0,3],
                                  [4,0,0,1]], columns=['In', 'Ex', 'Re', 'Rex'])
@@ -209,13 +224,13 @@ class TimedExceptionalCases(object):
         for (event, event_prime) in self.exceptions[frozenset([E, N, C, M])]:
             case = pd.DataFrame([[2,8,4,0],
                                  [4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [0,2]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [0,2]], index=[0,1,2], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
-            copy_pairwise_index = [3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -247,7 +262,7 @@ class TimedExceptionalCases(object):
                                  [5,0,1,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [2,0]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [0,2]], index=[0,1,3], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
             copy_pairwise_index = [3]
 
@@ -277,13 +292,13 @@ class TimedExceptionalCases(object):
         for (event, event_prime) in self.exceptions[frozenset([I, N, C, M])]:
             case = pd.DataFrame([[3,8,4,0],
                                  [5,0,0,4],
-                                 [5,0,0,2],
+                                 # [5,0,0,2],
                                  [5,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [0,2]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [0,2]], index=[0,1,2], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
-            copy_pairwise_index = [3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -345,13 +360,13 @@ class TimedExceptionalCases(object):
         for (event, event_prime) in self.exceptions[frozenset([N, C, M])]:
             case = pd.DataFrame([[3,8,4,0],
                                  [4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [0,2]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [0,2]], index=[0,1,2], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
-            copy_pairwise_index = [3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -379,13 +394,13 @@ class TimedExceptionalCases(object):
         for (event, event_prime) in self.exceptions[frozenset([I, C, M])]:
             case = pd.DataFrame([[3,8,4,0],
                                  [5,0,0,4],
-                                 [5,0,6,7],
+                                 # [5,0,6,7],
                                  [5,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [6,7]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [6,7]], index=[0,1,2], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
-            copy_pairwise_index = [3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -438,13 +453,13 @@ class TimedExceptionalCases(object):
         for (event, event_prime) in self.exceptions[frozenset([I, N, M])]:
             case = pd.DataFrame([[3,0,4,0],
                                  [5,0,0,4],
-                                 [5,0,0,2],
+                                 # [5,0,0,2],
                                  [5,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [0,2]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [0,2]], index=[0,1,2], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
-            copy_pairwise_index = [3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -472,13 +487,13 @@ class TimedExceptionalCases(object):
         for (event, event_prime) in self.exceptions[frozenset([E, N, M])]:
             case = pd.DataFrame([[2,0,4,0],
                                  [4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [0,4],
-                                        [0,2]], index=[0,1,3], columns=['Re', 'Rex'])
+                                        [0,2]], index=[0,1,2], columns=['Re', 'Rex'])
             copy_to_all_index = [0,1]
-            copy_pairwise_index = [3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -511,8 +526,8 @@ class TimedExceptionalCases(object):
             case_others = pd.DataFrame([[0,4],
                                         [0,2],
                                         [4,0]], index=[0,2,3], columns=['Re', 'Rex'])
-            copy_to_all_index = [0]
-            copy_pairwise_index = [2,3]
+            copy_to_all_index = [0,3]
+            copy_pairwise_index = [2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -583,17 +598,17 @@ class TimedExceptionalCases(object):
     def create_exception_condition_no_response_include_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([N, C, I])]:
             case = pd.DataFrame([[3,8,4,0],
-                                 [3,8,2,0],
+                                 # [3,8,2,0],
                                  [3,8,0,0],
                                  [5,0,0,4],
-                                 [5,0,0,2],
+                                 # [5,0,0,2],
                                  [5,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [2,0],
                                         [0,4],
-                                        [0,2]], index=[0,2,3,5], columns=['Re', 'Rex'])
-            copy_to_all_index = [0,3]
-            copy_pairwise_index = [2,5]
+                                        [0,2]], index=[0,1,2,3], columns=['Re', 'Rex'])
+            copy_to_all_index = [0,2]
+            copy_pairwise_index = [1,3]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -625,17 +640,17 @@ class TimedExceptionalCases(object):
     def create_exception_condition_no_response_exclude_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([N, C, E])]:
             case = pd.DataFrame([[2,8,4,0],
-                                 [2,8,2,0],
+                                 # [2,8,2,0],
                                  [2,8,0,0],
                                  [4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [2,0],
                                         [0,4],
-                                        [0,2]], index=[0,2,3,5], columns=['Re', 'Rex'])
-            copy_to_all_index = [0,3]
-            copy_pairwise_index = [2,5]
+                                        [0,2]], index=[0,1,2,3], columns=['Re', 'Rex'])
+            copy_to_all_index = [0,2]
+            copy_pairwise_index = [1,3]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -734,13 +749,13 @@ class TimedExceptionalCases(object):
         """
         for (event, event_prime) in self.exceptions[frozenset([I, C])]:
             case = pd.DataFrame([[3, 8, 0, 0],
-                                       [5, 0, 6, 7],
+                                       # [5, 0, 6, 7],
                                        [5, 0, 0, 0],
                                        [5, 0, 0, 4]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[6,7],
-                                             [0,4]], index=[2,3], columns=['Re', 'Rex'])
-            copy_to_all_index = [3]
-            copy_pairwise_index = [2]
+                                             [0,4]], index=[1,2], columns=['Re', 'Rex'])
+            copy_to_all_index = [2]
+            copy_pairwise_index = [1]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -770,13 +785,13 @@ class TimedExceptionalCases(object):
         """
         for (event, event_prime) in self.exceptions[frozenset([E, C])]:
             case = pd.DataFrame([[2, 8, 4, 0],
-                                   [2, 8, 7, 6],
+                                   # [2, 8, 7, 6],
                                    [2, 8, 0, 0],
                                    [4, 0, 0, 0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
-                                        [7,6]], index=[0,2], columns=['Re', 'Rex'])
+                                        [7,6]], index=[0,1], columns=['Re', 'Rex'])
             copy_to_all_index = [0]
-            copy_pairwise_index = [2]
+            copy_pairwise_index = [1]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -931,17 +946,17 @@ class TimedExceptionalCases(object):
     def create_exception_condition_no_response_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([N, C])]:
             case = pd.DataFrame([[3,8,4,0],
-                                 [3,8,2,0],
+                                 # [3,8,2,0],
                                  [3,8,0,0],
                                  [4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [2,0],
                                         [0,4],
-                                        [0,2]], index=[0,2,3,5], columns=['Re', 'Rex'])
-            copy_to_all_index = [0,3]
-            copy_pairwise_index = [2,5]
+                                        [0,2]], index=[0,1,2,3], columns=['Re', 'Rex'])
+            copy_to_all_index = [0,2]
+            copy_pairwise_index = [1,3]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -967,18 +982,18 @@ class TimedExceptionalCases(object):
 
     def create_exception_no_response_exclude_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([E, N])]:
-            case = pd.DataFrame([[2,0,2,0],
+            case = pd.DataFrame([#[2,0,2,0],
                                  [2,0,0,0],
                                  [4,0,0,4],
                                  [4,0,0,2],
-                                 [4,0,0,0],
+                                 # [4,0,0,0],
                                  [2,0,4,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[2,0],
                                         [0,4],
                                         [0,2],
-                                        [4,0]], index=[1,2,3,5], columns=['Re', 'Rex'])
-            copy_to_all_index = [2,5]
-            copy_pairwise_index = [1,3]
+                                        [4,0]], index=[0,1,2,3], columns=['Re', 'Rex'])
+            copy_to_all_index = [1,3]
+            copy_pairwise_index = [0,2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -1004,18 +1019,18 @@ class TimedExceptionalCases(object):
 
     def create_exception_no_response_include_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([I, N])]:
-            case = pd.DataFrame([[3,0,2,0],
+            case = pd.DataFrame([#[3,0,2,0],
                                  [3, 0, 0, 0],
                                  [5,0,0,4],
-                                 [5,0,0,2],
+                                 # [5,0,0,2],
                                  [5,0,0,0],
                                  [3,0,4,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[2,0],
                                         [0,4],
                                         [0,2],
-                                        [4,0]], index=[1,2,4,5], columns=['Re', 'Rex'])
-            copy_to_all_index = [2,5]
-            copy_pairwise_index = [1,4]
+                                        [4,0]], index=[0,1,2,3], columns=['Re', 'Rex'])
+            copy_to_all_index = [1,3]
+            copy_pairwise_index = [0,2]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -1047,14 +1062,14 @@ class TimedExceptionalCases(object):
     def create_exception_milestone_no_response_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([N, M])]:
             case = pd.DataFrame([[4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0],
                                  [3,0,4,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[0,4],
                                         [0, 2],
-                                        [4,0]], index=[0,2,3], columns=['Re', 'Rex'])
-            copy_to_all_index = [0,3]
-            copy_pairwise_index = [2]
+                                        [4,0]], index=[0,1,2], columns=['Re', 'Rex'])
+            copy_to_all_index = [0,2]
+            copy_pairwise_index = [1]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -1122,15 +1137,15 @@ class TimedExceptionalCases(object):
 
     def create_exception_milestone_include_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([I, M])]:
-            case = pd.DataFrame([[5,0,6,7],
+            case = pd.DataFrame([#[5,0,6,7],
                                  [5,0,0,0],
                                  [5,0,0,4],
                                  [3,0,4,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[6,7],
                                         [0,4],
-                                        [4,0]], index=[1,2,3], columns=['Re', 'Rex'])
-            copy_to_all_index = [2,3]
-            copy_pairwise_index = [1]
+                                        [4,0]], index=[0,1,2], columns=['Re', 'Rex'])
+            copy_to_all_index = [1,2]
+            copy_pairwise_index = [0]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -1271,17 +1286,17 @@ class TimedExceptionalCases(object):
     def create_no_response_pattern(self, master_df):
         for (event, event_prime) in self.exceptions[frozenset([N])]:
             case = pd.DataFrame([[3,0,4,0],
-                                 [3,0,2,0],
+                                 # [3,0,2,0],
                                  [3,0,0,0],
                                  [4,0,0,4],
-                                 [4,0,0,2],
+                                 # [4,0,0,2],
                                  [4,0,0,0]], columns=['In', 'Ex', 'Re', 'Rex'])
             case_others = pd.DataFrame([[4,0],
                                         [2, 0],
                                         [0,4],
-                                        [2,0]], index=[0,2,3,5], columns=['Re', 'Rex'])
-            copy_to_all_index = [0,3]
-            copy_pairwise_index = [2,5]
+                                        [0,2]], index=[0,1,2,3], columns=['Re', 'Rex'])
+            copy_to_all_index = [0,2]
+            copy_pairwise_index = [1,3]
 
             needed_columns = master_df.loc[event][event_prime].columns
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
@@ -1313,6 +1328,10 @@ class TimedExceptionalCases(object):
             needed_columns = set([c.split('_')[0] if '_' in c else c for c in needed_columns])
             if 'In' not in needed_columns:
                 case = case.drop(index=[0])
+            if 'Re' in needed_columns:
+                event_place = self.event_to_deadline_map[event_prime][event] if event in self.event_to_deadline_map[event_prime] else None
+                event_to_deadline = self.event_to_deadline_map[event_prime]
+                case = prepare_timed_case(event_place, case, pd.DataFrame([[0,0],[0,0]]), [], [], event_to_deadline)
             master_df = copy_event_rows(event, event_prime, master_df, case)
         return master_df
 
