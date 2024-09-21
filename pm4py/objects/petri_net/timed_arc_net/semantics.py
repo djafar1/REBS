@@ -132,7 +132,7 @@ def next_delay(pn):
     first_delay = float("inf")
     first_enabled_transition = None
     for arc in transport_arcs:
-        min_age = arc.properties[properties.AGE_MIN]
+        min_age = arc.properties[properties.AGE_MIN] if properties.AGE_MIN in arc.properties else 0
         if min_age < first_delay:
             first_delay = min_age
             first_enabled_transition = arc.target
@@ -217,8 +217,8 @@ def weak_execute(t, m):
 
 def enabled_transitions(pn, m):
     enabled = set()
-    print(next_delay(pn))
-    print(next_deadline(pn))
+    # print(next_delay(pn))
+    # print(next_deadline(pn))
     for t in pn.transitions:
         if is_enabled(t, pn, m):
             enabled.add(t)

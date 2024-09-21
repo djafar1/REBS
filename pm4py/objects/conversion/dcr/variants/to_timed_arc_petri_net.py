@@ -181,8 +181,8 @@ class Dcr2TimedArcPetri(object):
             max_elab_time = self.reachability_timeout
         trans_sys = reachability_analysis.construct_reachability_graph(tapn, m, use_trans_name=True,
                                                                     parameters={
-                                                                        # 'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
-                                                                        'petri_semantics': tapn_semantics.TimedArcSemantics(),
+                                                                        'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
+                                                                        # 'petri_semantics': tapn_semantics.TimedArcSemantics(),
                                                                         'max_elab_time': max_elab_time})
 
         fired_transitions = set()

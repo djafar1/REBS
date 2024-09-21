@@ -188,14 +188,16 @@ class Dcr2TimedArcPetri(object):
         return res_base_case, m
 
     def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None) -> TimedArcNet:
-        from pm4py.objects.petri_net.utils import reachability_graph
+        from pm4py.objects.petri_net.utils import petri_utils
+        from pm4py.objects.conversion.dcr.variants import reachability_analysis
         # from pm4py.visualization.transition_system import visualizer as ts_visualizer
         from pm4py.objects.petri_net.timed_arc_net import semantics as tapn_semantics
         from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
-        max_elab_time = 2 * 60 * 60  # 2 hours
+
+        max_elab_time = 2 * 60 # 2 minutes
         if self.reachability_timeout:
             max_elab_time = self.reachability_timeout
-        trans_sys = reachability_graph.construct_reachability_graph(tapn, m, use_trans_name=True,
+        trans_sys = reachability_analysis.construct_reachability_graph(tapn, m, use_trans_name=True,
                                                                     parameters={
                                                                         'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
                                                                         # 'petri_semantics': tapn_semantics.TimedArcSemantics(),

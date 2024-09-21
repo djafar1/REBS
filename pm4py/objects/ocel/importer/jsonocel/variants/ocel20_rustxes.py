@@ -39,16 +39,4 @@ def apply(file_path: str, parameters: Optional[Dict[Any, Any]] = None) -> OCEL:
 
     import rustxes
 
-<<<<<<<< HEAD:pm4py/algo/querying/llm/connectors/openai.py
-    import openai
-
-    client = openai.OpenAI(api_key=api_key)
-
-    message = {"role": "user", "content": query}
-
-    response = client.chat.completions.create(model=model, messages=[message])
-
-    return response.choices[0].message.content
-========
     return rustxes.import_ocel_json_pm4py(file_path)
->>>>>>>> origin/feature/dcr_in_pm4py_revised:pm4py/objects/ocel/importer/jsonocel/variants/ocel20_rustxes.py

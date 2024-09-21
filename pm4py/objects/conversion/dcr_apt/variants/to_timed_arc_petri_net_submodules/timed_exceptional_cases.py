@@ -177,6 +177,7 @@ class TimedExceptionalCases(object):
                 key = ''.join(str(item) for item in exception)
                 for pair in pairs:
                     self.exceptions[exception] = set([pair])
+                    print(f'[i] Step {exception} {pair}')
                     master_df = self.apply_exceptions[exception](master_df)
                     self.aprs[(key,pair)] = deepcopy(master_df)
             return master_df
