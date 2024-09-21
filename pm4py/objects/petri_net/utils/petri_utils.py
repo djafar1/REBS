@@ -152,6 +152,8 @@ def remove_place(net: PetriNet, place: PetriNet.Place) -> PetriNet:
         net.places.remove(place)
     return net
 
+def add_arc_from_to_with_check(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
+    return add_arc_from_to(fr,to, net, weight, type)
 
 def add_arc_from_to(fr, to, net: PetriNet, weight=1, type=None) -> PetriNet.Arc:
     """
