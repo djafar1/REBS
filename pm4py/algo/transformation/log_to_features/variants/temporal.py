@@ -90,7 +90,7 @@ def apply(log: Union[EventLog, EventStream, pd.DataFrame], parameters: Optional[
     log = pandas_utils.insert_case_arrival_finish_rate(log, case_id_column=case_id_column, timestamp_column=timestamp_column, arrival_rate_column=arrival_rate, finish_rate_column=finish_rate)
     log = pandas_utils.insert_case_service_waiting_time(log, case_id_column=case_id_column, timestamp_column=timestamp_column, diff_start_end_column=diff_start_end, service_time_column=service_time, sojourn_time_column=sojourn_time, waiting_time_column=waiting_time)
 
-    grouped_log = log.groupby(pd.Grouper(key=start_timestamp_column, freq=grouper_freq))
+    grouped_log = log.groupby(pandas_utils.get_grouper(key=start_timestamp_column, freq=grouper_freq))
 
     final_values = []
 
@@ -114,6 +114,6 @@ def apply(log: Union[EventLog, EventStream, pd.DataFrame], parameters: Optional[
 
         final_values.append(dct)
 
-    dataframe = pd.DataFrame(final_values)
-    dataframe.fillna(0, inplace=True)
+    dataframe = pandas_utils.instantiate_dataframe(final_values)
+    dataframe = dataframe.fillna(0)
     return dataframe

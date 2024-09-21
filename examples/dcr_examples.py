@@ -1,5 +1,6 @@
 import pm4py
 import os
+
 def execute_discover():
     """
     example script to discover dcr graph from event log
@@ -18,7 +19,7 @@ def execute_discover_roles():
     log = pm4py.read_xes(os.path.join("..","tests","input_data","running-example.xes"))
     # is initaitad with the set of wanted post process types after the original discover miner
     # if no standard default group key is present, but org:resource is present, can specify
-    graph, _ = pm4py.discover_dcr(log, process_type={'roles'}, group_key='org:resource')
+    graph, _ = pm4py.discover_dcr(log, post_process={'distributed'}, group_key='org:resource')
     print(graph)
 
 def execute_dcr_conformance():
@@ -28,9 +29,9 @@ def execute_dcr_conformance():
     log = pm4py.read_xes(os.path.join("..","tests","input_data","receipt.xes"))
 
     # is initaitad with the set of wanted post process types after the original discover miner
-    # if no standard default group key is present, but org:resource is present, can specify to mine org:resource as roles
+    # if no standard default group key is present, but org:resource is present, can specify to mine org:resource as distributed
     graph_base, _ = pm4py.discover_dcr(log)
-    graph_roles, _ = pm4py.discover_dcr(log, process_type={'roles'})
+    graph_roles, _ = pm4py.discover_dcr(log, post_process={'distributed'})
 
     #DisCoveR discovers a perfect fitting graph from event log
     conf_res_base = pm4py.conformance_dcr(log, graph_base, return_diagnostics_dataframe=True)
@@ -38,7 +39,7 @@ def execute_dcr_conformance():
 
     log.replace("Group 1",float("nan"))
 
-    #if roles are present in the graph, will then by default check conformance for correct assignment of roles to activities
+    #if distributed are present in the graph, will then by default check conformance for correct assignment of distributed to activities
     #dropped a role, cause deviation
     conf_res_roles = pm4py.conformance_dcr(log, graph_base, return_diagnostics_dataframe=True)
     print("both runs")
@@ -51,7 +52,7 @@ def execute_dcr_alignment():
     """
     log = pm4py.read_xes(os.path.join("..","tests","input_data","running-example.xes"))
 
-    #discover base dcr graph, does not support dcr graphs with roles
+    #discover base dcr graph, does not support dcr graphs with distributed
     graph, _ = pm4py.discover_dcr(log)
 
     align_res = pm4py.optimal_alignment_dcr(log, graph,return_diagnostics_dataframe=True)

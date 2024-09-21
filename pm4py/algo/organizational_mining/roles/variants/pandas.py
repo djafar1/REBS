@@ -34,7 +34,7 @@ class Parameters(Enum):
 
 def apply(df: pd.DataFrame, parameters: Optional[Dict[Union[str, Parameters], Any]] = None) -> List[Role]:
     """
-    Gets the roles (group of different activities done by similar resources)
+    Gets the distributed (group of different activities done by similar resources)
     out of the log
 
     Parameters
@@ -46,14 +46,14 @@ def apply(df: pd.DataFrame, parameters: Optional[Dict[Union[str, Parameters], An
 
     Returns
     ------------
-    roles
-        List of different roles inside the log
+    distributed
+        List of different distributed inside the log
     """
     if parameters is None:
         parameters = {}
 
     resource_key = exec_utils.get_param_value(Parameters.RESOURCE_KEY, parameters, xes.DEFAULT_RESOURCE_KEY)
     activity_key = exec_utils.get_param_value(Parameters.ACTIVITY_KEY, parameters, xes.DEFAULT_NAME_KEY)
-    activity_resource_couples = Counter(dict(df.groupby([resource_key, activity_key]).size()))
+    activity_resource_couples = Counter(df.groupby([resource_key, activity_key]).size().to_dict())
 
     return algorithm.apply(activity_resource_couples, parameters=parameters)

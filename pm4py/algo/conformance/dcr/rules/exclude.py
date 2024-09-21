@@ -23,7 +23,7 @@ class CheckExclude(CheckFrame):
         deviations: List[Tuple[str, Any]]
             List of updated deviation if any were detected
         '''
-        # if an acitivty has been excluded, but trace tries to execute, exclude violation
+        # if an activity has been excluded, but trace tries to execute, exclude violation
         if event not in graph.marking.included:
             exclude_origin = []
             for event_prime in execution_his:

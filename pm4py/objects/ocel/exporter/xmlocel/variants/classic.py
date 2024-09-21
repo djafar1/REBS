@@ -25,8 +25,9 @@ from pm4py.objects.ocel.exporter.util import clean_dataframes
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.objects.ocel.util import attributes_names
 from pm4py.objects.ocel.util import related_objects
-from pm4py.util import exec_utils, constants as pm4_constants
+from pm4py.util import exec_utils, constants as pm4_constants, pandas_utils
 from pm4py.objects.ocel.util import ocel_consistency
+from pm4py.objects.ocel.util import filtering_utils
 
 
 class Parameters(Enum):
@@ -72,8 +73,9 @@ def apply(ocel: OCEL, target_path: str, parameters: Optional[Dict[Any, Any]] = N
     encoding = exec_utils.get_param_value(Parameters.ENCODING, parameters, pm4_constants.DEFAULT_ENCODING)
 
     ocel = ocel_consistency.apply(ocel, parameters=parameters)
+    ocel = filtering_utils.propagate_relations_filtering(ocel, parameters=parameters)
 
-    all_object_types = list(ocel.objects[object_type].unique())
+    all_object_types = pandas_utils.format_unique(ocel.objects[object_type].unique())
     all_attribute_names = attributes_names.get_attribute_names(ocel, parameters=parameters)
     global_event_items = ocel.globals[
         constants.OCEL_GLOBAL_EVENT] if constants.OCEL_GLOBAL_EVENT in ocel.globals else constants.DEFAULT_GLOBAL_EVENT

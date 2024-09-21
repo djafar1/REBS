@@ -99,11 +99,10 @@ Dict[Tuple[str, str], Dict[str, Any]]:
                                                    business_hours_slots), axis=1)
 
     else:
-        merged_df[timestamp_diff_column] = (
-                merged_df[timestamp_column + "_in"] - merged_df[timestamp_column + "_out"]).dt.total_seconds()
+        merged_df[timestamp_diff_column] = pandas_utils.get_total_seconds(merged_df[timestamp_column + "_in"] - merged_df[timestamp_column + "_out"])
 
     edges0 = merged_df.dropna(subset=[node_column_source + "_out", node_column_target + "_in", edge_column + edge_reference], how="any").groupby([node_column_source + "_out", node_column_target + "_in", edge_column + edge_reference])[
-        timestamp_diff_column].apply(list).to_dict()
+        timestamp_diff_column].agg(list).to_dict()
 
     for e0 in edges0:
         edge = (e0[0], e0[1])

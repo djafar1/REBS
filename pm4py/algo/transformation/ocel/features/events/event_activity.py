@@ -16,6 +16,7 @@
 '''
 from pm4py.objects.ocel.obj import OCEL
 from typing import Optional, Dict, Any
+from pm4py.util import pandas_utils
 
 
 def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
@@ -39,9 +40,9 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     if parameters is None:
         parameters = {}
 
-    ordered_events = list(ocel.events[ocel.event_id_column])
+    ordered_events = parameters["ordered_events"] if "ordered_events" in parameters else ocel.events[ocel.event_id_column].to_numpy()
 
-    activities = list(ocel.events[ocel.event_activity].unique())
+    activities = pandas_utils.format_unique(ocel.events[ocel.event_activity].unique())
 
     data = []
     feature_names = ["@@event_act_"+act for act in activities]
@@ -50,7 +51,7 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     events_activities = {x[ocel.event_id_column]: x[ocel.event_activity] for x in events_activities}
 
     for ev in ordered_events:
-        data.append([0] * len(activities))
-        data[-1][activities.index(events_activities[ev])] = 1
+        data.append([0.0] * len(activities))
+        data[-1][activities.index(events_activities[ev])] = 1.0
 
     return data, feature_names

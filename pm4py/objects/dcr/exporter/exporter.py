@@ -32,9 +32,8 @@ def apply(dcr_graph, path, variant=XML_SIMPLE, **parameters):
             - DCR_JS_PORTAL
     parameters
         Algorithm related params
-        finaAdditionalConditions: [True or False]
+        white_space_replacement: a character
     """
-
     if variant is Variants.XML_DCR_PORTAL:
         xml_dcr_portal.export_dcr_xml(dcr_graph, output_file_name=path, **parameters)
     elif variant is Variants.XML_SIMPLE:

@@ -18,12 +18,14 @@ __doc__ = """
 The ``pm4py.convert`` module contains the cross-conversions implemented in ``pm4py``
 """
 
-from typing import Union, Tuple, Optional, Collection, List, Any
+from typing import Union, Tuple, Optional, Collection, List, Any, Dict
 
 import pandas as pd
 from copy import deepcopy
 
 from pm4py.objects.bpmn.obj import BPMN
+from pm4py.objects.dcr.obj import DcrGraph
+from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 from pm4py.objects.ocel.obj import OCEL
 from pm4py.objects.powl.obj import POWL
 from pm4py.objects.heuristics_net.obj import HeuristicsNet
@@ -31,7 +33,7 @@ from pm4py.objects.log.obj import EventLog, EventStream
 from pm4py.objects.petri_net.obj import Marking
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.petri_net.obj import PetriNet
-from pm4py.util import constants
+from pm4py.util import constants, nx_utils
 from pm4py.utils import get_properties, __event_log_deprecation_warning
 from pm4py.objects.transition_system.obj import TransitionSystem
 from pm4py.util.pandas_utils import check_is_pandas_dataframe, check_pandas_dataframe_columns
@@ -169,13 +171,13 @@ def convert_to_bpmn(*args: Union[Tuple[PetriNet, Marking, Marking], ProcessTree]
     raise Exception("unsupported conversion of the provided object to BPMN")
 
 
-def convert_to_petri_net(*args: Union[BPMN, ProcessTree, HeuristicsNet, POWL, dict]) -> Tuple[PetriNet, Marking, Marking]:
+def convert_to_petri_net(obj: Union[BPMN, ProcessTree, HeuristicsNet, DcrGraph, POWL, dict], *args, **kwargs) -> Tuple[PetriNet, Marking, Marking]:
     """
     Converts an input model to an (accepting) Petri net.
-    The input objects can either be a process tree, BPMN model or a Heuristic net.
+    The input objects can either be a process tree, BPMN model, a Heuristic net or a Dcr Graph.
     The output is a triple, containing the Petri net and the initial and final markings. The markings are only returned if they can be reasonable derived from the input model.
 
-    :param args: process tree, Heuristics net, BPMN or POWL model
+    :param args: process tree, Heuristics net, BPMN, POWL model or Dcr Graph
     :rtype: ``Tuple[PetriNet, Marking, Marking]``
     
     .. code-block:: python3
@@ -186,27 +188,33 @@ def convert_to_petri_net(*args: Union[BPMN, ProcessTree, HeuristicsNet, POWL, di
        process_tree = pm4py.read_ptml("tests/input_data/running-example.ptml")
        net, im, fm = pm4py.convert_to_petri_net(process_tree)
     """
-    if isinstance(args[0], PetriNet):
+    if isinstance(obj, PetriNet):
         # the object is already a Petri net
-        return args[0], args[1], args[2]
-    elif isinstance(args[0], ProcessTree):
-        if isinstance(args[0], POWL):
+        return obj, args[0], args[1]
+    elif isinstance(obj, ProcessTree):
+        if isinstance(obj, POWL):
             from pm4py.objects.conversion.powl import converter
-            return converter.apply(args[0])
+            return converter.apply(obj)
         from pm4py.objects.conversion.process_tree.variants import to_petri_net
-        return to_petri_net.apply(args[0])
-    elif isinstance(args[0], BPMN):
+        return to_petri_net.apply(obj)
+    elif isinstance(obj, BPMN):
         from pm4py.objects.conversion.bpmn.variants import to_petri_net
-        return to_petri_net.apply(args[0])
-    elif isinstance(args[0], HeuristicsNet):
+        return to_petri_net.apply(obj)
+    elif isinstance(obj, HeuristicsNet):
         from pm4py.objects.conversion.heuristics_net.variants import to_petri_net
-        return to_petri_net.apply(args[0])
-    elif isinstance(args[0], dict):
+        return to_petri_net.apply(obj)
+    elif isinstance(obj, dict):
         # DFG
         from pm4py.objects.conversion.dfg.variants import to_petri_net_activity_defines_place
-        return to_petri_net_activity_defines_place.apply(args[0], parameters={
-            to_petri_net_activity_defines_place.Parameters.START_ACTIVITIES: args[1],
-            to_petri_net_activity_defines_place.Parameters.END_ACTIVITIES: args[2]})
+        return to_petri_net_activity_defines_place.apply(obj, parameters={
+            to_petri_net_activity_defines_place.Parameters.START_ACTIVITIES: args[0],
+            to_petri_net_activity_defines_place.Parameters.END_ACTIVITIES: args[1]})
+    elif isinstance(obj, TimedDcrGraph):
+        from pm4py.objects.conversion.dcr import converter
+        return converter.apply(obj,variant=converter.Variants.TO_TIMED_ARC_PETRI_NET, parameters=kwargs)
+    elif isinstance(obj, DcrGraph):
+        from pm4py.objects.conversion.dcr import converter
+        return converter.apply(obj,variant=converter.Variants.TO_INHIBITOR_NET , parameters=kwargs)
     # if no conversion is done, then the format of the arguments is unsupported
     raise Exception("unsupported conversion of the provided object to Petri net")
 
@@ -275,7 +283,7 @@ def convert_to_reachability_graph(*args: Union[Tuple[PetriNet, Marking, Marking]
     return reachability_graph.construct_reachability_graph(net, im)
 
 
-def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activity_column: str = "concept:name", timestamp_column: str = "time:timestamp", object_types: Optional[Collection[str]] = None, obj_separator: str = " AND ", additional_event_attributes: Optional[Collection[str]] = None) -> OCEL:
+def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activity_column: str = "concept:name", timestamp_column: str = "time:timestamp", object_types: Optional[Collection[str]] = None, obj_separator: str = " AND ", additional_event_attributes: Optional[Collection[str]] = None, additional_object_attributes: Optional[Dict[str, Collection[str]]] = None) -> OCEL:
     """
     Converts an event log to an object-centric event log with one or more than one
     object types.
@@ -286,6 +294,7 @@ def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activit
     :param object_types: list of columns to consider as object types
     :param obj_separator: separator between different objects in the same column
     :param additional_event_attributes: additional attributes to be considered as event attributes in the OCEL
+    :param additional_object_attributes: additional attributes per object type to be considered as object attributes in the OCEL (dictionary in which object types are associated to their attributes, i.e., {"order": ["quantity", "cost"], "invoice": ["date", "due date"]})
     :rtype: ``OCEL``
 
     .. code-block:: python3
@@ -303,7 +312,7 @@ def convert_log_to_ocel(log: Union[EventLog, EventStream, pd.DataFrame], activit
         object_types = list(set(x for x in log.columns if x == "case:concept:name" or x.startswith("ocel:type")))
 
     from pm4py.objects.ocel.util import log_ocel
-    return log_ocel.log_to_ocel_multiple_obj_types(log, activity_column, timestamp_column, object_types, obj_separator, additional_event_attributes=additional_event_attributes)
+    return log_ocel.log_to_ocel_multiple_obj_types(log, activity_column, timestamp_column, object_types, obj_separator, additional_event_attributes=additional_event_attributes, additional_object_attributes=additional_object_attributes)
 
 
 def convert_ocel_to_networkx(ocel: OCEL, variant: str = "ocel_to_nx") -> nx.DiGraph:
@@ -410,8 +419,7 @@ def convert_petri_net_to_networkx(net: PetriNet, im: Marking, fm: Marking) -> nx
         net, im, fm = pm4py.read_pnml('tests/input_data/running-example.pnml')
         nx_digraph = pm4py.convert_petri_to_networkx(net, im, fm)
     """
-    import networkx as nx
-    G = nx.DiGraph()
+    G = nx_utils.DiGraph()
     for place in net.places:
         G.add_node(place.name, attr={"name": place.name, "is_in_im": place in im, "is_in_fm": place in fm, "type": "place"})
     for trans in net.transitions:
@@ -471,5 +479,5 @@ def convert_petri_net_type(net: PetriNet, im: Marking, fm: Marking, type: str = 
             trans.out_arcs.remove(arc)
     for arc in net.arcs:
         arc_type = arc.properties["arctype"] if "arctype" in arc.properties else None
-        new_arc = petri_utils.add_arc_from_to_with_check(arc.source, arc.target, new_net, weight=arc.weight, type=arc_type)
+        new_arc = petri_utils.add_arc_from_to(arc.source, arc.target, new_net, weight=arc.weight, type=arc_type)
     return new_net, im, fm

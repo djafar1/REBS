@@ -20,7 +20,7 @@ from typing import Optional, Dict, Any
 from pm4py.objects.ocel import constants as ocel_constants
 from pm4py.algo.discovery.inductive import algorithm as inductive_miner
 from enum import Enum
-from pm4py.util import exec_utils
+from pm4py.util import exec_utils, pandas_utils
 from pm4py.objects.ocel.util import flattening
 from pm4py.algo.conformance.tokenreplay import algorithm as token_replay
 from pm4py.objects.conversion.log import converter as log_converter
@@ -97,7 +97,7 @@ def __get_ot_saw_nets(obj_types, ocpn_nets, saw_weights):
         for trans in net.transitions:
             saw_net.transitions.add(trans)
         for arc in net.arcs:
-            new_arc = petri_utils.add_arc_from_to_with_check(arc.source, arc.target, saw_net, type="stochastic_arc")
+            new_arc = petri_utils.add_arc_from_to(arc.source, arc.target, saw_net, type="stochastic_arc")
             if isinstance(new_arc.source, PetriNet.Transition) and new_arc.source in saw_weights[ot]:
                 new_arc.weight = saw_weights[ot][new_arc.source]
             elif isinstance(new_arc.target, PetriNet.Transition) and new_arc.target in saw_weights[ot]:
@@ -135,7 +135,7 @@ def __get_multi_saw_net(ot_saw_nets):
             else:
                 el_corr[trans] = el_corr[trans_unq_corr[trans.label]]
         for arc in saw_net.arcs:
-            new_arc = petri_utils.add_arc_from_to_with_check(el_corr[arc.source], el_corr[arc.target], multi_saw_net, weight=arc.weight)
+            new_arc = petri_utils.add_arc_from_to(el_corr[arc.source], el_corr[arc.target], multi_saw_net, weight=arc.weight)
             decorations_multi_saw_net[new_arc] = ot_color
 
     return multi_saw_net, decorations_multi_saw_net
@@ -165,7 +165,7 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None) -> Dict[str, 
         parameters = {}
 
     object_type = exec_utils.get_param_value(Parameters.OBJECT_TYPE, parameters, ocel.object_type_column)
-    obj_types = set(ocel.objects[object_type].unique())
+    obj_types = pandas_utils.format_unique(ocel.objects[object_type].unique())
 
     disc_parameters = copy(parameters)
     # disables the fallthroughs, as computing the model on a myriad of different object types

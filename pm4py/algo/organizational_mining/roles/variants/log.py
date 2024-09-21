@@ -34,7 +34,7 @@ class Parameters(Enum):
 
 def apply(log: EventLog, parameters: Optional[Dict[Union[str, Parameters], Any]] = None) -> List[Role]:
     """
-    Gets the roles (group of different activities done by similar resources)
+    Gets the distributed (group of different activities done by similar resources)
     out of the log
 
     Parameters
@@ -46,8 +46,8 @@ def apply(log: EventLog, parameters: Optional[Dict[Union[str, Parameters], Any]]
 
     Returns
     ------------
-    roles
-        List of different roles inside the log
+    distributed
+        List of different distributed inside the log
     """
     if parameters is None:
         parameters = {}

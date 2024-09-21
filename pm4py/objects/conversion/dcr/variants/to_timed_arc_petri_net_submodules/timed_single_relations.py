@@ -1,5 +1,4 @@
 from pm4py.objects.petri_net.obj import *
-from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 
 from pm4py.objects.conversion.dcr.variants.to_timed_arc_petri_net_submodules import timed_utils
 
@@ -28,11 +27,11 @@ class TimedSingleRelations(object):
                     new_transitions.extend(ts)
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                        # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                        # timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
 
-                        pex_to_t = pn_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='transport')
-                        t_to_p = pn_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn, type='transport')
+                        pex_to_t = timed_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='transport')
+                        t_to_p = timed_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn, type='transport')
                         pex_to_t.properties['transportindex'] = self.helper_struct['transport_index']
                         t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
                         self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
@@ -43,18 +42,18 @@ class TimedSingleRelations(object):
                 new_transitions.extend(ts)
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                    # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                    # timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn, type='inhibitor')
                     # (for all) inhibitor arcs to all pending excluded places
                     for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
-                        pn_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
         # map the copy_0 last but before adding the new transitions
         # copy 0
         if inc_place_e_prime:
             for t in copy_0:
-                pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
         self.helper_struct[event]['transitions'].extend(new_transitions)
         return tapn
@@ -76,10 +75,10 @@ class TimedSingleRelations(object):
                 new_transitions.extend(ts)
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
                     #(for all) no pending event executes this transition
                     for pend_place_e_prime, _ in pend_places_e_prime:
-                        pn_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='inhibitor')
 
         # copy 2
         if inc_place_e_prime and len(pend_places_e_prime) > 0 and len(pend_excl_places_e_prime) > 0:
@@ -90,10 +89,10 @@ class TimedSingleRelations(object):
                     new_transitions.extend(ts)
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
-                        p_to_t = pn_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='transport')
-                        t_to_pex = pn_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn, type='transport')
+                        p_to_t = timed_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='transport')
+                        t_to_pex = timed_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn, type='transport')
                         p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
                         t_to_pex.properties['transportindex'] = self.helper_struct['transport_index']
                         self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
@@ -101,7 +100,7 @@ class TimedSingleRelations(object):
         # copy 0
         if inc_place_e_prime:
             for t in copy_0:
-                pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
         self.helper_struct[event]['transitions'].extend(new_transitions)
         return tapn
@@ -127,22 +126,22 @@ class TimedSingleRelations(object):
                 new_transitions.extend(ts)
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                    timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
-                    pn_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn)
+                    timed_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='inhibitor')
                     for pend_other in pending_others:
-                        # pn_utils.add_arc_from_to(t, pend_other, tapn)
-                        pn_utils.add_arc_from_to_with_check(pend_other, t, tapn, type='inhibitor')
-                    # pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                    # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+                        # timed_utils.add_arc_from_to(t, pend_other, tapn)
+                        timed_utils.add_arc_from_to_with_check(pend_other, t, tapn, type='inhibitor')
+                    # timed_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
+                    # timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
                     #
-                    # pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                    # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
+                    # timed_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
+                    # timed_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
                     #
                     # # for pend_other in pending_others:
-                    # #     pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
+                    # #     timed_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
 
         # copy 2
         if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
@@ -153,13 +152,13 @@ class TimedSingleRelations(object):
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
 
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
-                    pn_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn)
+                    timed_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='inhibitor')
                     for pend_exc_other in pending_exc_others:
-                        # pn_utils.add_arc_from_to(t, pend_exc_other, tapn)
-                        pn_utils.add_arc_from_to_with_check(pend_exc_other, t, tapn, type='inhibitor')
+                        # timed_utils.add_arc_from_to(t, pend_exc_other, tapn)
+                        timed_utils.add_arc_from_to_with_check(pend_exc_other, t, tapn, type='inhibitor')
             # copy 2X
             for pend_exc_other in pending_exc_others:
                 for delta in range(len_delta):
@@ -167,12 +166,12 @@ class TimedSingleRelations(object):
                     new_transitions.extend(ts)
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
-                        pn_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn)
-                        # pn_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn)
+                        # timed_utils.add_arc_from_to(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
-                        pn_utils.add_arc_from_to_with_check(pend_exc_other, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(pend_exc_other, t, tapn)
 
         # copy 3
         if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
@@ -181,12 +180,12 @@ class TimedSingleRelations(object):
                 new_transitions.extend(ts)
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
-                    pn_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn)
-                    pn_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn)
+                    timed_utils.add_arc_from_to_with_check(t, pend_excl_place_e_prime, tapn)
+                    timed_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn)
                     # for pend_exc_other in pending_exc_others:
-                    #     pn_utils.add_arc_from_to(pend_exc_other,t,tapn,type='inhibitor')
+                    #     timed_utils.add_arc_from_to(pend_exc_other,t,tapn,type='inhibitor')
 
         # copy 0
         if len(pend_places_e_prime) > 0:
@@ -197,29 +196,29 @@ class TimedSingleRelations(object):
                     new_transitions.extend(ts)
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta * len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                        timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
-                        pn_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn)
+                        timed_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn)
                         # TODO: check if I was right in removing this
-                        # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
+                        # timed_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
 
-                        pn_utils.add_arc_from_to_with_check(pend_other, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(pend_other, t, tapn)
             for t in copy_0:
-                pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
-                pn_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn)
-                pn_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn)
+                timed_utils.add_arc_from_to_with_check(t, pend_place_e_prime, tapn)
+                timed_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn)
 
-                # pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+                # timed_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
+                # timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
                 #
-                # pn_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
-                # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
+                # timed_utils.add_arc_from_to(t, pend_place_e_prime, tapn)
+                # timed_utils.add_arc_from_to(pend_place_e_prime, t, tapn, type='inhibitor')
                 # for pend_other in pending_others:
-                #     pn_utils.add_arc_from_to(t, pend_other, tapn)
-                #     pn_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
+                #     timed_utils.add_arc_from_to(t, pend_other, tapn)
+                #     timed_utils.add_arc_from_to(pend_other, t, tapn, type='inhibitor')
 
         # self.helper_struct[event]['firstResp'] = False
         # when here I ask: have I done the first response?
@@ -251,10 +250,10 @@ class TimedSingleRelations(object):
             #     new_transitions.extend(ts)
             #     for t in ts:
             #         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-            #         pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-            #         pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+            #         timed_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
+            #         timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
             #         for pp_e_prime, _ in pend_places_e_prime:
-            #             pn_utils.add_arc_from_to(pp_e_prime, t, tapn, type='inhibitor')
+            #             timed_utils.add_arc_from_to(pp_e_prime, t, tapn, type='inhibitor')
 
             for pp_e_prime,_ in pend_places_e_prime:
                 for delta in range(len_delta):
@@ -262,10 +261,10 @@ class TimedSingleRelations(object):
                     new_transitions.extend(ts)
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                        pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                        timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
-                        pn_utils.add_arc_from_to_with_check(pp_e_prime, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(pp_e_prime, t, tapn)
         # copy 2
         if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:# and self.helper_struct[event]['firstNoResp']:
             # (for all) if no pending excl place is pending and not included then it fires
@@ -274,9 +273,9 @@ class TimedSingleRelations(object):
                 new_transitions.extend(ts)
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
                     for pend_excl_place_e_prime, _ in pend_excl_places_e_prime:
-                        pn_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn, type='inhibitor')
 
         # copy 3
         if inc_place_e_prime and len(pend_excl_places_e_prime) > 0:
@@ -287,9 +286,9 @@ class TimedSingleRelations(object):
                     new_transitions.extend(ts)
                     for t in ts:
                         tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                        pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                        timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
-                        pn_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn)
+                        timed_utils.add_arc_from_to_with_check(pend_excl_place_e_prime, t, tapn)
 
         # copy 0
         if len(pend_places_e_prime) > 0:
@@ -300,20 +299,20 @@ class TimedSingleRelations(object):
             #         new_transitions.extend(ts)
             #         for t in ts:
             #             tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta * len_internal, copy_0, t, tapn)
-            #             pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-            #             pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+            #             timed_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
+            #             timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
             #
-            #             pn_utils.add_arc_from_to(pend_other, t, tapn)
+            #             timed_utils.add_arc_from_to(pend_other, t, tapn)
             for t in copy_0:
-                # pn_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
-                # pn_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
+                # timed_utils.add_arc_from_to(t, inc_place_e_prime, tapn)
+                # timed_utils.add_arc_from_to(inc_place_e_prime, t, tapn)
                 #
-                # pn_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
+                # timed_utils.add_arc_from_to(pend_place_e_prime, t, tapn)
 
-                pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
                 for pp_e_prime, _ in pend_places_e_prime:
-                    pn_utils.add_arc_from_to_with_check(pp_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(pp_e_prime, t, tapn, type='inhibitor')
 
         # self.helper_struct[event]['firstResp'] = False
         self.helper_struct[event]['transitions'].extend(new_transitions)
@@ -335,16 +334,16 @@ class TimedSingleRelations(object):
                 new_transitions.extend(ts)
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
         # copy 0
         if exec_place_e_prime:
             for t in copy_0:
-                pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
-                t_to_p = pn_utils.add_arc_from_to_with_check(t, exec_place_e_prime, tapn, type='transport')
-                p_to_t = pn_utils.add_arc_from_to_with_check(exec_place_e_prime, t, tapn, type='transport')
+                t_to_p = timed_utils.add_arc_from_to_with_check(t, exec_place_e_prime, tapn, type='transport')
+                p_to_t = timed_utils.add_arc_from_to_with_check(exec_place_e_prime, t, tapn, type='transport')
                 t_to_p.properties['transportindex'] = self.helper_struct['transport_index']
                 p_to_t.properties['transportindex'] = self.helper_struct['transport_index']
                 self.helper_struct['transport_index'] = self.helper_struct['transport_index'] + 1
@@ -372,16 +371,16 @@ class TimedSingleRelations(object):
                 for t in ts:
                     tapn, t = timed_utils.map_existing_transitions_of_copy_0(delta*len_internal, copy_0, t, tapn)
 
-                    pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn, type='inhibitor')
 
         # copy 0
         if len(pend_places_e_prime) > 0:
             for t in copy_0:
-                pn_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
-                pn_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
+                timed_utils.add_arc_from_to_with_check(t, inc_place_e_prime, tapn)
+                timed_utils.add_arc_from_to_with_check(inc_place_e_prime, t, tapn)
 
                 for pend_place_e_prime,_ in pend_places_e_prime:
-                    pn_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='inhibitor')
+                    timed_utils.add_arc_from_to_with_check(pend_place_e_prime, t, tapn, type='inhibitor')
 
         self.helper_struct[event]['transitions'].extend(new_transitions)
         return tapn

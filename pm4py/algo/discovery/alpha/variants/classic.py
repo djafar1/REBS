@@ -37,7 +37,7 @@ from pm4py.algo.discovery.alpha.data_structures import alpha_classic_abstraction
 from pm4py.algo.discovery.alpha.utils import endpoints
 from pm4py.objects.dfg.utils import dfg_utils
 from pm4py.algo.discovery.dfg.variants import native as dfg_inst
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to
 from pm4py.util import exec_utils
 
 from pm4py.util import constants
@@ -200,9 +200,9 @@ def apply_dfg_sa_ea(dfg: Dict[str, int], start_activities: Union[None, Dict[str,
         place = PetriNet.Place(str(pair))
         net.places.add(place)
         for in_arc in pair[0]:
-            add_arc_from_to_with_check(label_transition_dict[in_arc], place, net)
+            add_arc_from_to(label_transition_dict[in_arc], place, net)
         for out_arc in pair[1]:
-            add_arc_from_to_with_check(place, label_transition_dict[out_arc], net)
+            add_arc_from_to(place, label_transition_dict[out_arc], net)
     return net, Marking({src: 1}), Marking({sink: 1})
 
 
@@ -210,7 +210,7 @@ def __add_source(net, start_activities, label_transition_dict):
     source = PetriNet.Place('start')
     net.places.add(source)
     for s in start_activities:
-        add_arc_from_to_with_check(source, label_transition_dict[s], net)
+        add_arc_from_to(source, label_transition_dict[s], net)
     return source
 
 
@@ -218,7 +218,7 @@ def __add_sink(net, end_activities, label_transition_dict):
     end = PetriNet.Place('end')
     net.places.add(end)
     for e in end_activities:
-        add_arc_from_to_with_check(label_transition_dict[e], end, net)
+        add_arc_from_to(label_transition_dict[e], end, net)
     return end
 
 

@@ -53,12 +53,12 @@ class TimeMining:
     def __init__(self):
         self.timing_dict = {"conditionsForDelays": {}, "responseToDeadlines": {}}
 
+
     def get_log_with_pair(self, event_log, e1, e2):
         '''
-        when selecting the cids here there is a difference when taking
-        strictly less than <
-        and strictly less than or equal <=
-        The equal addition allows for instant durations (so a time of 0 between events e1 and e2)
+        when selecting the case ids (cids) here there is a difference when taking
+        strictly less than < and strictly less than or equal <=
+        Less than or equal <= allows for instant executions (so a time of 0 between events e1 and e2)
         '''
         first_e1 = event_log[event_log['concept:name'] == e1].groupby('case:concept:name')[
             ['case:concept:name', 'time:timestamp']].first().reset_index(drop=True)
@@ -68,6 +68,7 @@ class TimeMining:
             'case:concept:name'].unique()
         return event_log[event_log['case:concept:name'].isin(cids)].copy(deep=True)
 
+
     def get_delta_between_events(self, filtered_df, event_pair, rule=None):
         e1 = event_pair[0]
         e2 = event_pair[1]
@@ -75,7 +76,8 @@ class TimeMining:
         filtered_df = filtered_df[filtered_df['concept:name'].isin(event_pair)]
         filtered_df['time:timestamp'] = pd.to_datetime(filtered_df['time:timestamp'], utc=True)
         deltas = []
-        for idx, g in filtered_df[filtered_df['concept:name'].isin([e1, e2])].groupby('case:concept:name'):
+        # for idx, g in filtered_df[filtered_df['concept:name'].isin([e1, e2])].groupby('case:concept:name'):
+        for idx, g in filtered_df.groupby('case:concept:name'):
             g = g.sort_values(by='time:timestamp').reset_index(drop=True)
             g['time:timestamp:to'] = g['time:timestamp'].shift(-1)
             g['concept:name:to'] = g['concept:name'].shift(-1)
@@ -90,29 +92,26 @@ class TimeMining:
                     g_e1['delta'] = g_e1['time:timestamp:to'] - g_e1['time:timestamp']
                     res.extend(g_e1['delta'])
                 temp_df = temp_df[
-                    (temp_df['concept:name'] == event_pair[0]) & (temp_df['concept:name:to'] == event_pair[1])]
+                    (temp_df['concept:name'] == e1) & (temp_df['concept:name:to'] == e2)]
                 temp_df['delta'] = temp_df['time:timestamp:to'] - temp_df['time:timestamp']
                 res.extend(temp_df['delta'])
             elif rule == 'CONDITION':
                 temp_df = temp_df[
-                    (temp_df['concept:name'] == event_pair[0]) & (temp_df['concept:name:to'] == event_pair[1])]
+                    (temp_df['concept:name'] == e1) & (temp_df['concept:name:to'] == e2)]
                 temp_df['delta'] = temp_df['time:timestamp:to'] - temp_df['time:timestamp']
                 res.extend(temp_df['delta'])
             else:
                 temp_df = temp_df[
-                    (temp_df['concept:name'] == event_pair[0]) & (temp_df['concept:name:to'] == event_pair[1])]
+                    (temp_df['concept:name'] == e1) & (temp_df['concept:name:to'] == e2)]
                 temp_df['delta'] = temp_df['time:timestamp:to'] - temp_df['time:timestamp']
                 res.extend(temp_df['delta'])
             deltas.extend(res)
         return deltas
 
-    def mine(self, log: Union[pd.DataFrame, EventLog], graph: DcrGraph, parameters: Optional[Dict[str, Any]]):
-        """
-        """
 
+    def mine(self, log: Union[pd.DataFrame, EventLog], graph, parameters: Optional[Dict[str, Any]]):
         activity_key = exec_utils.get_param_value(constants.PARAMETER_CONSTANT_ACTIVITY_KEY, parameters,
                                                   xes_constants.DEFAULT_NAME_KEY)
-
         # perform mining on event logs
         if not isinstance(log, pd.DataFrame):
             log = pm4py.convert_to_dataframe(log)
@@ -121,7 +120,7 @@ class TimeMining:
         timing_input_dict = {'CONDITION': set(), 'RESPONSE': set()}
         for e1 in graph.conditions.keys():
             for e2 in graph.conditions[e1]:
-                timing_input_dict['CONDITION'].add((e1, e2))
+                timing_input_dict['CONDITION'].add((e2, e1))
 
         for e1 in graph.responses.keys():
             for e2 in graph.responses[e1]:
@@ -135,19 +134,21 @@ class TimeMining:
                     data = self.get_delta_between_events(filtered_df, event_pair, rule)
                     timings[(rule, event_pair[0], event_pair[1])] = data
 
-        # these should be a dict with events as keys and tuples as values
+        # these are a dict with events as keys and tuples as values
         for timing, value in timings.items():
             if timing[0] == 'CONDITION':
                 e1 = timing[2]
                 e2 = timing[1]
                 if e1 not in self.timing_dict['conditionsForDelays']:
                     self.timing_dict['conditionsForDelays'][e1] = {}
-                self.timing_dict['conditionsForDelays'][e1][e2] = value
+                # to have perfect fitness we extract the minimum delay for conditions
+                self.timing_dict['conditionsForDelays'][e1][e2] = min(value)
             elif timing[0] == 'RESPONSE':
                 e1 = timing[1]
                 e2 = timing[2]
                 if e1 not in self.timing_dict['responseToDeadlines']:
                     self.timing_dict['responseToDeadlines'][e1] = {}
-                self.timing_dict['responseToDeadlines'][e1][e2] = value
+                # to have perfect fitness we extract the maximum deadline for responses
+                self.timing_dict['responseToDeadlines'][e1][e2] = max(value)
 
-        return TimedDcrGraph(graph.obj_to_template(), self.timing_dict)
+        return TimedDcrGraph({**graph.obj_to_template(), **self.timing_dict})

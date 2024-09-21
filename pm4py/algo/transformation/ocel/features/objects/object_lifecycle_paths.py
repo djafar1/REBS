@@ -39,7 +39,9 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     if parameters is None:
         parameters = {}
 
-    ordered_objects = list(ocel.objects[ocel.object_id_column])
+    ordered_objects = parameters["ordered_objects"] if "ordered_objects" in parameters else ocel.objects[
+        ocel.object_id_column].to_numpy()
+
     lifecycle = ocel.relations.groupby(ocel.object_id_column)[ocel.event_activity].agg(list).to_dict()
 
     data = []
@@ -60,7 +62,7 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
         lif = paths[obj] if obj in paths else []
         data.append([])
         for p in all_paths:
-            data[-1].append(len(list(x for x in lif if x == p)))
+            data[-1].append(float(len(list(x for x in lif if x == p))))
 
     return data, feature_names
 

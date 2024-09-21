@@ -107,7 +107,7 @@ def conformance_diagnostics_token_based_replay(log: Union[EventLog, pd.DataFrame
     return result
 
 
-def conformance_diagnostics_alignments(log: Union[EventLog, pd.DataFrame], *args, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", variant_str : Optional[str] = None, return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME) -> List[Dict[str, Any]]:
+def conformance_diagnostics_alignments(log: Union[EventLog, pd.DataFrame], *args, multi_processing: bool = constants.ENABLE_MULTIPROCESSING_DEFAULT, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name", variant_str : Optional[str] = None, return_diagnostics_dataframe: bool = constants.DEFAULT_RETURN_DIAGNOSTICS_DATAFRAME, **kwargs) -> List[Dict[str, Any]]:
     """
     Apply the alignments algorithm between a log and a process model.
     The methods return the full alignment diagnostics.
@@ -153,6 +153,9 @@ def conformance_diagnostics_alignments(log: Union[EventLog, pd.DataFrame], *args
         case_id_key = None
 
     properties = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
+    if kwargs is not None:
+        for k, v in kwargs.items():
+            properties[k] = v
 
     if len(args) == 3:
         if type(args[0]) is PetriNet:
@@ -213,6 +216,11 @@ def fitness_token_based_replay(log: Union[EventLog, pd.DataFrame], petri_net: Pe
     """
     Calculates the fitness using token-based replay.
     The fitness is calculated on a log-based level.
+    The output dictionary contains the following keys:
+    - perc_fit_traces (the percentage of fit traces (from 0.0 to 100.0))
+    - average_trace_fitness (between 0.0 and 1.0; computed as average of the trace fitnesses)
+    - log_fitness (between 0.0 and 1.0)
+    - percentage_of_fitting_traces (the percentage of fit traces (from 0.0 to 100.0)
 
     Token-based replay matches a trace and a Petri net model, starting from the initial place, in order to discover which transitions are executed and in which places we have remaining or missing tokens for the given process instance. Token-based replay is useful for Conformance Checking: indeed, a trace is fitting according to the model if, during its execution, the transitions can be fired without the need to insert any missing token. If the reaching of the final marking is imposed, then a trace is fitting if it reaches the final marking without any missing or remaining tokens.
 
@@ -258,6 +266,10 @@ def fitness_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, 
         Dict[str, float]:
     """
     Calculates the fitness using alignments
+    The output dictionary contains the following keys:
+    - average_trace_fitness (between 0.0 and 1.0; computed as average of the trace fitnesses)
+    - log_fitness (between 0.0 and 1.0)
+    - percentage_of_fitting_traces (the percentage of fit traces (from 0.0 to 100.0)
 
     Alignment-based replay aims to find one of the best alignment between the trace and the model. For each trace, the output of an alignment is a list of couples where the first element is an event (of the trace) or » and the second element is a transition (of the model) or ». For each couple, the following classification could be provided:
 
@@ -395,6 +407,43 @@ def precision_alignments(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet
     result = precision_evaluator.apply(log, petri_net, initial_marking, final_marking,
                                      variant=precision_evaluator.Variants.ALIGN_ETCONFORMANCE,
                                      parameters=parameters)
+
+    return result
+
+
+def generalization_tbr(log: Union[EventLog, pd.DataFrame], petri_net: PetriNet, initial_marking: Marking,
+                                 final_marking: Marking, activity_key: str = "concept:name", timestamp_key: str = "time:timestamp", case_id_key: str = "case:concept:name") -> float:
+    """
+    Computes the generalization of the model (against the event log). The approach is described in the paper:
+
+    Buijs, Joos CAM, Boudewijn F. van Dongen, and Wil MP van der Aalst. "Quality dimensions in process discovery: The importance of fitness, precision, generalization and simplicity." International Journal of Cooperative Information Systems 23.01 (2014): 1440001.
+
+
+    :param log: event log
+    :param petri_net: petri net
+    :param initial_marking: initial marking
+    :param final_marking: final marking
+    :param multi_processing: boolean value that enables the multiprocessing
+    :param activity_key: attribute to be used for the activity
+    :param timestamp_key: attribute to be used for the timestamp
+    :param case_id_key: attribute to be used as case identifier
+    :rtype: ``float``
+
+    .. code-block:: python3
+
+        import pm4py
+
+        net, im, fm = pm4py.discover_petri_net_inductive(dataframe, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        generalization_tbr = pm4py.generalization_tbr(dataframe, net, im, fm)
+    """
+    __event_log_deprecation_warning(log)
+
+    if check_is_pandas_dataframe(log):
+        check_pandas_dataframe_columns(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
+
+    from pm4py.algo.evaluation.generalization import algorithm as generalization_evaluator
+    parameters = get_properties(log, activity_key=activity_key, timestamp_key=timestamp_key, case_id_key=case_id_key)
+    result = generalization_evaluator.apply(log, petri_net, initial_marking, final_marking, variant=generalization_evaluator.Variants.GENERALIZATION_TOKEN, parameters=parameters)
 
     return result
 
@@ -790,9 +839,10 @@ def conformance_dcr(log: Union[EventLog, pd.DataFrame], dcr_graph: DcrGraph, act
                                                                                                                 Dict[
                                                                                                                     str, Any]]]:
     """
-    Applies conformance checking against a DCR model.
-    inspired by github implementation:
-    https://github.com/fau-is/cc-dcr/tree/master
+    Applies rule based conformance checking against a DCR model.
+    reference:
+    C. Josep et al., "Conformance Checking Software", Springer International Publishing, 65-74, 2018., https://doi.org/10.1007/978-3-319-99414-7.
+
     :param log: event log
     :param dcr_graph: DCR graph
     :param activity_key: attribute to be used for the activity
@@ -842,6 +892,8 @@ def optimal_alignment_dcr(
 ) -> pd.DataFrame | Any:
     """
     Applies optimal alignment against a DCR model.
+    Reference paper:
+    Axel Kjeld Fjelrad Christfort & Tijs Slaats. "Efficient Optimal Alignment Between Dynamic Condition Response Graphs and Traces" https://doi.org/10.1007/978-3-031-41620-0_1
     Parameters
     ----------
     log : EventLog | pd.DataFrame | Trace

@@ -1,4 +1,4 @@
-/.idea
+.idea/
 .vscode/
 
 *.mps
@@ -137,14 +137,3 @@ dmypy.json
 
 # Renovate bot
 renovate.json5
-
-# personal
-datasets/
-nirdizati/
-models/
-!models/rail_example.tapn
-!models/rail_example.xml
-!models/RunningExampleTAPNoriginal.tapn
-!models/RunningExampleTAPNoriginal.xml
-notebooks_projects/
-!notebooks_projects/dcrtotapn.ipynb

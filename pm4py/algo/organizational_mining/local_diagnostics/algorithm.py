@@ -41,7 +41,7 @@ def apply_from_clustering_or_roles(log_obj: Union[pd.DataFrame, EventLog], ja_cl
                                    parameters: Optional[Dict[Any, str]] = None) -> Dict[str, Any]:
     """
     Provides the local diagnostics for the organizational model starting from a log object and the results
-    of the similar activities clustering / the roles detection algorithm.
+    of the similar activities clustering / the distributed detection algorithm.
 
     The approach implemented is the one described in:
     Yang, Jing, et al. "OrgMining 2.0: A Novel Framework for Organizational Model Mining from Event Logs."
@@ -52,7 +52,7 @@ def apply_from_clustering_or_roles(log_obj: Union[pd.DataFrame, EventLog], ja_cl
     log_obj
         Log object
     ja_clustering_or_roles
-        Result of the similar activities clustering / the roles detection algorithm
+        Result of the similar activities clustering / the distributed detection algorithm
     parameters
         Parameters of the algorithm, including:
         - pm4py:param:resource_key => the resource attribute

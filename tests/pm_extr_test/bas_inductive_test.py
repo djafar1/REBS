@@ -1,8 +1,9 @@
 import os
 import traceback
 
-import pandas as pd
+from pm4py.util import constants, pandas_utils
 
+import time
 import pm4py
 from pm4py.algo.discovery.inductive import algorithm as im_clean
 from pm4py.statistics.variants.log import get as variants_get
@@ -40,7 +41,7 @@ if __name__ == "__main__":
                 elif "parquet" in log_name:
                     from pm4py.statistics.attributes.pandas import get as attributes_get_pandas
 
-                    dataframe = pd.read_parquet(log_path)
+                    dataframe = pandas_utils.DATAFRAME.read_parquet(log_path)
                     activities = set(attributes_get_pandas.get_attribute_values(dataframe, CLASSIFIER).keys())
                     variants = pm4py.get_variants_as_tuples(dataframe)
                     variants = {",".join(x): y for x, y in variants.items()}
@@ -56,8 +57,7 @@ if __name__ == "__main__":
                 if not activities.issubset(fp_tree_clean["activities"]):
                     print("ALERT! activities of the tree are less than the ones in the log!")
                     print(activities.difference(fp_tree_clean["activities"]))
-                    print(activities.difference(fp_tree_im["activities"]))
-                    input()
+                    time.sleep(5)
 
                 fp_conf_im_clean = pm4py.algo.conformance.footprints.variants.log_extensive.apply(fp_log, fp_tree_clean)
                 fitness_im_clean = pm4py.algo.conformance.footprints.util.evaluation.fp_fitness(fp_log, fp_tree_clean,
@@ -72,8 +72,9 @@ if __name__ == "__main__":
 
                     fitness_al_clean = alignment_based.evaluate(alignments_clean)["average_trace_fitness"]
                     if fitness_al_clean < fitness_im_clean:
-                        print("ALERT")
-                        input()
+                        print("ALERT", fitness_al_clean, fitness_im_clean)
+                        time.sleep(5)
+                        #input()
                     else:
                         print("OK ALIGNMENTS", fitness_al_clean)
 

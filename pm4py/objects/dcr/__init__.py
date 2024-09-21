@@ -1,1 +1,1 @@
-from pm4py.objects.dcr import obj, semantics, roles, exporter, importer
+from pm4py.objects.dcr import obj, semantics, distributed, exporter, importer

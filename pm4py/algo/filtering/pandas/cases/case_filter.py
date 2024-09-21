@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with PM4Py.  If not, see <https://www.gnu.org/licenses/>.
 '''
-from pm4py.util import constants, xes_constants
+from pm4py.util import constants, xes_constants, pandas_utils
 from enum import Enum
 from pm4py.util import exec_utils
 from copy import copy
@@ -50,7 +50,7 @@ def filter_on_ncases(df: pd.DataFrame, case_id_glue: str = constants.CASE_CONCEP
     df
         Filtered dataframe
     """
-    cases_values_dict = dict(df[case_id_glue].value_counts())
+    cases_values_dict = df[case_id_glue].value_counts().to_dict()
     cases_to_keep = []
     for case in cases_values_dict:
         cases_to_keep.append(case)
@@ -81,7 +81,7 @@ def filter_on_case_size(df0: pd.DataFrame, case_id_glue: str = "case:concept:nam
         Filtered dataframe
     """
     df = df0.copy()
-    element_group_size = df[case_id_glue].groupby(df[case_id_glue]).transform('size')
+    element_group_size = df[[case_id_glue]].groupby(case_id_glue).transform('size')
     df = df[element_group_size >= min_case_size]
     if max_case_size is not None:
         df = df[element_group_size <= max_case_size]
@@ -114,21 +114,21 @@ def filter_on_case_performance(df: pd.DataFrame, case_id_glue: str = constants.C
     df
         Filtered dataframe
     """
-    grouped_df = df[[case_id_glue, timestamp_key]].groupby(df[case_id_glue])
+    grouped_df = df[[case_id_glue, timestamp_key]].groupby(case_id_glue)
     start_events = grouped_df.first()
     end_events = grouped_df.last()
     end_events.columns = [str(col) + '_2' for col in end_events.columns]
-    stacked_df = pd.concat([start_events, end_events], axis=1)
+    stacked_df = pandas_utils.concat([start_events, end_events], axis=1)
     if business_hours:
         stacked_df['caseDuration'] = stacked_df.apply(
             lambda x: soj_time_business_hours_diff(x[timestamp_key], x[timestamp_key + "_2"], business_hours_slots), axis=1)
     else:
         stacked_df['caseDuration'] = stacked_df[timestamp_key + "_2"] - stacked_df[timestamp_key]
-        stacked_df['caseDuration'] = stacked_df['caseDuration'].dt.total_seconds()
+        stacked_df['caseDuration'] = pandas_utils.get_total_seconds(stacked_df['caseDuration'])
     stacked_df = stacked_df[stacked_df['caseDuration'] <= max_case_performance]
     stacked_df = stacked_df[stacked_df['caseDuration'] >= min_case_performance]
     i1 = df.set_index(case_id_glue).index
-    i2 = stacked_df.set_index(case_id_glue).index
+    i2 = stacked_df.index
     ret = df[i1.isin(i2)]
     ret.attrs = copy(df.attrs) if hasattr(df, 'attrs') else {}
     return ret

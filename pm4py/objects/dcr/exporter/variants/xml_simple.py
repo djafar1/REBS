@@ -1,12 +1,10 @@
-from pandas import Timedelta
-
 from lxml import etree
 
 from pm4py.objects.dcr.obj import DcrGraph
 from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 
 
-def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespace=' ', time_precision='H'):
+def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespace=None, time_precision='H'):
     '''
 
     Parameters
@@ -21,6 +19,9 @@ def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespa
     -------
 
     '''
+    if replace_whitespace is None:
+        replace_whitespace = ' '
+
     for event in graph.events:
         xml_event = etree.SubElement(root, "events")
         xml_event_id = etree.SubElement(xml_event, "id")
@@ -42,11 +43,9 @@ def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespa
                 xml_target.text = event.replace(' ', replace_whitespace)
                 if hasattr(graph, 'timedconditions') and event in graph.timedconditions and event_prime in graph.timedconditions[event]:
                     time = graph.timedconditions[event][event_prime]
-                    if not isinstance(time, Timedelta):
-                        time = Timedelta(days=time)
-                    if time.floor(freq='s').to_numpy() > 0:
+                    if time.floor(freq='S').to_numpy() > 0:
                         xml_target = etree.SubElement(xml_condition, "duration")
-                        iso_time = time.floor(freq='s').isoformat()
+                        iso_time = time.floor(freq='S').isoformat()
                         if time_precision:
                             iso_time = iso_time.split(time_precision)[0] + time_precision
                         xml_target.text = iso_time
@@ -60,11 +59,9 @@ def export_dcr_graph(graph : DcrGraph, root, parents_dict=None, replace_whitespa
                 xml_target.text = event_prime.replace(' ', replace_whitespace)
                 if hasattr(graph, 'timedresponses') and event in graph.timedresponses and event_prime in graph.timedresponses[event]:
                     time = graph.timedresponses[event][event_prime]
-                    if not isinstance(time, Timedelta):
-                        time = Timedelta(days=time)
-                    if time.floor(freq='s').to_numpy() > 0:
+                    if time.floor(freq='S').to_numpy() > 0:
                         xml_target = etree.SubElement(xml_response, "duration")
-                        iso_time = time.floor(freq='s').isoformat()
+                        iso_time = time.floor(freq='S').isoformat()
                         if time_precision:
                             iso_time = iso_time.split(time_precision)[0] + time_precision
                         xml_target.text = iso_time
@@ -129,6 +126,7 @@ def export_dcr_xml(graph: DcrGraph, output_file_name, dcr_title='DCR from pm4py'
     dcr_description
         description of the DCR graph
     replace_whitespace
+        a character to replace white space
     '''
     root = etree.Element("DCRModel")
     if dcr_title:

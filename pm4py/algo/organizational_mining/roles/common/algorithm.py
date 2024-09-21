@@ -85,7 +85,7 @@ def find_multiset_intersection(role1, role2, normalize=False, parameters=None):
     role2
         Second role originators
     normalize
-        Do the normalization of the roles
+        Do the normalization of the distributed
     parameters
         Parameters of the algorithm
 
@@ -118,7 +118,7 @@ def find_multiset_union(role1, role2, normalize=False, parameters=None):
     role2
         Second role originators
     normalize
-        Do the normalization of the roles
+        Do the normalization of the distributed
     parameters
         Parameters of the algorithm
 
@@ -148,12 +148,12 @@ def find_multiset_union(role1, role2, normalize=False, parameters=None):
 
 def find_role_similarity(roles, i, j, parameters=None):
     """
-    Calculate a number of similarity between different roles
+    Calculate a number of similarity between different distributed
 
     Parameters
     -------------
     roles
-        List of roles
+        List of distributed
     i
         Index of the first role
     j
@@ -177,7 +177,7 @@ def find_role_similarity(roles, i, j, parameters=None):
 
 def aggregate_roles_iteration(roles, parameters=None):
     """
-    Single iteration of the roles aggregation algorithm
+    Single iteration of the distributed aggregation algorithm
 
     Parameters
     --------------
@@ -189,7 +189,7 @@ def aggregate_roles_iteration(roles, parameters=None):
     Returns
     --------------
     agg_roles
-        (Partially aggregated) roles
+        (Partially aggregated) distributed
     """
     threshold = exec_utils.get_param_value(Parameters.ROLES_THRESHOLD_PARAMETER, parameters, 0.65)
 
@@ -227,7 +227,7 @@ def aggregate_roles_iteration(roles, parameters=None):
 
 def aggregate_roles_algorithm(roles, parameters=None):
     """
-    Algorithm to aggregate similar roles
+    Algorithm to aggregate similar distributed
 
     Parameters
     --------------
@@ -239,7 +239,7 @@ def aggregate_roles_algorithm(roles, parameters=None):
     Returns
     --------------
     agg_roles
-        (Aggregated) roles
+        (Aggregated) distributed
     """
     found_feasible = True
     while found_feasible:
@@ -250,7 +250,7 @@ def aggregate_roles_algorithm(roles, parameters=None):
 
 def get_initial_roles(res_act_couples, parameters=None):
     """
-    Get the initial list of roles (each activity is a stand-alone role)
+    Get the initial list of distributed (each activity is a stand-alone role)
 
     Parameters
     -------------
@@ -261,8 +261,8 @@ def get_initial_roles(res_act_couples, parameters=None):
 
     Returns
     -------------
-    roles
-        List of roles (set of activities + multiset of resources)
+    distributed
+        List of distributed (set of activities + multiset of resources)
     """
     if parameters is None:
         parameters = {}
@@ -283,17 +283,19 @@ def get_initial_roles(res_act_couples, parameters=None):
     for act in roles0:
         roles.append([[act], roles0[act]])
 
-    roles = sorted(roles, key=lambda x: constants.DEFAULT_VARIANT_SEP.join(x[0]))
+    roles = sorted(roles, key=lambda x: (len(x[0]), len(x[1]), constants.DEFAULT_VARIANT_SEP.join(sorted(x[0]))), reverse=True)
 
     roles = aggregate_roles_algorithm(roles, parameters=parameters)
+
+    roles = sorted(roles, key=lambda x: (len(x[0]), len(x[1]), constants.DEFAULT_VARIANT_SEP.join(sorted(x[0]))), reverse=True)
 
     return roles
 
 
 def apply(res_act_couples, parameters=None) -> List[Role]:
     """
-    Apply the roles detection, introduced by
-    Burattin, Andrea, Alessandro Sperduti, and Marco Veluscek. "Business models enhancement through discovery of roles." 2013 IEEE Symposium on Computational Intelligence and Data Mining (CIDM). IEEE, 2013.
+    Apply the distributed detection, introduced by
+    Burattin, Andrea, Alessandro Sperduti, and Marco Veluscek. "Business models enhancement through discovery of distributed." 2013 IEEE Symposium on Computational Intelligence and Data Mining (CIDM). IEEE, 2013.
 
     Parameters
     -------------
@@ -304,8 +306,8 @@ def apply(res_act_couples, parameters=None) -> List[Role]:
 
     Returns
     -------------
-    roles
-        List of roles (set of activities + multiset of resources)
+    distributed
+        List of distributed (set of activities + multiset of resources)
     """
     if parameters is None:
         parameters = {}

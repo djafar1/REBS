@@ -45,7 +45,8 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
     data_objects, feature_names_objects = object_based_features.apply(ocel, parameters=parameters)
     dct_dct_objects = object_based_features.transform_features_to_dict_dict(ocel, data_objects, feature_names_objects, parameters=parameters)
 
-    ordered_events = list(ocel.events[ocel.event_id_column])
+    ordered_events = parameters["ordered_events"] if "ordered_events" in parameters else ocel.events[
+        ocel.event_id_column].to_numpy()
 
     stream = ocel.relations[[ocel.event_id_column, ocel.object_id_column]].to_dict("records")
     ev_rel_objs = {}
@@ -65,11 +66,11 @@ def apply(ocel: OCEL, parameters: Optional[Dict[Any, Any]] = None):
         arr = []
         for x in feature_names_objects:
             if ev in ev_rel_objs:
-                min_v = min(y[x] for y in ev_rel_objs[ev])
-                max_v = max(y[x] for y in ev_rel_objs[ev])
+                min_v = float(min(y[x] for y in ev_rel_objs[ev]))
+                max_v = float(max(y[x] for y in ev_rel_objs[ev]))
             else:
-                min_v = 0
-                max_v = 0
+                min_v = 0.0
+                max_v = 0.0
             arr.append(min_v)
             arr.append(max_v)
         data.append(arr)

@@ -1,9 +1,7 @@
 import os
 
 from pm4py.objects.petri_net.obj import *
-from pm4py.objects.petri_net.utils import petri_utils as pn_utils
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
-from pm4py.objects.petri_net.utils import reduction
 
 from pm4py.objects.conversion.dcr.variants.to_petri_net_submodules import exceptional_cases, single_relations, preoptimizer, utils
 
@@ -11,6 +9,16 @@ from pm4py.objects.conversion.dcr.variants.to_petri_net_submodules import except
 class Dcr2PetriNet(object):
 
     def __init__(self, preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False, **kwargs)  -> None:
+        """
+        Init the conversion object
+        Parameters
+        ----------
+        preoptimize : If True it will remove unreachable DCR markings based on the DCR behaviour
+        postoptimize : If True it will remove dead transitions based on the underlying petri net reachability graph
+        map_unexecutable_events : If True it will map unexecutable events
+        debug : If True it will print debug information
+        kwargs
+        """
         self.in_t_types = ['event', 'init', 'initpend', 'pend']
         self.helper_struct = {}
         self.preoptimize = preoptimize
@@ -23,9 +31,18 @@ class Dcr2PetriNet(object):
         self.print_steps = debug
         self.debug = debug
 
-    def initialize_helper_struct(self, G) -> None:
-
-        for event in G['events']:
+    def initialize_helper_struct(self, graph: dict) -> None:
+        """
+        Initializes a helper structure to keep track of DCR Events and their related places and transitions in the Petri Net
+        Parameters
+        ----------
+        graph
+            the DcrGraph
+        Returns
+        -------
+            None
+        """
+        for event in graph['events']:
             self.helper_struct[event] = {}
             self.helper_struct[event]['places'] = {}
             self.helper_struct[event]['places']['included'] = None
@@ -37,10 +54,13 @@ class Dcr2PetriNet(object):
             self.helper_struct[event]['t_types'] = self.in_t_types
 
             self.transitions[event] = {}
-            for event_prime in G['events']:
+            for event_prime in graph['events']:
                 self.transitions[event][event_prime] = []
 
-    def create_event_pattern_places(self, event, G, tapn, m) -> (PetriNet, Marking):
+    def create_event_pattern_places(self, event: str, graph: dict, net: PetriNet, m: Marking) -> (InhibitorNet, Marking):
+        """
+        Creates petri net places and the petri net marking for a single event
+        """
         default_make_included = True
         default_make_pend = True
         default_make_pend_ex = True
@@ -53,38 +73,38 @@ class Dcr2PetriNet(object):
 
         if default_make_included:
             inc_place = PetriNet.Place(f'included_{event}')
-            tapn.places.add(inc_place)
+            net.places.add(inc_place)
             self.helper_struct[event]['places']['included'] = inc_place
             # fill the marking
-            if event in G['marking']['included']:
+            if event in graph['marking']['included']:
                 m[inc_place] = 1
 
         if default_make_pend:
             pend_place = PetriNet.Place(f'pending_{event}')
-            tapn.places.add(pend_place)
+            net.places.add(pend_place)
             self.helper_struct[event]['places']['pending'] = pend_place
             # fill the marking
-            if event in G['marking']['pending'] and event in G['marking']['included']:
+            if event in graph['marking']['pending'] and event in graph['marking']['included']:
                 m[pend_place] = 1
 
         if default_make_pend_ex:
             pend_excl_place = PetriNet.Place(f'pending_excluded_{event}')
-            tapn.places.add(pend_excl_place)
+            net.places.add(pend_excl_place)
             self.helper_struct[event]['places']['pending_excluded'] = pend_excl_place
             # fill the marking
-            if event in G['marking']['pending'] and not event in G['marking']['included']:
+            if event in graph['marking']['pending'] and not event in graph['marking']['included']:
                 m[pend_excl_place] = 1
 
         if default_make_exec:
             exec_place = PetriNet.Place(f'executed_{event}')
-            tapn.places.add(exec_place)
+            net.places.add(exec_place)
             self.helper_struct[event]['places']['executed'] = exec_place
             # fill the marking
-            if event in G['marking']['executed']:
+            if event in graph['marking']['executed']:
                 m[exec_place] = 1
         if self.preoptimize:
             ts = ['event']
-            if default_make_exec and not event in G['marking']['executed'] and not event in self.preoptimizer.no_init_t:
+            if default_make_exec and not event in graph['marking']['executed'] and not event in self.preoptimizer.no_init_t:
                 ts.append('init')
             if default_make_exec and default_make_pend and not event in self.preoptimizer.no_initpend_t:
                 ts.append('initpend')
@@ -92,22 +112,36 @@ class Dcr2PetriNet(object):
                 ts.append('pend')
             self.helper_struct[event]['t_types'] = ts
 
-        return tapn, m
+        return net, m
 
-    def create_event_pattern(self, event, G, tapn, m) -> (PetriNet, Marking):
-        tapn, m = self.create_event_pattern_places(event, G, tapn, m)
-        tapn, ts = utils.create_event_pattern_transitions_and_arcs(tapn, event, self.helper_struct,
-                                                                   self.mapping_exceptions)
+    def create_event_pattern(self, event: str, graph: dict, net: PetriNet, m: Marking) -> (InhibitorNet, Marking):
+        """
+        Creates the petri net for a single event
+        """
+        net, m = self.create_event_pattern_places(event, graph, net, m)
+        net, ts = utils.create_event_pattern_transitions_and_arcs(net, event, self.helper_struct,
+                                                                  self.mapping_exceptions)
         self.helper_struct[event]['transitions'].extend(ts)
-        return tapn, m
+        return net, m
 
-    def post_optimize_petri_net_reachability_graph(self, tapn, m, G=None, merge_parallel_places=True) -> PetriNet:
-        from pm4py.objects.petri_net.utils import reachability_graph
+    def post_optimize_petri_net_reachability_graph(self, net, m, graph=None, merge_parallel_places=True) -> InhibitorNet:
+        """
+        Removes dead regions in the petri net based on the reachability graph.
+        Parameters
+        ----------
+        merge_parallel_places
+            If True it will remove duplicate places that behave the same in their marking
+        Returns
+        -------
+        Reduced petri net
+        """
+        from pm4py.objects.petri_net.utils import petri_utils
         from pm4py.objects.petri_net.inhibitor_reset import semantics as inhibitor_semantics
+        from pm4py.objects.conversion.dcr.variants import reachability_analysis
         max_elab_time = 2 * 60 * 60  # 2 hours
         if self.reachability_timeout:
             max_elab_time = self.reachability_timeout
-        trans_sys = reachability_graph.construct_reachability_graph(tapn, m, use_trans_name=True,
+        trans_sys = reachability_analysis.construct_reachability_graph(net, m, use_trans_name=True,
                                                                     parameters={
                                                                         'petri_semantics': inhibitor_semantics.InhibitorResetSemantics(),
                                                                         'max_elab_time': max_elab_time
@@ -122,11 +156,11 @@ class Dcr2PetriNet(object):
             fired_transitions.add(transition.name)
 
         ts_to_remove = set()
-        for t in tapn.transitions:
+        for t in net.transitions:
             if t.name not in fired_transitions:
                 ts_to_remove.add(t)
         for t in ts_to_remove:
-            tapn = pn_utils.remove_transition(tapn, t)
+            net = petri_utils.remove_transition(net, t)
 
         changed_places = set()
         for state_list in trans_sys.states:
@@ -135,10 +169,10 @@ class Dcr2PetriNet(object):
 
         parallel_places = set()
         places_to_rename = {}
-        ps_to_remove = set(tapn.places).difference(changed_places)
+        ps_to_remove = set(net.places).difference(changed_places)
 
-        if G and merge_parallel_places:
-            for event in G['events']:
+        if graph and merge_parallel_places:
+            for event in graph['events']:
                 for type, event_place in self.helper_struct[event]['places'].items():
                     for type_prime, event_place_prime in self.helper_struct[event]['places'].items():
                         if event_place and event_place_prime and event_place.name != event_place_prime.name and \
@@ -169,219 +203,126 @@ class Dcr2PetriNet(object):
         ps_to_remove = ps_to_remove.union(parallel_places)
 
         for p in ps_to_remove:
-            tapn = pn_utils.remove_place(tapn, p)
+            net = petri_utils.remove_place(net, p)
 
         for p, name in places_to_rename.items():
             p.name = name
-        return tapn
+        return net
 
-    def export_debug_net(self, tapn, m, path, step, pn_export_format):
+    def export_debug_net(self, net, m, path, step, pn_export_format):
+        """
+        Helper function to export a petri net at any intermediary step in the conversion of the DcrGraph
+        """
         path_without_extension, extens = os.path.splitext(path)
         debug_save_path = f'{path_without_extension}_{step}{extens}'
-        pnml_exporter.apply(tapn, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': self.timed})
+        pnml_exporter.apply(net, m, debug_save_path, variant=pn_export_format, parameters={'isTimed': False})
 
-    def apply(self, G, tapn_path=None, **kwargs) -> (InhibitorNet, Marking):
-        self.basic = True  # True (basic) = inc,ex,resp,cond | False = basic + no-resp,mil
-        self.timed = False  # False = untimed | True = timed cond (delay) and resp (deadline)
-        self.initialize_helper_struct(G)
+    def apply(self, graph, pn_path=None, **kwargs) -> (InhibitorNet, Marking):
+        self.initialize_helper_struct(graph)
         self.mapping_exceptions = exceptional_cases.ExceptionalCases(self.helper_struct)
         self.preoptimizer = preoptimizer.Preoptimizer()
         induction_step = 0
         pn_export_format = pnml_exporter.TAPN
-        if tapn_path and tapn_path.endswith("pnml"):
+        if pn_path and pn_path.endswith("pnml"):
             pn_export_format = pnml_exporter.PNML
 
-        tapn = InhibitorNet("Dcr2Tapn")
+        tapn = InhibitorNet("Dcr2Pn")
         m = Marking()
         # pre-optimize mapping based on DCR graph behaviour
         if self.preoptimize:
             if self.print_steps:
                 print('[i] preoptimizing')
-            self.preoptimizer.pre_optimize_based_on_dcr_behaviour(G)
+            self.preoptimizer.pre_optimize_based_on_dcr_behaviour(graph)
             if not self.map_unexecutable_events:
-                G = self.preoptimizer.remove_un_executable_events_from_dcr(G)
+                graph = self.preoptimizer.remove_un_executable_events_from_dcr(graph)
 
         # including the handling of exception cases from the induction step
-        G_old = deepcopy(G)
-        G = self.mapping_exceptions.filter_exceptional_cases(G)
+        graph = self.mapping_exceptions.filter_exceptional_cases(graph)
         if self.preoptimize:
             if self.print_steps:
                 print('[i] finding exceptional behaviour')
-            self.preoptimizer.preoptimize_based_on_exceptional_cases(G, self.mapping_exceptions)
+            self.preoptimizer.preoptimize_based_on_exceptional_cases(graph, self.mapping_exceptions)
 
         # map events
         if self.print_steps:
             print('[i] mapping events')
-        for event in G['events']:
-            tapn, m = self.create_event_pattern(event, G, tapn, m)
+        for event in graph['events']:
+            tapn, m = self.create_event_pattern(event, graph, tapn, m)
 
-        if self.debug and tapn_path:
-            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}event', pn_export_format)
+        if self.debug and pn_path:
+            self.export_debug_net(tapn, m, pn_path, f'{induction_step}event', pn_export_format)
             induction_step += 1
-        # all self exceptions have been mapped at this point
 
         sr = single_relations.SingleRelations(self.helper_struct, self.mapping_exceptions)
         # map constraining relations
         if self.print_steps:
             print('[i] map constraining relations')
-        for event in G['conditionsFor']:
-            for event_prime in G['conditionsFor'][event]:
+        for event in graph['conditionsFor']:
+            for event_prime in graph['conditionsFor'][event]:
                 tapn = sr.create_condition_pattern(event, event_prime, tapn)
-                if self.debug and tapn_path:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}conditionsFor', pn_export_format)
+                if self.debug and pn_path:
+                    self.export_debug_net(tapn, m, pn_path, f'{induction_step}conditionsFor', pn_export_format)
                     induction_step += 1
-        if not self.basic:
-            for event in G['milestonesFor']:
-                for event_prime in G['milestonesFor'][event]:
-                    tapn = sr.create_milestone_pattern(event, event_prime, tapn)
-                    if self.debug and tapn_path:
-                        self.export_debug_net(tapn, m, tapn_path, f'{induction_step}milestonesFor', pn_export_format)
-                        induction_step += 1
+        for event in graph['milestonesFor']:
+            for event_prime in graph['milestonesFor'][event]:
+                tapn = sr.create_milestone_pattern(event, event_prime, tapn)
+                if self.debug and pn_path:
+                    self.export_debug_net(tapn, m, pn_path, f'{induction_step}milestonesFor', pn_export_format)
+                    induction_step += 1
 
         # map effect relations
         if self.print_steps:
             print('[i] map effect relations')
-        for event in G['includesTo']:
-            for event_prime in G['includesTo'][event]:
+        for event in graph['includesTo']:
+            for event_prime in graph['includesTo'][event]:
                 tapn = sr.create_include_pattern(event, event_prime, tapn)
-                if self.debug and tapn_path:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}includesTo', pn_export_format)
+                if self.debug and pn_path:
+                    self.export_debug_net(tapn, m, pn_path, f'{induction_step}includesTo', pn_export_format)
                     induction_step += 1
-        for event in G['excludesTo']:
-            for event_prime in G['excludesTo'][event]:
+        for event in graph['excludesTo']:
+            for event_prime in graph['excludesTo'][event]:
                 tapn = sr.create_exclude_pattern(event, event_prime, tapn)
-                if self.debug and tapn_path:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}{event}excludesTo{event_prime}', pn_export_format)
+                if self.debug and pn_path:
+                    self.export_debug_net(tapn, m, pn_path, f'{induction_step}{event}excludesTo{event_prime}', pn_export_format)
                     induction_step += 1
-        for event in G['responseTo']:
-            for event_prime in G['responseTo'][event]:
+        for event in graph['responseTo']:
+            for event_prime in graph['responseTo'][event]:
                 tapn = sr.create_response_pattern(event, event_prime, tapn)
-                if self.debug and tapn_path:
-                    self.export_debug_net(tapn, m, tapn_path, f'{induction_step}responseTo', pn_export_format)
+                if self.debug and pn_path:
+                    self.export_debug_net(tapn, m, pn_path, f'{induction_step}responseTo', pn_export_format)
                     induction_step += 1
-        if not self.basic:
-            for event in G['noResponseTo']:
-                for event_prime in G['noResponseTo'][event]:
-                    tapn = sr.create_no_response_pattern(event, event_prime, tapn)
-                    if self.debug and tapn_path:
-                        self.export_debug_net(tapn, m, tapn_path, f'{induction_step}noResponseTo', pn_export_format)
-                        induction_step += 1
+        for event in graph['noResponseTo']:
+            for event_prime in graph['noResponseTo'][event]:
+                tapn = sr.create_no_response_pattern(event, event_prime, tapn)
+                if self.debug and pn_path:
+                    self.export_debug_net(tapn, m, pn_path, f'{induction_step}noResponseTo', pn_export_format)
+                    induction_step += 1
 
         # handle all relation exceptions
         if self.print_steps:
             print('[i] handle all relation exceptions')
         tapn = self.mapping_exceptions.map_exceptional_cases_between_events(tapn, m)
 
-        if self.debug and tapn_path:
-            self.export_debug_net(tapn, m, tapn_path, f'{induction_step}exceptions', pn_export_format)
+        if self.debug and pn_path:
+            self.export_debug_net(tapn, m, pn_path, f'{induction_step}exceptions', pn_export_format)
             induction_step += 1
 
         # post-optimize based on the petri net reachability graph
         if self.postoptimize:
             if self.print_steps:
                 print('[i] post optimizing')
-            tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, G)
-            # tapn, m = reduction.apply_bounded_net_inhibitor_removal_rule(tapn, m)
-            # tapn, m = reduction.apply_reset_inhibitor_net_reduction(tapn, m)
+            tapn = self.post_optimize_petri_net_reachability_graph(tapn, m, graph)
 
-        if tapn_path:
+        if pn_path:
             if self.print_steps:
-                print(f'[i] export to {tapn_path}')
+                print(f'[i] export to {pn_path}')
 
-            pnml_exporter.apply(tapn, m, tapn_path, variant=pn_export_format, parameters={'isTimed': self.timed})
+            pnml_exporter.apply(tapn, m, pn_path, variant=pn_export_format, parameters={'isTimed': False})
 
         return tapn, m
 
 
 def apply(dcr, parameters):
     d2p = Dcr2PetriNet(**parameters)
-    G = deepcopy(dcr)
-    tapn, m = d2p.apply(G, **parameters)
+    tapn, m = d2p.apply(dcr, **parameters)
     return tapn, m
-
-# def run_specific_dcr():
-#     '''
-#     here you can write your own graph and run it
-#     '''
-#     dcr = {
-#         'events': {'Triage', 'RelA', 'Reg', 'RelB','CRP'},
-#         'conditionsFor': {'RelA': {'Triage','Reg','RelB'}, 'RelB': {'CRP'}},
-#         'milestonesFor': {},
-#         'responseTo': {},
-#         'noResponseTo': {},
-#         'includesTo': {},
-#         'excludesTo': {'Reg': {'Reg'},'RelB': {'RelB'}, 'RelA': {'RelA', 'RelB', 'Triage'}},
-#         'marking': {'executed': set(),
-#                     'included': {'Triage', 'RelA', 'Reg', 'RelB','CRP'},
-#                     'pending': set()
-#                     }
-#     }
-#
-#     d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False)
-#     print('[i] dcr')
-#     tapn, m = d2p.dcr2tapn(dcr, tapn_path="/home/vco/Projects/pm4py-dcr/models/one_petri_test.tapn")
-#
-# def clean_input(dcr, white_space_replacement=None):
-#     if white_space_replacement is None:
-#         white_space_replacement = ''
-#     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
-#     for k, v in deepcopy(dcr).items():
-#         if k in ['includesTo', 'excludesTo', 'conditionsFor', 'responseTo', 'milestonesFor', 'noResponseTo']:
-#             v_new = {}
-#             for k2, v2 in v.items():
-#                 v_new[k2.strip().replace(' ', white_space_replacement)] = set([v3.strip().replace(' ', white_space_replacement) for v3 in v2])
-#             dcr[k] = v_new
-#         elif k in ['conditionsForDelays', 'responseToDeadlines']:
-#             v_new = {}
-#             for k2, v2 in v.items():
-#                 v_new[k2.strip().replace(' ', white_space_replacement)] = set([(v3.strip().replace(' ', white_space_replacement),d) for (v3,d) in v2])
-#             dcr[k] = v_new
-#         elif k == 'marking':
-#             for k2 in ['executed', 'included', 'pending']:
-#                 new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k][k2]])
-#                 dcr[k][k2] = new_v
-#         elif k in ['subprocesses', 'nestings', 'labelMapping', 'roleAssignments', 'readRoleAssignments']:
-#             v_new = {}
-#             for k2, v2 in v.items():
-#                 v_new[k2.strip().replace(' ', white_space_replacement)] = set([v3.strip().replace(' ', white_space_replacement) for v3 in v2])
-#             dcr[k] = v_new
-#         else:
-#             new_v = set([v2.strip().replace(' ', white_space_replacement) for v2 in dcr[k]])
-#             dcr[k] = new_v
-#     return dcr
-#
-#
-# if __name__ == "__main__":
-#     # run_specific_dcr()
-#     import pm4py
-#     from pm4py.algo.discovery.dcr_discover import algorithm as dcr_discover
-#     from pm4py.objects.dcr.exporter import exporter as dcr_exporter
-#
-#     # dcr = {
-#     #     'events': {'A', 'B', 'C'},
-#     #     'conditionsFor': {'B': {'A'}},
-#     #     'milestonesFor': {},
-#     #     'responseTo': {},
-#     #     'noResponseTo': {},
-#     #     'includesTo': {},
-#     #     'excludesTo': {'B': {'A', 'B', 'C'}, 'A': {'A', 'B', 'C'}, 'C': {'A','B','C'}},
-#     #     'conditionsForDelays': {},
-#     #     'responseToDeadlines': {},
-#     #     'marking': {'executed': {},
-#     #                 'included': {'A', 'B', 'C'},
-#     #                 'pending': {},
-#     #                 'pendingDeadline': {}
-#     #                 }
-#     # }
-#
-#     sepsis_log = pm4py.read_xes('/home/vco/Datasets/Sepsis Cases - Event Log.xes', return_legacy_log_object=True)
-#     dcr_sepsis, _ = dcr_discover.apply(sepsis_log)
-#     dcr_sepsis = clean_input(dcr_sepsis, '')
-#     path = '/home/vco/Projects/pm4py-dcr/models/'
-#     dcr_exporter.apply(dcr_sepsis, path+'sepsis.xml')
-#     d2p = Dcr2PetriNet(preoptimize=True, postoptimize=True, map_unexecutable_events=False, debug=False)
-#     file_name = 'sepsis.tapn'
-#     d2p.print_steps = True
-#     tapn = d2p.dcr2tapn(dcr_sepsis, path+file_name)
-#     # file_name = 'me.tapn'
-#     # tapn = d2p.dcr2tapn(dcr, path+file_name)

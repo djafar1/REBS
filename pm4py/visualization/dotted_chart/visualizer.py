@@ -24,7 +24,7 @@ from pm4py.objects.conversion.log import converter as log_converter
 from pm4py.objects.log.obj import EventLog
 from pm4py.util import exec_utils, vis_utils
 from pm4py.visualization.dotted_chart.variants import classic
-from pm4py.util import constants
+from pm4py.util import constants, pandas_utils
 
 
 class Variants(Enum):
@@ -53,7 +53,7 @@ def apply(log_obj: Union[pd.DataFrame, EventLog], attributes: List[str], variant
     if parameters is None:
         parameters = {}
 
-    if isinstance(log_obj, pd.DataFrame):
+    if pandas_utils.check_is_pandas_dataframe(log_obj):
         log_obj = log_obj[list(set(attributes))]
 
     parameters["deepcopy"] = False
@@ -72,20 +72,21 @@ def view(figure: str):
     figure
         Path to the dotted chart
     """
-    if constants.DEFAULT_GVIZ_VIEW == "matplotlib_view":
-        import matplotlib.pyplot as plt
-        import matplotlib.image as mpimg
-        img = mpimg.imread(figure)
-        plt.axis('off')
-        plt.tight_layout(pad=0, w_pad=0, h_pad=0)
-        plt.imshow(img)
-        plt.show()
-        return
+    if constants.DEFAULT_ENABLE_VISUALIZATIONS_VIEW:
+        if constants.DEFAULT_GVIZ_VIEW == "matplotlib_view":
+            import matplotlib.pyplot as plt
+            import matplotlib.image as mpimg
+            img = mpimg.imread(figure)
+            plt.axis('off')
+            plt.tight_layout(pad=0, w_pad=0, h_pad=0)
+            plt.imshow(img)
+            plt.show()
+            return
 
-    if vis_utils.check_visualization_inside_jupyter():
-        vis_utils.view_image_in_jupyter(figure)
-    else:
-        vis_utils.open_opsystem_image_viewer(figure)
+        if vis_utils.check_visualization_inside_jupyter():
+            vis_utils.view_image_in_jupyter(figure)
+        else:
+            vis_utils.open_opsystem_image_viewer(figure)
 
 
 def save(figure: str, output_file_path: str):
@@ -100,6 +101,7 @@ def save(figure: str, output_file_path: str):
         Destination path
     """
     shutil.copyfile(figure, output_file_path)
+    return ""
 
 
 def serialize(figure: str):
@@ -124,9 +126,10 @@ def matplotlib_view(figure: str):
     figure
         Path to the dotted chart
     """
-    import matplotlib.pyplot as plt
-    import matplotlib.image as mpimg
+    if constants.DEFAULT_ENABLE_VISUALIZATIONS_VIEW:
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
 
-    img = mpimg.imread(figure)
-    plt.imshow(img)
-    plt.show()
+        img = mpimg.imread(figure)
+        plt.imshow(img)
+        plt.show()

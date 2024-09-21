@@ -2,7 +2,7 @@ import pm4py
 from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.objects.petri_net.utils import petri_utils
 from examples import examples_conf
-
+import importlib.util
 
 
 def execute_script():
@@ -31,16 +31,16 @@ def execute_script():
     net.transitions.add(t4)
     net.transitions.add(t5)
 
-    petri_utils.add_arc_from_to_with_check(source, t1, net)
-    petri_utils.add_arc_from_to_with_check(t1, p1, net)
-    petri_utils.add_arc_from_to_with_check(p1, t2, net)
-    petri_utils.add_arc_from_to_with_check(t2, p2, net)
-    petri_utils.add_arc_from_to_with_check(p2, t3, net)
-    petri_utils.add_arc_from_to_with_check(t3, p3, net)
-    petri_utils.add_arc_from_to_with_check(p3, t4, net)
-    petri_utils.add_arc_from_to_with_check(t4, p4, net)
-    petri_utils.add_arc_from_to_with_check(p4, t5, net)
-    petri_utils.add_arc_from_to_with_check(t5, sink, net)
+    petri_utils.add_arc_from_to(source, t1, net)
+    petri_utils.add_arc_from_to(t1, p1, net)
+    petri_utils.add_arc_from_to(p1, t2, net)
+    petri_utils.add_arc_from_to(t2, p2, net)
+    petri_utils.add_arc_from_to(p2, t3, net)
+    petri_utils.add_arc_from_to(t3, p3, net)
+    petri_utils.add_arc_from_to(p3, t4, net)
+    petri_utils.add_arc_from_to(t4, p4, net)
+    petri_utils.add_arc_from_to(p4, t5, net)
+    petri_utils.add_arc_from_to(t5, sink, net)
 
     im = Marking()
     im[source] = 1
@@ -48,7 +48,8 @@ def execute_script():
     fm = Marking()
     fm[sink] = 1
 
-    pm4py.view_petri_net(net, im, fm, format=examples_conf.TARGET_IMG_FORMAT)
+    if importlib.util.find_spec("graphviz"):
+        pm4py.view_petri_net(net, im, fm, format=examples_conf.TARGET_IMG_FORMAT)
 
     #pm4py.write_pnml(net, im, fm, "receipt_one_variant.pnml")
 

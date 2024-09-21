@@ -16,7 +16,7 @@
 '''
 from pm4py.algo.organizational_mining.roles.variants import pandas
 from pm4py.algo.organizational_mining.roles.variants import log
-from pm4py.util import exec_utils
+from pm4py.util import exec_utils, pandas_utils
 from enum import Enum
 from typing import Optional, Dict, Any, Union, List
 from pm4py.objects.log.obj import EventLog, EventStream
@@ -30,11 +30,11 @@ class Variants(Enum):
 
 def apply(log: Union[EventLog, EventStream, pd.DataFrame], variant=None, parameters: Optional[Dict[Any, Any]] = None) -> List[Any]:
     """
-    Gets the roles (group of different activities done by similar resources)
+    Gets the distributed (group of different activities done by similar resources)
     out of the log.
 
-    The roles detection is introduced by
-    Burattin, Andrea, Alessandro Sperduti, and Marco Veluscek. "Business models enhancement through discovery of roles." 2013 IEEE Symposium on Computational Intelligence and Data Mining (CIDM). IEEE, 2013.
+    The distributed detection is introduced by
+    Burattin, Andrea, Alessandro Sperduti, and Marco Veluscek. "Business models enhancement through discovery of distributed." 2013 IEEE Symposium on Computational Intelligence and Data Mining (CIDM). IEEE, 2013.
 
 
     Parameters
@@ -50,15 +50,15 @@ def apply(log: Union[EventLog, EventStream, pd.DataFrame], variant=None, paramet
 
     Returns
     ------------
-    roles
-        List of different roles inside the log, including:
+    distributed
+        List of different distributed inside the log, including:
         roles_threshold_parameter => threshold to use with the algorithm
     """
     if parameters is None:
         parameters = {}
 
     if variant is None:
-        if type(log) is pd.DataFrame:
+        if pandas_utils.check_is_pandas_dataframe(log):
             variant = Variants.PANDAS
 
         if variant is None:

@@ -194,7 +194,7 @@ class DcrGraph(object):
     Parameters
     ----------
     template : dict, optional
-        A template dictionary to initialize the roles and assignments from, if provided.
+        A template dictionary to initialize the distributed and assignments from, if provided.
 
     Examples
     --------
@@ -206,7 +206,7 @@ class DcrGraph(object):
     * DCR graph can not be initialized with a partially created template, use DCR_template for easy instantiation
     """
 
-    # initiate the objects: contains events ID, activity, the 4 relations, markings, roles and principals
+    # initiate the objects: contains events ID, activity, the 4 relations, markings, distributed and principals
     def __init__(self, template=None):
         # DisCoveR uses bijective labelling, each event has one label
         #
@@ -314,15 +314,7 @@ class DcrGraph(object):
         """
         for event, label in self.label_map.items():
             if activity == label:
-                # returns only the first event matched
-                # if the intention is to return all events matched then it needs to return a list of strings
                 return event
-        # event = self.__labelMap.get(activity, None)
-        # if event is None:
-        #     return activity
-        # event = event.pop()
-        # self.__labelMap[activity].add(event)
-        # return event
 
     def get_activity(self, event: str) -> str:
         """
@@ -339,13 +331,6 @@ class DcrGraph(object):
             the activity of the event
         """
         return self.label_map[event]
-        # for activity in self.__labelMap:
-        #     event_prime = self.__labelMap[activity]
-        #     event_prime = event_prime.pop()
-        #     self.__labelMap[activity].add(event_prime)
-        #     if event == event_prime:
-        #         return activity
-        # return event
 
     def get_constraints(self) -> int:
         """

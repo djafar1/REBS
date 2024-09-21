@@ -27,7 +27,7 @@ class Checker(ABC):
     The checker class instantiates the conformance checker methods that will be overwritten to perform the determine possible deviations.
     currently supports:
         * For the standard base DCR graph, enabled_checker() and accepting_checker() methods are used
-        * For a DCR Graph with roles, the all_checker() methods was derived to give a means for checking deviating role assignment
+        * For a DCR Graph with distributed, the all_checker() methods was derived to give a means for checking deviating role assignment
 
     Methods
     --------

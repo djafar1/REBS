@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any, Union, List, Tuple
 from pm4py.objects.log.obj import EventLog
 from pm4py.objects.dcr.semantics import DcrSemantics
 from pm4py.objects.dcr.obj import DcrGraph
-from pm4py.objects.dcr.roles.obj import RoleDcrGraph
+from pm4py.objects.dcr.distributed.obj import DistributedDcrGraph
 from pm4py.algo.conformance.dcr.decorators.decorator import ConcreteChecker
 from pm4py.algo.conformance.dcr.decorators.roledecorator import RoleDecorator
 
@@ -52,14 +52,14 @@ class RuleBasedConformance:
             DCR Graph: The DCR graph to be checked
             Event log: The event log to be replayed
             Checker (HandleChecker): handler for the conformance checkers for each rule.
-            Semantics (DCRSemantics()): The semantics used executing events from the event log
+            Semantics (DcrSemantics()): The semantics used executing events from the event log
             Parameters: optinal parameters given by the user
 
         Methods:
             apply_conformance(): performs the replay and computing of conformance of each trace
         """
 
-    def __init__(self, log: Union[EventLog, pd.DataFrame], graph: Union[DcrGraph, RoleDcrGraph],
+    def __init__(self, log: Union[EventLog, pd.DataFrame], graph: Union[DcrGraph, DistributedDcrGraph],
                  parameters: Optional[Dict[Union[str, Any], Any]] = None):
         self.__g = graph
         if isinstance(log, pd.DataFrame):
@@ -74,13 +74,12 @@ class RuleBasedConformance:
         """
         Apply Rule based conformance against a DCR Graph, replays the event log using the DCR graph.
         A DCR Graph will before each execution, check for deviations if the current event to be executed is enabled
-        or if DCR graph contains roles, if events are executed by the correct roles.
+        or if DCR graph contains distributed, if events are executed by the correct distributed.
         Will for each replay of trace check if DCR graph is in an accepting state, if not it determines cause.
 
-        For each replay it compute the fitness of the trace
+        For each replay it computes the fitness of the trace.
 
-        implementation based on the theory provided in [1],
-        and inspired by the Github implementation of conformance checking using trace replay on a DCR graph [2].
+        Implementation based on the theory provided in [1].
 
         Returns
         ----------
@@ -95,8 +94,6 @@ class RuleBasedConformance:
         References
         ----------
         * [1] C. Josep et al., "Conformance Checking Software",  Springer International Publishing, 65-74, 2018. `DOI <https://doi.org/10.1007/978-3-319-99414-7>`_.
-        * [2] Sebastian Dunzer, `<https://github.com/fau-is/cc-dcr/tree/master>`_.
-
         """
 
         # Create list for accumalating each trace data for conformance
@@ -231,18 +228,18 @@ class HandleChecker:
 
     Parameters
     ----------
-    graph: Union[DcrGraph, RoleDcrGraph]
+    graph: Union[DcrGraph, DistributedDcrGraph]
         DCR graph
     """
 
-    def __init__(self, graph: Union[DcrGraph, RoleDcrGraph]):
+    def __init__(self, graph: Union[DcrGraph, DistributedDcrGraph]):
         """
         Constructs the CheckHandler, uses the decorator to add functionality depending on input Graph
             - DCR_Graph construct standard checker
             - RoleDCR_Graph Decorate standard checker with Role Checking functionality
         Parameters
         ----------
-        graph: Union[DcrGraph, RoleDcrGraph]
+        graph: Union[DcrGraph, DistributedDcrGraph]
             DCR Graph
         """
         self.checker = ConcreteChecker()
@@ -250,7 +247,7 @@ class HandleChecker:
         if hasattr(graph, 'roles'):
             self.checker = RoleDecorator(self.checker)
 
-    def enabled_checker(self, event: str, graph: Union[DcrGraph, RoleDcrGraph], deviations: List[Any],
+    def enabled_checker(self, event: str, graph: Union[DcrGraph, DistributedDcrGraph], deviations: List[Any],
                         parameters: Optional[Dict[Any, Any]] = None) -> None:
         """
         Enabled checker called when event is not enabled for execution in trace
@@ -258,7 +255,7 @@ class HandleChecker:
         ----------
         event: str
             Current event in trace
-        graph: Union[DcrGraph, RoleDcrGraph]
+        graph: Union[DcrGraph, DistributedDcrGraph]
             DCR Graph
         deviations: List[Any]
             List of deviations
@@ -267,7 +264,7 @@ class HandleChecker:
         """
         self.checker.enabled_checker(event, graph, deviations, parameters=parameters)
 
-    def all_checker(self, event: str, event_attributes: Dict, graph: Union[DcrGraph, RoleDcrGraph], deviations: List[Any],
+    def all_checker(self, event: str, event_attributes: Dict, graph: Union[DcrGraph, DistributedDcrGraph], deviations: List[Any],
                     parameters: Optional[Dict[Any, Any]] = None) -> None:
         """
         All checker called for each event in trace to check if any deviation happens regardless of being enabled
@@ -278,7 +275,7 @@ class HandleChecker:
             Current event in trace
         event_attributes: Dict
             All event information used for conformance checking
-        graph: Union[DcrGraph, RoleDcrGraph]
+        graph: Union[DcrGraph, DistributedDcrGraph]
             DCR Graph
         deviations: List[Any]
             List of deviations
@@ -288,14 +285,14 @@ class HandleChecker:
         """
         self.checker.all_checker(event, event_attributes, graph, deviations, parameters=parameters)
 
-    def accepting_checker(self, graph: Union[DcrGraph, RoleDcrGraph], response_origin: List[Tuple[str,str]],
+    def accepting_checker(self, graph: Union[DcrGraph, DistributedDcrGraph], response_origin: List[Tuple[str,str]],
                           deviations: List[Any], parameters: Optional[Dict[Any, Any]] = None) -> None:
         """
         Accepting checker, called when the DCR graph at the end of trace execution is not not accepting
 
         Parameters
         ----------
-        graph: Union[DcrGraph, RoleDcrGraph]
+        graph: Union[DcrGraph, DistributedDcrGraph]
             DCR Graph
         response_origin
         deviations: List[Any]
@@ -306,14 +303,13 @@ class HandleChecker:
         self.checker.accepting_checker(graph, response_origin, deviations, parameters=parameters)
 
 
-def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, RoleDcrGraph],
+def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, DistributedDcrGraph],
           parameters: Optional[Dict[Any, Any]] = None):
     """
     Applies rule based conformance checking against a DCR graph and an event log.
     Replays the entire log, executing each event and store potential deviations based on set rules associated with the DCR graph.
 
-    implementation based on the theory provided in [1]_,
-    and inspired by the Github implementation of conformance checking using trace replay on a DCR graph [2]_.
+    Implementation based on the theory provided in [1]_.
 
     Parameters
     -----------
@@ -340,8 +336,6 @@ def apply(log: Union[pd.DataFrame, EventLog], graph: Union[DcrGraph, RoleDcrGrap
     ----------
     .. [1] C. Josep et al., "Conformance Checking Software",
       	Springer International Publishing, 65-74, 2018. `DOI <https://doi.org/10.1007/978-3-319-99414-7>`_.
-    .. [2] Sebastian Dunzer, 'Link <https://github.com/fau-is/cc-dcr/tree/master>.
-
     """
     if parameters is None:
         parameters = {}

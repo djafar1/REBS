@@ -19,7 +19,7 @@ import time
 from pm4py import util as pmutil
 from pm4py.objects.log.obj import Trace
 from pm4py.util import xes_constants as xes_util
-from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to_with_check, remove_place, remove_transition
+from pm4py.objects.petri_net.utils.petri_utils import add_arc_from_to, remove_place, remove_transition
 from pm4py.util import exec_utils
 from enum import Enum
 from copy import deepcopy
@@ -353,9 +353,9 @@ def processing(log: EventLog, causal: Tuple[str, str], follows: Tuple[str, str])
         place = PetriNet.Place(str(pair))
         net.places.add(place)
         for in_arc in pair[0]:
-            add_arc_from_to_with_check(label_transition_dict[in_arc], place, net)
+            add_arc_from_to(label_transition_dict[in_arc], place, net)
         for out_arc in pair[1]:
-            add_arc_from_to_with_check(place, label_transition_dict[out_arc], net)
+            add_arc_from_to(place, label_transition_dict[out_arc], net)
 
     return net, Marking({src: 1}), Marking({sink: 1}), cleaned_pairs
 
@@ -459,8 +459,8 @@ def postprocessing(net: PetriNet, initial_marking: Marking, final_marking: Marki
                 if pair[0].issubset(in_part) and pair[1].issubset(out_part):
                     pair_try_place = PetriNet.Place(str(pair_try))
                     net.places.add(pair_try_place)
-                    add_arc_from_to_with_check(label_transition_dict[key], pair_try_place, net)
-                    add_arc_from_to_with_check(pair_try_place, label_transition_dict[key], net)
+                    add_arc_from_to(label_transition_dict[key], pair_try_place, net)
+                    add_arc_from_to(pair_try_place, label_transition_dict[key], net)
     return net, initial_marking, final_marking
 
 
@@ -525,7 +525,7 @@ def add_source(net, start_activities, label_transition_dict):
     source = PetriNet.Place('start')
     net.places.add(source)
     for s in start_activities:
-        add_arc_from_to_with_check(source, label_transition_dict[s], net)
+        add_arc_from_to(source, label_transition_dict[s], net)
     return source
 
 
@@ -536,7 +536,7 @@ def add_sink(net, end_activities, label_transition_dict):
     end = PetriNet.Place('end')
     net.places.add(end)
     for e in end_activities:
-        add_arc_from_to_with_check(label_transition_dict[e], end, net)
+        add_arc_from_to(label_transition_dict[e], end, net)
     return end
 
 
@@ -612,7 +612,7 @@ def remove_final_hidden_if_possible(net: PetriNet, fm: Marking):
             for trans in source_trans:
                 if trans not in all_sources:
                     all_sources.add(trans)
-                    add_arc_from_to_with_check(trans, sink, net)
+                    add_arc_from_to(trans, sink, net)
             remove_place(net, place)
             i = i + 1
     return net

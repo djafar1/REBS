@@ -23,6 +23,8 @@ from enum import Enum
 
 class Parameters(Enum):
     ENCODING = "encoding"
+    ENABLE_BPMN_PLANE_EXPORTING = "enble_bpmn_plane_exporting"
+    ENABLE_INCOMING_OUTGOING_EXPORTING = "enable_incoming_outgoing_exporting"
 
 
 def apply(bpmn_graph, target_path, parameters=None):
@@ -49,6 +51,8 @@ def get_xml_string(bpmn_graph, parameters=None):
         parameters = {}
 
     encoding = exec_utils.get_param_value(Parameters.ENCODING, parameters, constants.DEFAULT_ENCODING)
+    enble_bpmn_plane_exporting = exec_utils.get_param_value(Parameters.ENABLE_BPMN_PLANE_EXPORTING, parameters, True)
+    enable_incoming_outgoing_exporting = exec_utils.get_param_value(Parameters.ENABLE_INCOMING_OUTGOING_EXPORTING, parameters, True)
 
     layout = bpmn_graph.get_layout()
 
@@ -66,41 +70,59 @@ def get_xml_string(bpmn_graph, parameters=None):
     definitions.set("expressionLanguage", "http://www.w3.org/1999/XPath")
     definitions.set("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
 
-    diagram = ET.SubElement(definitions, "bpmndi:BPMNDiagram", {"id": "id" + str(uuid.uuid4()), "name": "diagram"})
     all_processes = set()
     process_planes = {}
     process_process = {}
+    process_participants = {}
     for node in bpmn_graph.get_nodes():
         all_processes.add(node.get_process())
+    for flow in bpmn_graph.get_flows():
+        all_processes.add(flow.get_process())
+
+    if len(all_processes) > 1:
+        # when several swimlanes exist, their elements should be annexed to the same BPMN plane
+        bpmn_plane_id = "id" + str(uuid.uuid4())
+        process_collaboration = ET.SubElement(definitions, "bpmn:collaboration", {"id": bpmn_plane_id})
+
+        for process in all_processes:
+            part_id = "id" + str(uuid.uuid4())
+            ET.SubElement(process_collaboration, "bpmn:participant", {"id": part_id, "name": process, "processRef": "id" + process })
+            process_participants[process] = part_id
+    else:
+        bpmn_plane_id = "id" + list(all_processes)[0]
 
     for process in all_processes:
-        plane = ET.SubElement(diagram, "bpmndi:BPMNPlane",
-                              {"bpmnElement": "id" + process, "id": "id" + str(uuid.uuid4())})
-        process_planes[process] = plane
-
         p = ET.SubElement(definitions, "bpmn:process",
                           {"id": "id" + process, "isClosed": "false", "isExecutable": "false",
                            "processType": "None"})
         process_process[process] = p
 
-    for node in bpmn_graph.get_nodes():
-        process = node.get_process()
+    diagram = ET.SubElement(definitions, "bpmndi:BPMNDiagram", {"id": "id" + str(uuid.uuid4()), "name": "diagram"})
 
-        node_shape = ET.SubElement(process_planes[process], "bpmndi:BPMNShape",
-                                   {"bpmnElement": node.get_id(), "id": node.get_id() + "_gui"})
-        node_shape_layout = ET.SubElement(node_shape, "omgdc:Bounds",
-                                          {"height": str(layout.get(node).get_height()), "width": str(layout.get(node).get_width()),
-                                           "x": str(layout.get(node).get_x()),
-                                           "y": str(layout.get(node).get_y())})
+    if enble_bpmn_plane_exporting:
+        plane = ET.SubElement(diagram, "bpmndi:BPMNPlane",
+                                  {"bpmnElement": bpmn_plane_id, "id": "id" + str(uuid.uuid4())})
+        for process in all_processes:
+            process_planes[process] = plane
 
-    for flow in bpmn_graph.get_flows():
-        process = flow.get_process()
+        for node in bpmn_graph.get_nodes():
+            process = node.get_process()
 
-        flow_shape = ET.SubElement(process_planes[process], "bpmndi:BPMNEdge",
-                                   {"bpmnElement": "id" + str(flow.get_id()),
-                                    "id": "id" + str(flow.get_id()) + "_gui"})
-        for x, y in layout.get(flow).get_waypoints():
-            waypoint = ET.SubElement(flow_shape, "omgdi:waypoint", {"x": str(x), "y": str(y)})
+            node_shape = ET.SubElement(process_planes[process], "bpmndi:BPMNShape",
+                                       {"bpmnElement": node.get_id(), "id": node.get_id() + "_gui"})
+            node_shape_layout = ET.SubElement(node_shape, "omgdc:Bounds",
+                                              {"height": str(layout.get(node).get_height()), "width": str(layout.get(node).get_width()),
+                                               "x": str(layout.get(node).get_x()),
+                                               "y": str(layout.get(node).get_y())})
+
+        for flow in bpmn_graph.get_flows():
+            process = flow.get_process()
+
+            flow_shape = ET.SubElement(process_planes[process], "bpmndi:BPMNEdge",
+                                       {"bpmnElement": "id" + str(flow.get_id()),
+                                        "id": "id" + str(flow.get_id()) + "_gui"})
+            for x, y in layout.get(flow).get_waypoints():
+                waypoint = ET.SubElement(flow_shape, "omgdi:waypoint", {"x": str(x), "y": str(y)})
 
     for node in bpmn_graph.get_nodes():
         process = process_process[node.get_process()]
@@ -125,26 +147,27 @@ def get_xml_string(bpmn_graph, parameters=None):
             task = ET.SubElement(process, "bpmn:subProcess", {"id": node.get_id(), "name": node.get_name()})
         elif isinstance(node, BPMN.ExclusiveGateway):
             task = ET.SubElement(process, "bpmn:exclusiveGateway",
-                                 {"id": node.get_id(), "gatewayDirection": node.get_gateway_direction().value.lower(),
+                                 {"id": node.get_id(), "gatewayDirection": node.get_gateway_direction().value,
                                   "name": ""})
         elif isinstance(node, BPMN.ParallelGateway):
             task = ET.SubElement(process, "bpmn:parallelGateway",
-                                 {"id": node.get_id(), "gatewayDirection": node.get_gateway_direction().value.lower(),
+                                 {"id": node.get_id(), "gatewayDirection": node.get_gateway_direction().value,
                                   "name": ""})
         elif isinstance(node, BPMN.InclusiveGateway):
             task = ET.SubElement(process, "bpmn:inclusiveGateway",
-                                 {"id": node.get_id(), "gatewayDirection": node.get_gateway_direction().value.lower(),
+                                 {"id": node.get_id(), "gatewayDirection": node.get_gateway_direction().value,
                                   "name": ""})
         else:
             raise Exception("Unexpected node type.")
 
-        for in_arc in node.get_in_arcs():
-            arc_xml = ET.SubElement(task, "bpmn:incoming")
-            arc_xml.text = "id" + str(in_arc.get_id())
+        if enable_incoming_outgoing_exporting:
+            for in_arc in node.get_in_arcs():
+                arc_xml = ET.SubElement(task, "bpmn:incoming")
+                arc_xml.text = "id" + str(in_arc.get_id())
 
-        for out_arc in node.get_out_arcs():
-            arc_xml = ET.SubElement(task, "bpmn:outgoing")
-            arc_xml.text = "id" + str(out_arc.get_id())
+            for out_arc in node.get_out_arcs():
+                arc_xml = ET.SubElement(task, "bpmn:outgoing")
+                arc_xml.text = "id" + str(out_arc.get_id())
 
     for flow in bpmn_graph.get_flows():
         process = process_process[flow.get_process()]

@@ -20,6 +20,8 @@ from itertools import product
 from typing import Hashable, TypeVar, List as TList, Set as TSet
 
 T = TypeVar('T', bound=Hashable)
+
+
 class BinaryRelation:
 
     def __init__(self, nodes: TList[T]):
@@ -48,7 +50,7 @@ class BinaryRelation:
             i = self._map_node_to_id[source]
             j = self._map_node_to_id[target]
         except Exception:
-            raise Exception("Unable to create edge! Invalid  source or target!")
+            raise Exception("Unable to add edge! Source or target not found!")
         else:
             self._edges[i][j] = True
 
@@ -77,7 +79,6 @@ class BinaryRelation:
                     if i != j and j != k and self._edges[i][j] and self._edges[j][k] and not self._edges[i][k]:
                         self._edges[j][k] = False
                         changed = True
-
 
     def add_node(self, node: T) -> None:
         if node not in self._nodes:
@@ -176,3 +177,7 @@ class BinaryRelation:
         return res + "  })"
 
     nodes = property(get_nodes, _set_nodes)
+
+    @property
+    def edges(self):
+        return self._edges

@@ -1,16 +1,38 @@
 import re
 
-from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
+from pandas import Timedelta
+
+from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
 from pm4py.objects.dcr.obj import DcrGraph, TemplateRelations, Relations, dcr_template
 from copy import deepcopy
 
 from pm4py.objects.dcr.timed.obj import TimedDcrGraph
 
 
+def time_to_iso_string(time, time_precision='D'):
+    '''
+
+    Parameters
+    ----------
+    time
+    time_precision: valid values are D H M S
+
+    Returns
+    -------
+
+    '''
+    if not isinstance(time,Timedelta):
+        time = Timedelta(time)
+    iso_time = time.floor(freq='s').isoformat()
+    if time_precision:
+        iso_time = iso_time.split(time_precision)[0] + time_precision
+    return iso_time
+
 def clean_input(graph: DcrGraph, white_space_replacement=None, all=False):
     pattern = '[^0-9a-zA-Z_]+'
     if white_space_replacement is None:
-        white_space_replacement = ' '
+        return graph
+        #white_space_replacement = ' '
     # remove all space characters and put conditions and milestones in the correct order (according to the actual arrows)
     # for k, v in deepcopy(dcr).items():
     for k in [r.value for r in Relations]:
@@ -125,6 +147,7 @@ def map_labels_to_events(graph):
         dcr = graph
     id_to_label = dcr['labelMapping']
     dcr_res = deepcopy(dcr_template)
+    new_label_map = {v:v for k,v in id_to_label.items()}
     for k, v in dcr.items():
         if k in id_to_label:
             k = id_to_label[k]
@@ -154,6 +177,7 @@ def map_labels_to_events(graph):
         else:
             if k not in ['labels', 'roles']:
                 dcr_res[k] = set([id_to_label[i] for i in v])
+    dcr_res['labelMapping'] = new_label_map
     if is_dcr_object:
         return cast_to_dcr_object(dcr_res)
     else:
@@ -165,14 +189,14 @@ def cast_to_dcr_object(dcr):
         from pm4py.objects.dcr.timed.obj import TimedDcrGraph
         return TimedDcrGraph(dcr)
     elif len(dcr['subprocesses']) > 0 or len(dcr['nestedgroups']) > 0:
-        from pm4py.objects.dcr.group_subprocess.obj import GroupSubprocessDcrGraph
-        return GroupSubprocessDcrGraph(dcr)
+        from pm4py.objects.dcr.hierarchical.obj import HierarchicalDcrGraph
+        return HierarchicalDcrGraph(dcr)
     elif len(dcr['noResponseTo']) > 0 or len(dcr['milestonesFor']):
-        from pm4py.objects.dcr.milestone_noresponse.obj import MilestoneNoResponseDcrGraph
-        return MilestoneNoResponseDcrGraph(dcr)
+        from pm4py.objects.dcr.extended.obj import ExtendedDcrGraph
+        return ExtendedDcrGraph(dcr)
     elif len(dcr['roles']) > 0:
-        from pm4py.objects.dcr.roles.obj import RoleDcrGraph
-        return RoleDcrGraph(dcr)
+        from pm4py.objects.dcr.distributed.obj import DistributedDcrGraph
+        return DistributedDcrGraph(dcr)
     else:
         return DcrGraph(dcr)
 
@@ -207,7 +231,7 @@ def time_to_int(graph: TimedDcrGraph, precision='days', inplace=False):
         return graph
 
 
-def get_reverse_nesting(graph: GroupSubprocessDcrGraph):
+def get_reverse_nesting(graph: HierarchicalDcrGraph):
     reverse_nesting = {}
     for k, v in graph.nestedgroups_map.items():
         if v not in reverse_nesting:
@@ -216,7 +240,7 @@ def get_reverse_nesting(graph: GroupSubprocessDcrGraph):
     return reverse_nesting
 
 
-def nested_groups_and_sps_to_flat_dcr(graph: GroupSubprocessDcrGraph) -> DcrGraph:
+def nested_groups_and_sps_to_flat_dcr(graph: HierarchicalDcrGraph) -> DcrGraph:
     graph.nestedgroups = {**graph.nestedgroups, **graph.subprocesses}
     for group, events in graph.subprocesses.items():
         for e in events:

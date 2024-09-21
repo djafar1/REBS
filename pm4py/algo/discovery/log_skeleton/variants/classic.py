@@ -20,7 +20,7 @@ from enum import Enum
 from pm4py.algo.discovery.log_skeleton import trace_skel
 from pm4py.objects.log.util import xes
 from pm4py.util import exec_utils
-from pm4py.util import variants_util
+from pm4py.util import variants_util, pandas_utils
 from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY, PARAMETER_CONSTANT_CASEID_KEY, CASE_CONCEPT_NAME
 from typing import Optional, Dict, Any, Union
 from pm4py.objects.log.obj import EventLog
@@ -108,7 +108,10 @@ def always_after(logs_traces, all_activs, noise_threshold=0):
         for k in rs:
             rs[k] = rs[k] * logs_traces[trace]
         ret0 += rs
-    ret = set(x for x, y in ret0.items() if y >= all_activs[x[0]] * (1.0 - noise_threshold))
+    first_count = Counter()
+    for x, y in ret0.items():
+        first_count[x[0]] += y
+    ret = set(x for x, y in ret0.items() if y >= first_count[x[0]] * (1.0 - noise_threshold))
     return ret
 
 
@@ -136,7 +139,10 @@ def always_before(logs_traces, all_activs, noise_threshold=0):
         for k in rs:
             rs[k] = rs[k] * logs_traces[trace]
         ret0 += rs
-    ret = set(x for x, y in ret0.items() if y >= all_activs[x[0]] * (1.0 - noise_threshold))
+    first_count = Counter()
+    for x, y in ret0.items():
+        first_count[x[0]] += y
+    ret = set(x for x, y in ret0.items() if y >= first_count[x[0]] * (1.0 - noise_threshold))
     return ret
 
 
@@ -272,10 +278,10 @@ def apply(log: Union[EventLog, pd.DataFrame], parameters: Optional[Dict[Union[st
     if type(log) is EventLog:
         logs_traces = Counter([tuple(y[activity_key] for y in x) for x in log])
         all_activs = Counter(list(y[activity_key] for x in log for y in x))
-    elif type(log) is pd.DataFrame:
+    elif pandas_utils.check_is_pandas_dataframe(log):
         case_id_key = exec_utils.get_param_value(Parameters.CASE_ID_KEY, parameters, CASE_CONCEPT_NAME)
         all_activs = log[activity_key].value_counts().to_dict()
-        logs_traces = Counter(list(log.groupby(case_id_key)[activity_key].apply(tuple)))
+        logs_traces = Counter([tuple(x) for x in log.groupby(case_id_key)[activity_key].agg(list).to_dict().values()])
 
     ret = {}
     ret[Outputs.EQUIVALENCE.value] = equivalence(logs_traces, all_activs, noise_threshold=noise_threshold)

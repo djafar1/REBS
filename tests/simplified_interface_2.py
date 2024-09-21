@@ -1,7 +1,7 @@
-import pandas as pd
 import pm4py
 import os
-from pm4py.util import constants
+from pm4py.util import constants, pandas_utils
+import importlib.util
 import unittest
 
 
@@ -61,8 +61,7 @@ class SimplifiedInterface2Test(unittest.TestCase):
         pm4py.convert_log_to_ocel(log)
 
     def test_conversion_ocelcsv_to_ocel(self):
-        import pandas as pd
-        dataframe = pd.read_csv("input_data/ocel/example_log.csv")
+        dataframe = pandas_utils.read_csv("input_data/ocel/example_log.csv")
         pm4py.convert_log_to_ocel(dataframe, activity_column="ocel:activity", timestamp_column="ocel:timestamp")
 
     def test_conversion_petri_to_nx(self):
@@ -70,11 +69,12 @@ class SimplifiedInterface2Test(unittest.TestCase):
         nx_digraph = pm4py.convert_petri_net_to_networkx(net, im, fm)
 
     def test_stochastic_language(self):
-        log1 = pm4py.read_xes("input_data/running-example.xes")
-        log2 = pm4py.read_xes("input_data/running-example.xes", return_legacy_log_object=True)
-        lang1 = pm4py.get_stochastic_language(log1)
-        lang2 = pm4py.get_stochastic_language(log2)
-        pm4py.compute_emd(lang1, lang2)
+        if importlib.util.find_spec("pyemd"):
+            log1 = pm4py.read_xes("input_data/running-example.xes")
+            log2 = pm4py.read_xes("input_data/running-example.xes", return_legacy_log_object=True)
+            lang1 = pm4py.get_stochastic_language(log1)
+            lang2 = pm4py.get_stochastic_language(log2)
+            pm4py.compute_emd(lang1, lang2)
 
     def test_hybrid_ilp_miner(self):
         for legacy_obj in [True, False]:

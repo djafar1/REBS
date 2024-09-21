@@ -18,7 +18,7 @@ M = Relations.M.value
 def apply(path, parameters=None):
     '''
     Reads a DCR graph from an XML file
-
+    Marquard et al. "Web-Based Modelling and Collaborative Simulation of Declarative Processes" https://doi.org/10.1007/978-3-319-23063-4_15
     Parameters
     ----------
     path
@@ -41,7 +41,7 @@ def apply(path, parameters=None):
     return import_xml_tree_from_root(xml_tree.getroot(), **parameters)
 
 
-def import_xml_tree_from_root(root, white_space_replacement='', as_dcr_object=True, labels_as_ids=True):
+def import_xml_tree_from_root(root, white_space_replacement=' ', as_dcr_object=True, labels_as_ids=True):
     dcr = copy.deepcopy(dcr_template)
     dcr = __parse_element__(root, None, dcr)
     dcr = clean_input_as_dict(dcr, white_space_replacement=white_space_replacement)
@@ -103,13 +103,6 @@ def __parse_element__(curr_el, parent, dcr):
                         dcr['marking'][parent.tag].add(id)
                     case 'pendingResponses':
                         dcr['marking']['pending'].add(id)
-                        deadline = curr_el.get('deadline')
-                        if deadline:
-                            if deadline.isdecimal():
-                                deadline = int(deadline)
-                            else:
-                                deadline = isodate.parse_duration(deadline)
-                            dcr['marking']['pendingDeadline'][id] = deadline
                     case _:
                         pass
                 for role in curr_el.findall('.//role'):

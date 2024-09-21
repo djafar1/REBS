@@ -18,6 +18,7 @@ import sys
 from copy import deepcopy, copy
 from enum import Enum
 from typing import Optional, Dict, Any, Union, Tuple
+import numpy as np
 
 from pm4py.algo.conformance.alignments.petri_net import algorithm as ali
 from pm4py.algo.conformance.alignments.petri_net.variants import state_equation_a_star as star
@@ -29,7 +30,7 @@ from pm4py.objects.petri_net.obj import PetriNet, Marking
 from pm4py.statistics.attributes.log.select import select_attributes_from_log_for_tree
 from pm4py.statistics.variants.log import get as variants_module
 from pm4py.util import constants, xes_constants
-from pm4py.util import exec_utils
+from pm4py.util import exec_utils, pandas_utils
 from pm4py.visualization.decisiontree.util import dt_to_string
 import pandas as pd
 
@@ -123,14 +124,15 @@ def get_decision_tree(log: Union[EventLog, pd.DataFrame], net: PetriNet, initial
     classes
         The classes
     """
-    from sklearn import tree
+    from pm4py.util import ml_utils
 
     if parameters is None:
         parameters = {}
 
     X, y, targets = apply(log, net, initial_marking, final_marking, decision_point=decision_point,
                           attributes=attributes, parameters=parameters)
-    dt = tree.DecisionTreeClassifier()
+
+    dt = ml_utils.DecisionTreeClassifier()
     dt = dt.fit(X, y)
     return dt, list(X.columns.values.tolist()), targets
 
@@ -203,11 +205,11 @@ def apply(log: Union[EventLog, pd.DataFrame], net: PetriNet, initial_marking: Ma
         x.append({a: v for a, v in el[0].items() if a in x_attributes and type(v) is str})
         x2.append({a: v for a, v in el[0].items() if a in x_attributes and type(v) is not str})
         y.append(el[1])
-    X = pd.DataFrame(x)
+    X = pandas_utils.instantiate_dataframe(x)
     X = pd.get_dummies(data=X, columns=list(str_attributes))
-    X2 = pd.DataFrame(x2)
-    X = pd.concat([X, X2], axis=1)
-    Y = pd.DataFrame(y, columns=["Name"])
+    X2 = pandas_utils.instantiate_dataframe(x2)
+    X = pandas_utils.concat([X, X2], axis=1)
+    Y = pandas_utils.instantiate_dataframe(y, columns=["Name"])
     Y, targets = encode_target(Y, "Name")
     y = Y['Target']
     return X, y, targets
@@ -526,7 +528,7 @@ def encode_target(df, target_column):
     targets -- list of target names.
     """
     df_mod = df.copy()
-    targets = df_mod[target_column].unique()
+    targets = pandas_utils.format_unique(df_mod[target_column].unique())
     map_to_int = {name: n for n, name in enumerate(targets)}
     df_mod["Target"] = df_mod[target_column].replace(map_to_int)
 

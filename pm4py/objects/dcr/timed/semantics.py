@@ -1,10 +1,10 @@
 from datetime import timedelta
 from typing import Set
 
-from pm4py.objects.dcr.milestone_noresponse.semantics import MilestoneNoResponseSemantics
+from pm4py.objects.dcr.extended.semantics import ExtendedSemantics
 
 
-class TimedSemantics(MilestoneNoResponseSemantics):
+class TimedSemantics(ExtendedSemantics):
 
     def __init__(self, graph):
         self.__can_execute_time = self.create_can_execute_time_dict(graph)
