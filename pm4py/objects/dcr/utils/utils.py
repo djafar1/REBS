@@ -170,7 +170,8 @@ def map_labels_to_events(graph):
                             dcr_res[k][k2][k22] = v22
                         else:
                             dcr_res[k][k2][k22] = set([id_to_label[i] for i in v22])
-
+                elif k in ['nestedgroupsMap']:
+                    dcr_res[k][k2] = id_to_label[v2]
                 elif k not in ['labelMapping']:
                     dcr_res[k][k2] = set([id_to_label[i] for i in v2])
 
