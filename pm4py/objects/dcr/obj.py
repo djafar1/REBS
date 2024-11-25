@@ -315,6 +315,7 @@ class DcrGraph(object):
         for event, label in self.label_map.items():
             if activity == label:
                 return event
+        return activity
 
     def get_activity(self, event: str) -> str:
         """
@@ -330,7 +331,7 @@ class DcrGraph(object):
         activity
             the activity of the event
         """
-        return self.label_map[event]
+        return self.label_map.get(event,event)
 
     def get_constraints(self) -> int:
         """
