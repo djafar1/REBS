@@ -20,6 +20,6 @@ class ExtendedSemantics(DcrSemantics):
             for e_prime in graph.noresponses[event]:
                 graph.marking.pending.discard(e_prime)
 
-        return super().weak_execute(event, graph)
+        return super().execute(event, graph)
 
 
